@@ -6,6 +6,7 @@
     name: "<?php echo $name; ?>",
     description: "Order # <?php echo $merchant_order_id; ?>",
     netbanking: true,
+    currency: "<?php echo $currency_code; ?>",
     prefill: {
       name:"<?php echo $card_holder_name; ?>",
       email: "<?php echo $email; ?>",
