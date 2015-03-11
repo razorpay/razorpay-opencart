@@ -108,7 +108,7 @@ class ControllerPaymentRazorpay extends Controller {
                 exit();
             }   
             else {
-                $this->model_checkout_order->addOrderHistory($this->request->request['merchant_order_id'], 10, 'Payment Failed! Check Razorpay dashboard for details of Payment Id:'.$razorpay_payment_id );
+                $this->model_checkout_order->addOrderHistory($this->request->request['merchant_order_id'], 10, $error.' Payment Failed! Check Razorpay dashboard for details of Payment Id:'.$razorpay_payment_id );
                 echo '<html>' . "\n";
                 echo '<head>' . "\n";
                 echo '  <meta http-equiv="Refresh" content="0; url=' . $this->url->link('checkout/failure') . '">' . "\n";
