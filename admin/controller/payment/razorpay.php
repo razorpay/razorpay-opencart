@@ -10,108 +10,105 @@ class ControllerPaymentRazorpay extends Controller {
         $this->load->model('setting/setting');
             
         if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
-            $this->model_setting_setting->editSetting('razorpay', $this->request->post);             
+            $this->model_setting_setting->editSetting('razorpay', $this->request->post);                
             
+            $this->db->query("DELETE FROM " . DB_PREFIX . "url_alias WHERE query = 'callback=1' AND keyword = 'payment-callback'");
+            $this->db->query("INSERT INTO " . DB_PREFIX . "url_alias SET query = 'callback=1', keyword = 'payment-callback'");
+
             $this->session->data['success'] = $this->language->get('text_success');
 
-            $this->response->redirect($this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL'));
+            $this->redirect($this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL'));
         }
 
-        $data['heading_title'] = $this->language->get('heading_title');
+        $this->data['heading_title'] = $this->language->get('heading_title');
 
-        $data['text_edit'] = $this->language->get('text_edit');
-        $data['text_enabled'] = $this->language->get('text_enabled');
-        $data['text_disabled'] = $this->language->get('text_disabled');
-        $data['text_all_zones'] = $this->language->get('text_all_zones');
-        $data['text_yes'] = $this->language->get('text_yes');
-        $data['text_no'] = $this->language->get('text_no');
+        $this->data['text_enabled'] = $this->language->get('text_enabled');
+        $this->data['text_disabled'] = $this->language->get('text_disabled');
         
-        $data['entry_key_id'] = $this->language->get('entry_key_id');
-        $data['entry_key_secret'] = $this->language->get('entry_key_secret');
-        $data['entry_order_status'] = $this->language->get('entry_order_status');       
-        $data['entry_status'] = $this->language->get('entry_status');
-        $data['entry_sort_order'] = $this->language->get('entry_sort_order');
+        $this->data['entry_key_id'] = $this->language->get('entry_key_id');
+        $this->data['entry_key_secret'] = $this->language->get('entry_key_secret');
+        $this->data['entry_order_status'] = $this->language->get('entry_order_status');       
+        $this->data['entry_status'] = $this->language->get('entry_status');
+        $this->data['entry_sort_order'] = $this->language->get('entry_sort_order');
         
-        $data['button_save'] = $this->language->get('button_save');
-        $data['button_cancel'] = $this->language->get('button_cancel');
+        $this->data['button_save'] = $this->language->get('button_save');
+        $this->data['button_cancel'] = $this->language->get('button_cancel');
 
-        $data['help_key_id'] = $this->language->get('help_key_id');
-        $data['help_order_status'] = $this->language->get('help_order_status');
-         
         if (isset($this->error['warning'])) {
-            $data['error_warning'] = $this->error['warning'];
+            $this->data['error_warning'] = $this->error['warning'];
         } else {
-            $data['error_warning'] = '';
+            $this->data['error_warning'] = '';
+        }
+
+        if (isset($this->error['razorpay_key_id'])) {
+            $this->data['error_key_id'] = $this->error['razorpay_key_id'];
+        } else {
+            $this->data['error_key_id'] = '';
+        }
+
+        if (isset($this->error['razorpay_key_secret'])) {
+            $this->data['error_key_secret'] = $this->error['razorpay_key_secret'];
+        } else {
+            $this->data['error_key_secret'] = '';
         }
         
-        if (isset($this->error['razorpay_key_id'])) {
-            $data['error_key_id'] = $this->error['razorpay_key_id'];
-        } else {
-            $data['error_key_id'] = '';
-        }   
-        
-        if (isset($this->error['razorpay_key_secret'])) {
-            $data['error_key_secret'] = $this->error['razorpay_key_secret'];
-        } else {
-            $data['error_key_secret'] = '';
-        }   
-        
-        $data['breadcrumbs'] = array();
+        $this->data['breadcrumbs'] = array();
 
-        $data['breadcrumbs'][] = array(
+        $this->data['breadcrumbs'][] = array(
             'text'      => $this->language->get('text_home'),
-            'href'      => $this->url->link('common/home', 'token=' . $this->session->data['token'], 'SSL'),            
+            'href'      => $this->url->link('common/home', 'token=' . $this->session->data['token'], 'SSL'),
             'separator' => false
         );
 
-        $data['breadcrumbs'][] = array(
+        $this->data['breadcrumbs'][] = array(
             'text'      => $this->language->get('text_payment'),
             'href'      => $this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL'),
             'separator' => ' :: '
         );
 
-        $data['breadcrumbs'][] = array(
+        $this->data['breadcrumbs'][] = array(
             'text'      => $this->language->get('heading_title'),
             'href'      => $this->url->link('payment/razorpay', 'token=' . $this->session->data['token'], 'SSL'),
             'separator' => ' :: '
         );
                 
-        $data['action'] = $this->url->link('payment/razorpay', 'token=' . $this->session->data['token'], 'SSL');
+        $this->data['action'] = $this->url->link('payment/razorpay', 'token=' . $this->session->data['token'], 'SSL');
         
-        $data['cancel'] = $this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL');
-        
+        $this->data['cancel'] = $this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL');
+    
         if (isset($this->request->post['razorpay_key_id'])) {
-            $data['razorpay_key_id'] = $this->request->post['razorpay_key_id'];
+            $this->data['razorpay_key_id'] = $this->request->post['razorpay_key_id'];
         } else {
-            $data['razorpay_key_id'] = $this->config->get('razorpay_key_id');
+            $this->data['razorpay_key_id'] = $this->config->get('razorpay_key_id');
         }
 
         if (isset($this->request->post['razorpay_key_secret'])) {
-            $data['razorpay_key_secret'] = $this->request->post['razorpay_key_secret'];
+            $this->data['razorpay_key_secret'] = $this->request->post['razorpay_key_secret'];
         } else {
-            $data['razorpay_key_secret'] = $this->config->get('razorpay_key_secret');
+            $this->data['razorpay_key_secret'] = $this->config->get('razorpay_key_secret');
         }
-               
+
         if (isset($this->request->post['razorpay_order_status_id'])) {
-            $data['razorpay_order_status_id'] = $this->request->post['razorpay_order_status_id'];
+            $this->data['razorpay_order_status_id'] = $this->request->post['razorpay_order_status_id'];
         } else {
-            $data['razorpay_order_status_id'] = $this->config->get('razorpay_order_status_id'); 
-        }
-        
+            $this->data['razorpay_order_status_id'] = $this->config->get('razorpay_order_status_id'); 
+        } 
+
         $this->load->model('localisation/order_status');
         
-        $data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
+        $this->data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
+        
         
         if (isset($this->request->post['razorpay_status'])) {
-            $data['razorpay_status'] = $this->request->post['razorpay_status'];
+            $this->data['razorpay_status'] = $this->request->post['razorpay_status'];
         } else {
-            $data['razorpay_status'] = $this->config->get('razorpay_status');
+            $this->data['razorpay_status'] = $this->config->get('razorpay_status');
         }
         
         if (isset($this->request->post['razorpay_sort_order'])) {
-            $data['razorpay_sort_order'] = $this->request->post['razorpay_sort_order'];
+            $this->data['razorpay_sort_order'] = $this->request->post['razorpay_sort_order'];
         } else {
-            $data['razorpay_sort_order'] = $this->config->get('razorpay_sort_order');
+            $this->data['razorpay_sort_order'] = $this->config->get('razorpay_sort_order');
         }
 
         $this->template = 'payment/razorpay.tpl';
@@ -119,11 +116,8 @@ class ControllerPaymentRazorpay extends Controller {
             'common/header',
             'common/footer'
         );
-        $data['header'] = $this->load->controller('common/header');
-        $data['column_left'] = $this->load->controller('common/column_left');
-        $data['footer'] = $this->load->controller('common/footer');
                 
-        $this->response->setOutput($this->load->view('payment/razorpay.tpl', $data));
+        $this->response->setOutput($this->render());
     }
 
     protected function validate() {
@@ -144,6 +138,88 @@ class ControllerPaymentRazorpay extends Controller {
         } else {
             return false;
         }   
+    }
+
+    private function is_serialized($value, &$result = null)
+    {
+        // Bit of a give away this one
+        if (!is_string($value))
+        {
+            return false;
+        }
+        if (empty($value))
+        {
+            return false;
+        }
+        // Serialized false, return true. unserialize() returns false on an
+        // invalid string or it could return false if the string is serialized
+        // false, eliminate that possibility.
+        if ($value === 'b:0;')
+        {
+            $result = false;
+            return true;
+        }
+     
+        $length = strlen($value);
+        $end    = '';
+     
+        switch ($value[0])
+        {
+            case 's':
+                if ($value[$length - 2] !== '"')
+                {
+                    return false;
+                }
+            case 'b':
+            case 'i':
+            case 'd':
+                // This looks odd but it is quicker than isset()ing
+                $end .= ';';
+            case 'a':
+            case 'O':
+                $end .= '}';
+     
+                if ($value[1] !== ':')
+                {
+                    return false;
+                }
+     
+                switch ($value[2])
+                {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    break;
+     
+                    default:
+                        return false;
+                }
+            case 'N':
+                $end .= ';';
+     
+                if ($value[$length - 1] !== $end[0])
+                {
+                    return false;
+                }
+            break;
+     
+            default:
+                return false;
+        }
+     
+        if (($result = @unserialize($value)) === false)
+        {
+            $result = null;
+            return false;
+        }
+        return true;
     }
 }
 ?>
