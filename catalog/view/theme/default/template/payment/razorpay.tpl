@@ -22,8 +22,13 @@
   };
   
   function razorpaySubmit(){                  
-      var rzp1 = new Razorpay(razorpay_options);
-      rzp1.open();
+    var myInterval = setInterval(function(){
+      if (typeof Razorpay != 'undefined') {
+        clearInterval(myInterval);
+        var rzp1 = new Razorpay(razorpay_options);
+        rzp1.open();
+      }
+    },100);
   }  
 
 </script>
