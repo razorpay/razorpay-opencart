@@ -4,7 +4,7 @@ This extension utilizes Razorpay API and provides seamless integration with Ooen
 
 ### Installation
 
-Copy all files/folders recursively to opencart installation directory.. 
+Copy all files/folders recursively to opencart installation directory.
 
 Go to Admin Panel, Extensions->Payments and install the Razorpay gateway extension.
 
@@ -15,6 +15,12 @@ Click on Edit next to Razorpay and do the following:
 - Change plugin status to Enabled
 
 Save the plugin settings
+
+### Development
+
+- The `master` branch holds the plugin for OpenCart 2
+- The `opencart1.5` branch holds the plugin for Opencart 1.5
+- Tags are in either of these two series: `opencart2-2.x.y` or `opencart1.5-1.x.y`
 
 ### Support
 
