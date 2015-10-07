@@ -42,10 +42,10 @@ class ControllerPaymentRazorpay extends Controller
         $key_id = $this->config->get('razorpay_key_id');
         $key_secret = $this->config->get('razorpay_key_secret');
         $fields_string = "amount=$amount";
-        
+
         //cURL Request
         $ch = curl_init();
-        
+
         //set the url, number of POST vars, POST data
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_USERPWD, $key_id.':'.$key_secret);
@@ -74,9 +74,8 @@ class ControllerPaymentRazorpay extends Controller
             $error = '';
 
             try {
-
                 $ch = $this->get_curl_handle($razorpay_payment_id, $amount);
-                
+
                 //execute post
                 $result = curl_exec($ch);
                 $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -84,20 +83,22 @@ class ControllerPaymentRazorpay extends Controller
                 if ($result === false) {
                     $success = false;
                     $error = 'Curl error: '.curl_error($ch);
+
                 } else {
                     $response_array = json_decode($result, true);
-                        //Check success response
-                        if ($http_status === 200 and isset($response_array['error']) === false) {
-                            $success = true;
-                        } else {
-                            $success = false;
 
-                            if (!empty($response_array['error']['code'])) {
-                                $error = $response_array['error']['code'].':'.$response_array['error']['description'];
-                            } else {
-                                $error = 'RAZORPAY_ERROR:Invalid Response <br/>'.$result;
-                            }
+                    //Check success response
+                    if ($http_status === 200 and isset($response_array['error']) === false) {
+                        $success = true;
+                    } else {
+                        $success = false;
+
+                        if (!empty($response_array['error']['code'])) {
+                            $error = $response_array['error']['code'].':'.$response_array['error']['description'];
+                        } else {
+                            $error = 'RAZORPAY_ERROR:Invalid Response <br/>'.$result;
                         }
+                    }
                 }
 
                     //close connection
