@@ -25,14 +25,36 @@ class ControllerPaymentRazorpay extends Controller {
         }
         
     }
+
+    private function get_curl_handle($payment_id, $amount)
+    {
+        $url = 'https://api.razorpay.com/v1/payments/'.$payment_id.'/capture';
+        $key_id = $this->config->get('razorpay_key_id');
+        $key_secret = $this->config->get('razorpay_key_secret');
+        $fields_string="amount=$amount";
+
+        //cURL Request
+        $ch = curl_init();
+
+        //set the url, number of POST vars, POST data
+        curl_setopt($ch,CURLOPT_URL, $url);
+        curl_setopt($ch,CURLOPT_USERPWD, $key_id . ":" . $key_secret);
+        curl_setopt($ch,CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch,CURLOPT_POST, 1);
+        curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch,CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch,CURLOPT_CAINFO, dirname(__FILE__) . '/ca-bundle.crt');
+
+        return $ch;
+    }
     
     public function callback() {
         $this->load->model('checkout/order');
         if(isset($this->request->request['razorpay_payment_id']) and isset($this->request->request['merchant_order_id'])) {
             $razorpay_payment_id = $this->request->request['razorpay_payment_id'];
             $merchant_order_id = $this->request->request['merchant_order_id'];
-            $key_id = $this->config->get('razorpay_key_id');
-            $key_secret = $this->config->get('razorpay_key_secret');
+            
             
             $order_info = $this->model_checkout_order->getOrder($merchant_order_id);       
             $amount = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false)*100;
@@ -41,24 +63,11 @@ class ControllerPaymentRazorpay extends Controller {
             $error = "";
 
             try {
-                    $url = 'https://api.razorpay.com/v1/payments/'.$razorpay_payment_id.'/capture';
-                    $fields_string="amount=$amount";
-
-                    //cURL Request
-                    $ch = curl_init();
-
-                    //set the url, number of POST vars, POST data
-                    curl_setopt($ch,CURLOPT_URL, $url);
-                    curl_setopt($ch,CURLOPT_USERPWD, $key_id . ":" . $key_secret);
-                    curl_setopt($ch,CURLOPT_TIMEOUT, 60);
-                    curl_setopt($ch,CURLOPT_POST, 1);
-                    curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
-                    curl_setopt($ch,CURLOPT_RETURNTRANSFER, TRUE);
+                    $ch = $this->get_curl_handle($razorpay_payment_id, $amount);
 
                     //execute post
                     $result = curl_exec($ch);
                     $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
 
                     if($result === false) {
                         $success = false;

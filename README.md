@@ -8,7 +8,13 @@ Copy all files/folders recursively to opencart installation directory..
 
 Go to Admin Panel, Extensions->Payments and install the Razorpay gateway extension.
 
-Click on Edit next to Razorpay and add your api key id and api key secret and save the extension.
+Click on Edit next to Razorpay and do the following:
+
+- Add your Razorpay Key Id
+- Add your Razorpay Key Secret
+- Change plugin status to Enabled
+
+Save the plugin settings
 
 ### Support
 
