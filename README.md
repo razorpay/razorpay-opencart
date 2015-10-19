@@ -1,6 +1,6 @@
 ## Razorpay Payment Extension for Opencart
 
-This extension utilizes Razorpay API and provides seamless integration with Ooencart, allowing payments for Indian merchants via Credit Cards, Debit Cards, Net Banking (supports 3D Secure) without redirecting away from the opencart site.
+This extension utilizes Razorpay API and provides seamless integration with OpenCart, allowing payments for Indian merchants via Credit Cards, Debit Cards, Net Banking, Wallets, etc.  without redirecting away from the OpenCart site.
 
 ### Installation
 
