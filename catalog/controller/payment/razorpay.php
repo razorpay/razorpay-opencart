@@ -54,9 +54,9 @@ class ControllerPaymentRazorpay extends Controller
     public function callback()
     {
         $this->load->model('checkout/order');
-        if (isset($this->request->request['razorpay_payment_id']) and isset($this->request->request['merchant_order_id'])) {
+        if (isset($this->request->request['razorpay_payment_id'])) {
             $razorpay_payment_id = $this->request->request['razorpay_payment_id'];
-            $merchant_order_id = $this->request->request['merchant_order_id'];
+            $merchant_order_id = $this->session->data['order_id'];
 
             $order_info = $this->model_checkout_order->getOrder($merchant_order_id);
             $amount = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
