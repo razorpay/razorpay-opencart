@@ -140,7 +140,16 @@ class ControllerPaymentRazorpay extends Controller
                 echo '</html>'."\n";
                 exit();
             }
-        } else {
+        } else if (isset($request['error'])) {
+            echo '<html>'."\n";
+            echo '<head>'."\n";
+            echo '</head>'."\n";
+            echo '<body>'."\n";
+            echo $request['error'] . "\n" . '. <p>Please <a href="'.$this->url->link('checkout/checkout').'">click here to go back</a>!</p>'."\n";
+            echo '</body>'."\n";
+            echo '</html>'."\n";
+            exit();
+        }  else {
             echo 'An error occured. Contact site administrator, please!';
         }
     }
