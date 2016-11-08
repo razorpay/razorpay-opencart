@@ -1,14 +1,23 @@
 <?php
 
+require_once __DIR__.'/../razorpay-sdk/Razorpay.php';
+use Razorpay\Api\Api;
+
 class ControllerPaymentRazorpay extends Controller
 {
-    public function index()
+    protected function index()
     {
         $data['button_confirm'] = $this->language->get('button_confirm');
-
+    
         $this->load->model('checkout/order');
 
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
+
+        // Orders API with payment autocapture
+        $api = new Api($this->config->get('razorpay_key_id'), $this->config->get('razorpay_key_secret'));
+        $data = $this->get_order_creation_data($this->session->data['order_id']);   
+        $razorpay_order = $api->order->create($data);
+        $this->session->data['razorpay_order_id'] = $razorpay_order['id'];
 
         $data['key_id'] = $this->config->get('razorpay_key_id');
         $data['currency_code'] = $order_info['currency_code'];
@@ -20,6 +29,7 @@ class ControllerPaymentRazorpay extends Controller
         $data['name'] = $this->config->get('config_name');
         $data['lang'] = $this->session->data['language'];
         $data['return_url'] = $this->url->link('payment/razorpay/callback', '', 'SSL');
+        $data['razorpay_order_id'] = $razorpay_order['id'];
 
         if (file_exists(DIR_TEMPLATE.$this->config->get('config_template').'/template/payment/razorpay.tpl')) {
             return $this->load->view($this->config->get('config_template').'/template/payment/razorpay.tpl', $data);
@@ -28,71 +38,89 @@ class ControllerPaymentRazorpay extends Controller
         }
     }
 
-    private function get_curl_handle($payment_id, $amount)
+    function get_order_creation_data($order_id)
     {
-        $url = 'https://api.razorpay.com/v1/payments/'.$payment_id.'/capture';
-        $key_id = $this->config->get('razorpay_key_id');
-        $key_secret = $this->config->get('razorpay_key_secret');
-        $fields_string = "amount=$amount";
+        $order = $this->model_checkout_order->getOrder($this->session->data['order_id']);
+        
+        switch($this->payment_action)
+        {
+            case 'authorize':
+                $data = array(
+                  'receipt' => $order_id,
+                  'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
+                  'currency' => $order['currency_code'],
+                  'payment_capture' => 0
+                );    
+                break;
 
-        //cURL Request
-        $ch = curl_init();
+            default:
+                $data = array(
+                  'receipt' => $order_id,
+                  'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
+                  'currency' => $order['currency_code'],
+                  'payment_capture' => 1
+                );
+                break;
+        }
 
-        //set the url, number of POST vars, POST data
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_USERPWD, $key_id.':'.$key_secret);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__).'/ca-bundle.crt');
-
-        return $ch;
+        return $data;
     }
+
 
     public function callback()
     {
         $this->load->model('checkout/order');
-        if (isset($this->request->request['razorpay_payment_id'])) {
+
+        if ($this->request->request['razorpay_payment_id']) {
+            
             $razorpay_payment_id = $this->request->request['razorpay_payment_id'];
-            $merchant_order_id = $this->session->data['order_id'];
+            $merchant_order_id = $this->request->request['merchant_order_id'];
+            $razorpay_order_id = $this->session->data['razorpay_order_id']; 
+            $razorpay_signature = $this->request->request['razorpay_signature'];
 
             $order_info = $this->model_checkout_order->getOrder($merchant_order_id);
             $amount = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
 
+            $key_id = $this->config->get('razorpay_key_id');
+            $key_secret = $this->config->get('razorpay_key_secret');
+
+            $api = new Api($key_id, $key_secret);
+
             $success = false;
-            $error = '';
+            $error = "";
+            $captured = false;
 
-            try {
-                $ch = $this->get_curl_handle($razorpay_payment_id, $amount);
+            try 
+            {
+                if ($this->payment_action === 'authorize')
+                {   
+                    $payment = $api->payment->fetch($razorpay_payment_id);
+                }
+                else
+                {   
+                    $signature = hash_hmac('sha256', $razorpay_order_id . '|' . $razorpay_payment_id, $key_secret);
 
-                    //execute post
-                    $result = curl_exec($ch);
-                $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-                if ($result === false) {
-                    $success = false;
-                    $error = 'Curl error: '.curl_error($ch);
-                } else {
-                    $response_array = json_decode($result, true);
-                        //Check success response
-                        if ($http_status === 200 and isset($response_array['error']) === false) {
-                            $success = true;
-                        } else {
-                            $success = false;
-
-                            if (!empty($response_array['error']['code'])) {
-                                $error = $response_array['error']['code'].':'.$response_array['error']['description'];
-                            } else {
-                                $error = 'RAZORPAY_ERROR:Invalid Response <br/>'.$result;
-                            }
-                        }
+                    if (hash_equals($signature , $razorpay_signature))
+                    {
+                        $captured = true;;
+                    }
                 }
 
-                    //close connection
-                    curl_close($ch);
-            } catch (Exception $e) {
+                //Check success response
+                if ($captured)
+                {
+                    $success = true;
+                }
+
+                else{
+                    $success = false;
+
+                    $error = "PAYMENT_ERROR = Payment failed";
+                }
+            }
+
+            catch (Exception $e) 
+            {
                 $success = false;
                 $error = 'OPENCART_ERROR:Request to Razorpay Failed';
             }
@@ -103,7 +131,6 @@ class ControllerPaymentRazorpay extends Controller
                 } else {
                     $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:'.$razorpay_payment_id);
                 }
-
                 echo '<html>'."\n";
                 echo '<head>'."\n";
                 echo '  <meta http-equiv="Refresh" content="0; url='.$this->url->link('checkout/success').'">'."\n";
@@ -125,8 +152,85 @@ class ControllerPaymentRazorpay extends Controller
                 echo '</html>'."\n";
                 exit();
             }
-        } else {
+            
+        }  else {
             echo 'An error occured. Contact site administrator, please!';
         }
+    }
+
+    private function is_serialized($value, &$result = null)
+    {
+        // Bit of a give away this one
+        if (!is_string($value)) {
+            return false;
+        }
+        if (empty($value)) {
+            return false;
+        }
+        // Serialized false, return true. unserialize() returns false on an
+        // invalid string or it could return false if the string is serialized
+        // false, eliminate that possibility.
+        if ($value === 'b:0;') {
+            $result = false;
+
+            return true;
+        }
+
+        $length = strlen($value);
+        $end = '';
+
+        switch ($value[0]) {
+            case 's':
+                if ($value[$length - 2] !== '"') {
+                    return false;
+                }
+            case 'b':
+            case 'i':
+            case 'd':
+                // This looks odd but it is quicker than isset()ing
+                $end .= ';';
+            case 'a':
+            case 'O':
+                $end .= '}';
+
+                if ($value[1] !== ':') {
+                    return false;
+                }
+
+                switch ($value[2]) {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    break;
+
+                    default:
+                        return false;
+                }
+            case 'N':
+                $end .= ';';
+
+                if ($value[$length - 1] !== $end[0]) {
+                    return false;
+                }
+            break;
+
+            default:
+                return false;
+        }
+
+        if (($result = @unserialize($value)) === false) {
+            $result = null;
+
+            return false;
+        }
+
+        return true;
     }
 }
