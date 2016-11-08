@@ -1,5 +1,8 @@
 <?php
 
+require_once __DIR__.'/razorpay-sdk/Razorpay.php';
+use Razorpay\Api\Api;
+
 class ControllerPaymentRazorpay extends Controller
 {
     protected function index()
@@ -16,6 +19,12 @@ class ControllerPaymentRazorpay extends Controller
 
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
+        // Orders API with payment autocapture
+        $api = new Api($this->config->get('razorpay_key_id'), $this->config->get('razorpay_key_secret'));
+        $data = $this->get_order_creation_data($this->session->data['order_id']);   
+        $razorpay_order = $api->order->create($data);
+        $this->session->data['razorpay_order_id'] = $razorpay_order['id'];
+
         $this->data['key_id'] = $this->config->get('razorpay_key_id');
         $this->data['currency_code'] = $order_info['currency_code'];
         $this->data['total'] = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
@@ -26,6 +35,7 @@ class ControllerPaymentRazorpay extends Controller
         $this->data['name'] = $this->config->get('config_name');
         $this->data['lang'] = $this->session->data['language'];
         $this->data['return_url'] = $this->url->link('payment/razorpay/callback', '', 'SSL');
+        $this->data['razorpay_order_id'] = $razorpay_order['id'];
 
         if (file_exists(DIR_TEMPLATE.$this->config->get('config_template').'/template/payment/razorpay.tpl')) {
             $this->template = $this->config->get('config_template').'/template/payment/razorpay.tpl';
@@ -36,74 +46,89 @@ class ControllerPaymentRazorpay extends Controller
         $this->render();
     }
 
-    private function get_curl_handle($payment_id, $amount)
+    function get_order_creation_data($order_id)
     {
-        $url = 'https://api.razorpay.com/v1/payments/'.$payment_id.'/capture';
-        $key_id = $this->config->get('razorpay_key_id');
-        $key_secret = $this->config->get('razorpay_key_secret');
-        $fields_string = "amount=$amount";
+        $order = $this->model_checkout_order->getOrder($this->session->data['order_id']);
+        
+        switch($this->payment_action)
+        {
+            case 'authorize':
+                $data = array(
+                  'receipt' => $order_id,
+                  'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
+                  'currency' => $order['currency_code'],
+                  'payment_capture' => 0
+                );    
+                break;
 
-        //cURL Request
-        $ch = curl_init();
+            default:
+                $data = array(
+                  'receipt' => $order_id,
+                  'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
+                  'currency' => $order['currency_code'],
+                  'payment_capture' => 1
+                );
+                break;
+        }
 
-        //set the url, number of POST vars, POST data
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_USERPWD, $key_id.':'.$key_secret);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__).'/ca-bundle.crt');
-
-        return $ch;
+        return $data;
     }
+
 
     public function callback()
     {
         $request_params = array_merge($_GET, $_POST);
         $this->load->model('checkout/order');
         if (isset($request_params['razorpay_payment_id']) and isset($request_params['merchant_order_id'])) {
+            
             $razorpay_payment_id = $request_params['razorpay_payment_id'];
             $merchant_order_id = $request_params['merchant_order_id'];
+            $razorpay_order_id = $this->session->data['razorpay_order_id']; // session variable
+            $razorpay_signature = $request_params['razorpay_signature'];
 
             $order_info = $this->model_checkout_order->getOrder($merchant_order_id);
             $amount = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
 
+            $key_id = $this->config->get('razorpay_key_id');
+            $key_secret = $this->config->get('razorpay_key_secret');
+
+            $api = new Api($key_id, $key_secret);
+
             $success = false;
-            $error = '';
+            $error = "";
+            $captured = false;
 
-            try {
-                $ch = $this->get_curl_handle($razorpay_payment_id, $amount);
+            try 
+            {
+                if ($this->payment_action === 'authorize')
+                {   
+                    $payment = $api->payment->fetch($razorpay_payment_id);
+                }
+                else
+                {   
+                    $signature = hash_hmac('sha256', $razorpay_order_id . '|' . $razorpay_payment_id, $key_secret);
 
-                //execute post
-                $result = curl_exec($ch);
-                $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-                if ($result === false) {
-                    $success = false;
-                    $error = 'Curl error: '.curl_error($ch);
-
-                } else {
-                    $response_array = json_decode($result, true);
-
-                    //Check success response
-                    if ($http_status === 200 and isset($response_array['error']) === false) {
-                        $success = true;
-                    } else {
-                        $success = false;
-
-                        if (!empty($response_array['error']['code'])) {
-                            $error = $response_array['error']['code'].':'.$response_array['error']['description'];
-                        } else {
-                            $error = 'RAZORPAY_ERROR:Invalid Response <br/>'.$result;
-                        }
+                    if (hash_equals($signature , $razorpay_signature))
+                    {
+                        $captured = true;;
                     }
                 }
 
-                    //close connection
-                    curl_close($ch);
-            } catch (Exception $e) {
+                //Check success response
+                if ($captured)
+                {
+                    $success = true;
+                }
+
+                else{
+                    $success = false;
+
+                    $error = "PAYMENT_ERROR = Payment failed";
+                }
+            }
+
+            catch (Exception $e) 
+            {
                 $success = false;
                 $error = 'OPENCART_ERROR:Request to Razorpay Failed';
             }
