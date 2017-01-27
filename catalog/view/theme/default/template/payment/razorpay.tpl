@@ -32,6 +32,11 @@
       }
     } else {
       if(!razorpay_instance){
+        <?php if ($display_currency !== $currency_code) { ?>
+          razorpay_options.display_currency = "<?php echo $display_currency; ?>";
+          razorpay_options.display_amount = "<?php echo $display_total; ?>";
+          <?php 
+        } ?>
         razorpay_instance = new Razorpay(razorpay_options);
         if(razorpay_submit_btn){
           razorpay_submit_btn.disabled = false;
