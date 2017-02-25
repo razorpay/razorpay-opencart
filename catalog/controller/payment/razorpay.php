@@ -5,18 +5,21 @@ use Razorpay\Api\Api;
 
 class ControllerPaymentRazorpay extends Controller
 {
-    protected function index()
+    public function index()
     {
         $data['button_confirm'] = $this->language->get('button_confirm');
-    
+
         $this->load->model('checkout/order');
 
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
         // Orders API with payment autocapture
         $api = new Api($this->config->get('razorpay_key_id'), $this->config->get('razorpay_key_secret'));
-        $data = $this->get_order_creation_data($this->session->data['order_id']);   
-        $razorpay_order = $api->order->create($data);
+
+        $orderData = $this->get_order_creation_data($this->session->data['order_id']);   
+
+        $razorpay_order = $api->order->create($orderData);
+
         $this->session->data['razorpay_order_id'] = $razorpay_order['id'];
 
         $data['key_id'] = $this->config->get('razorpay_key_id');
@@ -100,7 +103,7 @@ class ControllerPaymentRazorpay extends Controller
                 {   
                     $signature = hash_hmac('sha256', $razorpay_order_id . '|' . $razorpay_payment_id, $key_secret);
 
-                    if (hash_equals($signature , $razorpay_signature))
+                    if ($this->hash_equals($signature , $razorpay_signature))
                     {
                         $captured = true;;
                     }
@@ -156,6 +159,26 @@ class ControllerPaymentRazorpay extends Controller
         }  else {
             echo 'An error occured. Contact site administrator, please!';
         }
+    }
+
+    protected function hash_equals($str1, $str2)
+    {
+        if (function_exists('hash_equals'))
+        {
+            return hash_equals($str1, $str2);
+        }
+        if (strlen($str1) !== strlen($str2)) 
+        {
+            return false;
+        }
+        $result = 0;
+        
+        for ($i = 0; $i < strlen($str1); $i++) 
+        {
+            $result |= ord($str1[$i]) ^ ord($str2[$i]);
+        }
+        
+        return ($result == 0);
     }
 
     private function is_serialized($value, &$result = null)
