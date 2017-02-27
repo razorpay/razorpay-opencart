@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.'/razorpay-sdk/Razorpay.php';
+require_once __DIR__.'/../../../system/library/razorpay-sdk/Razorpay.php';
 use Razorpay\Api\Api;
 
 class ControllerPaymentRazorpay extends Controller
@@ -49,27 +49,14 @@ class ControllerPaymentRazorpay extends Controller
     function get_order_creation_data($order_id)
     {
         $order = $this->model_checkout_order->getOrder($this->session->data['order_id']);
-        
-        switch($this->payment_action)
-        {
-            case 'authorize':
-                $data = array(
-                  'receipt' => $order_id,
-                  'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
-                  'currency' => $order['currency_code'],
-                  'payment_capture' => 0
-                );    
-                break;
 
-            default:
-                $data = array(
-                  'receipt' => $order_id,
-                  'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
-                  'currency' => $order['currency_code'],
-                  'payment_capture' => 1
-                );
-                break;
-        }
+        $data = [
+            'receipt' => $order_id,
+            'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
+            'currency' => $order['currency_code'],
+        ];
+
+        $data['payment_capture'] = ($this->payment_capture === 'authorize') ? 0 : 1;
 
         return $data;
     }
@@ -108,7 +95,7 @@ class ControllerPaymentRazorpay extends Controller
                 {   
                     $signature = hash_hmac('sha256', $razorpay_order_id . '|' . $razorpay_payment_id, $key_secret);
 
-                    if (hash_equals($signature , $razorpay_signature))
+                    if ($this->hash_equals($signature , $razorpay_signature))
                     {
                         $captured = true;;
                     }
@@ -168,6 +155,30 @@ class ControllerPaymentRazorpay extends Controller
         }  else {
             echo 'An error occured. Contact site administrator, please!';
         }
+    }
+
+    /*
+     * Taken from https://stackoverflow.com/questions/10576827/secure-string-compare-function
+     * under the MIT license
+     */
+    protected function hash_equals($actual, $generated)
+    {
+        if (function_exists('hash_equals'))
+        {
+            return hash_equals($actual, $generated);
+        }
+        if (strlen($actual) !== strlen($generated)) 
+        {
+            return false;
+        }
+        $result = 0;
+        
+        for ($i = 0; $i < strlen($actual); $i++) 
+        {
+            $result |= ord($actual[$i]) ^ ord($generated[$i]);
+        }
+        
+        return ($result == 0);
     }
 
     private function is_serialized($value, &$result = null)
