@@ -42,26 +42,13 @@ class ControllerExtensionPaymentRazorpay extends Controller
     {
         $order = $this->model_checkout_order->getOrder($this->session->data['order_id']);
         
-        switch($this->payment_action)
-        {
-            case 'authorize':
-                $data = array(
-                  'receipt' => $order_id,
-                  'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
-                  'currency' => $order['currency_code'],
-                  'payment_capture' => 0
-                );    
-                break;
+        $data = [
+            'receipt' => $order_id,
+            'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
+            'currency' => $order['currency_code'],
+        ];
 
-            default:
-                $data = array(
-                  'receipt' => $order_id,
-                  'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
-                  'currency' => $order['currency_code'],
-                  'payment_capture' => 1
-                );
-                break;
-        }
+        $data['payment_capture'] = ($this->payment_action === 'authorize') ? 0 : 1;
 
         return $data;
     }
@@ -111,8 +98,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 {
                     $success = true;
                 }
-
-                else{
+                else
+                {
                     $success = false;
 
                     $error = "PAYMENT_ERROR = Payment failed";
@@ -125,10 +112,14 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 $error = 'OPENCART_ERROR:Request to Razorpay Failed';
             }
 
-            if ($success === true) {
-                if (!$order_info['order_status_id']) {
+            if ($success === true) 
+            {
+                if (!$order_info['order_status_id']) 
+                {
                     $this->model_checkout_order->confirm($merchant_order_id, $this->config->get('razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:'.$razorpay_payment_id, true);
-                } else {
+                } 
+                else 
+                {
                     $this->model_checkout_order->update($merchant_order_id, $this->config->get('razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:'.$razorpay_payment_id, true);
                 }
 
@@ -141,10 +132,15 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 echo '</body>'."\n";
                 echo '</html>'."\n";
                 exit();
-            } else {
-                if (!$order_info['order_status_id']) {
+            } 
+            else 
+            {
+                if (!$order_info['order_status_id']) 
+                {
                     $this->model_checkout_order->confirm($merchant_order_id, 10, $error.' Payment Failed! Check Razorpay dashboard for details of Payment Id:'.$razorpay_payment_id, true);
-                } else {
+                } 
+                else 
+                {
                     $this->model_checkout_order->update($merchant_order_id, 10, $error.' Payment Failed! Check Razorpay dashboard for details of Payment Id:'.$razorpay_payment_id, true);
                 }
 
@@ -157,7 +153,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 echo '</html>'."\n";
                 exit();
             }
-        } else {
+        } 
+        else 
+        {
             echo 'An error occured. Contact site administrator, please!';
         }
     }
