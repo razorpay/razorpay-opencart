@@ -34,6 +34,7 @@ class ControllerPaymentRazorpay extends Controller
         $data['entry_order_status'] = $this->language->get('entry_order_status');
         $data['entry_status'] = $this->language->get('entry_status');
         $data['entry_sort_order'] = $this->language->get('entry_sort_order');
+        $data['entry_geo_zone'] = $this->language->get('entry_geo_zone');
 
         $data['button_save'] = $this->language->get('button_save');
         $data['button_cancel'] = $this->language->get('button_cancel');
@@ -104,6 +105,16 @@ class ControllerPaymentRazorpay extends Controller
         $this->load->model('localisation/order_status');
 
         $data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
+
+        if (isset($this->request->post['razorpay_geo_zone_id'])) {
+            $data['razorpay_geo_zone_id'] = $this->request->post['razorpay_geo_zone_id'];
+        } else {
+            $data['razorpay_geo_zone_id'] = $this->config->get('razorpay_geo_zone_id'); 
+        } 
+
+        $this->load->model('localisation/geo_zone');
+                                        
+        $data['geo_zones'] = $this->model_localisation_geo_zone->getGeoZones();
 
         if (isset($this->request->post['razorpay_status'])) {
             $data['razorpay_status'] = $this->request->post['razorpay_status'];

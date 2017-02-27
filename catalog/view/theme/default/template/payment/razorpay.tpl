@@ -34,6 +34,11 @@
         el.value = 'Please wait...';  
       }
     } else {
+      <?php if ($display_currency !== $currency_code) { ?>
+          razorpay_options.display_currency = "<?php echo $display_currency; ?>";
+          razorpay_options.display_amount = "<?php echo $display_total; ?>";
+          <?php 
+      } ?>
       if(!razorpay_instance){
         razorpay_instance = new Razorpay(razorpay_options);
         if(razorpay_submit_btn){
