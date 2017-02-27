@@ -34,6 +34,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['entry_order_status'] = $this->language->get('entry_order_status');
         $data['entry_status'] = $this->language->get('entry_status');
         $data['entry_sort_order'] = $this->language->get('entry_sort_order');
+        $data['entry_geo_zone'] = $this->language->get('entry_geo_zone');
 
         $data['button_save'] = $this->language->get('button_save');
         $data['button_cancel'] = $this->language->get('button_cancel');
