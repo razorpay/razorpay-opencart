@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.'/../razorpay-sdk/Razorpay.php';
+require_once __DIR__.'/../../../system/library/razorpay-sdk/Razorpay.php';
 use Razorpay\Api\Api;
 
 class ControllerPaymentRazorpay extends Controller
