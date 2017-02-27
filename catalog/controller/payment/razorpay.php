@@ -19,13 +19,16 @@ class ControllerPaymentRazorpay extends Controller
 
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
+        $key_id = $this->config->get('razorpay_key_id');
+        $key_secret = $this->config->get('razorpay_key_secret');
+
         // Orders API with payment autocapture
-        $api = new Api($this->config->get('razorpay_key_id'), $this->config->get('razorpay_key_secret'));
+        $api = new Api($key_id, $key_secret);
         $data = $this->get_order_creation_data($this->session->data['order_id']);   
         $razorpay_order = $api->order->create($data);
         $this->session->data['razorpay_order_id'] = $razorpay_order['id'];
 
-        $this->data['key_id'] = $this->config->get('razorpay_key_id');
+        $this->data['key_id'] = $key_id;
         $this->data['currency_code'] = $order_info['currency_code'];
         $this->data['total'] = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
         $this->data['merchant_order_id'] = $this->session->data['order_id'];
@@ -91,7 +94,7 @@ class ControllerPaymentRazorpay extends Controller
             {
                 $success = false;
 
-                $error = "PAYMENT_ERROR = Payment failed";
+                $error = "PAYMENT_ERROR := Payment failed";
             }
 
             if ($success === true) 
