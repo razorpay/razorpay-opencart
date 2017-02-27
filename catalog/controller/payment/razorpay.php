@@ -40,9 +40,12 @@ class ControllerPaymentRazorpay extends Controller
         $this->data['return_url'] = $this->url->link('payment/razorpay/callback', '', 'SSL');
         $this->data['razorpay_order_id'] = $razorpay_order['id'];
 
-        if (file_exists(DIR_TEMPLATE.$this->config->get('config_template').'/template/payment/razorpay.tpl')) {
+        if (file_exists(DIR_TEMPLATE.$this->config->get('config_template').'/template/payment/razorpay.tpl')) 
+        {
             $this->template = $this->config->get('config_template').'/template/payment/razorpay.tpl';
-        } else {
+        } 
+        else 
+        {
             $this->template = 'default/template/payment/razorpay.tpl';
         }
 
@@ -63,13 +66,12 @@ class ControllerPaymentRazorpay extends Controller
         return $data;
     }
 
-
     public function callback()
     {
         $request_params = array_merge($_GET, $_POST);
         $this->load->model('checkout/order');
-        if (isset($request_params['razorpay_payment_id']) and isset($request_params['merchant_order_id'])) {
-            
+        if (isset($request_params['razorpay_payment_id']) and isset($request_params['merchant_order_id'])) 
+        {    
             $razorpay_payment_id = $request_params['razorpay_payment_id'];
             $merchant_order_id = $request_params['merchant_order_id'];
             $razorpay_order_id = $this->session->data['razorpay_order_id']; // session variable
@@ -82,20 +84,10 @@ class ControllerPaymentRazorpay extends Controller
             $key_secret = $this->config->get('razorpay_key_secret');
 
             $success = false;
-            $error = "";
 
             $signature = hash_hmac('sha256', $razorpay_order_id . '|' . $razorpay_payment_id, $key_secret);
 
-            if ($this->hash_equals($signature , $razorpay_signature))
-            {
-                $success = true;;
-            }
-            else
-            {
-                $success = false;
-
-                $error = "PAYMENT_ERROR := Payment failed";
-            }
+            $success = $this->hash_equals($signature, $razorpay_signature);
 
             if ($success === true) 
             {
@@ -120,6 +112,8 @@ class ControllerPaymentRazorpay extends Controller
             } 
             else 
             {
+                $error = "PAYMENT_ERROR : Payment failed";
+
                 if (!$order_info['order_status_id']) {
                     $this->model_checkout_order->confirm($merchant_order_id, 10, $error.' Payment Failed! Check Razorpay dashboard for details of Payment Id:'.$razorpay_payment_id, true);
                 } 
