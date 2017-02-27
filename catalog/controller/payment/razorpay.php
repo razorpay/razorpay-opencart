@@ -50,13 +50,12 @@ class ControllerPaymentRazorpay extends Controller
     {
         $order = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
-        $data = [
+        $data = array(
             'receipt' => $order_id,
             'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
             'currency' => $order['currency_code'],
-        ];
-
-        $data['payment_capture'] = ($this->payment_capture === 'authorize') ? 0 : 1;
+            'payment_capture' => ($this->payment_capture === 'authorize') ? 0 : 1
+        );
 
         return $data;
     }
@@ -79,51 +78,30 @@ class ControllerPaymentRazorpay extends Controller
             $key_id = $this->config->get('razorpay_key_id');
             $key_secret = $this->config->get('razorpay_key_secret');
 
-            $api = new Api($key_id, $key_secret);
-
             $success = false;
             $error = "";
-            $captured = false;
 
-            try 
+            $signature = hash_hmac('sha256', $razorpay_order_id . '|' . $razorpay_payment_id, $key_secret);
+
+            if ($this->hash_equals($signature , $razorpay_signature))
             {
-                if ($this->payment_action === 'authorize')
-                {   
-                    $payment = $api->payment->fetch($razorpay_payment_id);
-                }
-                else
-                {   
-                    $signature = hash_hmac('sha256', $razorpay_order_id . '|' . $razorpay_payment_id, $key_secret);
-
-                    if ($this->hash_equals($signature , $razorpay_signature))
-                    {
-                        $captured = true;;
-                    }
-                }
-
-                //Check success response
-                if ($captured)
-                {
-                    $success = true;
-                }
-
-                else{
-                    $success = false;
-
-                    $error = "PAYMENT_ERROR = Payment failed";
-                }
+                $success = true;;
             }
-
-            catch (Exception $e) 
+            else
             {
                 $success = false;
-                $error = 'OPENCART_ERROR:Request to Razorpay Failed';
+
+                $error = "PAYMENT_ERROR = Payment failed";
             }
 
-            if ($success === true) {
-                if (!$order_info['order_status_id']) {
+            if ($success === true) 
+            {
+                if (!$order_info['order_status_id']) 
+                {
                     $this->model_checkout_order->confirm($merchant_order_id, $this->config->get('razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:'.$razorpay_payment_id, true);
-                } else {
+                } 
+                else 
+                {
                     $this->model_checkout_order->update($merchant_order_id, $this->config->get('razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:'.$razorpay_payment_id, true);
                 }
 
@@ -136,10 +114,14 @@ class ControllerPaymentRazorpay extends Controller
                 echo '</body>'."\n";
                 echo '</html>'."\n";
                 exit();
-            } else {
+            } 
+            else 
+            {
                 if (!$order_info['order_status_id']) {
                     $this->model_checkout_order->confirm($merchant_order_id, 10, $error.' Payment Failed! Check Razorpay dashboard for details of Payment Id:'.$razorpay_payment_id, true);
-                } else {
+                } 
+                else 
+                {
                     $this->model_checkout_order->update($merchant_order_id, 10, $error.' Payment Failed! Check Razorpay dashboard for details of Payment Id:'.$razorpay_payment_id, true);
                 }
 
@@ -152,7 +134,9 @@ class ControllerPaymentRazorpay extends Controller
                 echo '</html>'."\n";
                 exit();
             }
-        }  else {
+        }  
+        else 
+        {
             echo 'An error occured. Contact site administrator, please!';
         }
     }
@@ -167,10 +151,12 @@ class ControllerPaymentRazorpay extends Controller
         {
             return hash_equals($actual, $generated);
         }
+
         if (strlen($actual) !== strlen($generated)) 
         {
             return false;
         }
+
         $result = 0;
         
         for ($i = 0; $i < strlen($actual); $i++) 
