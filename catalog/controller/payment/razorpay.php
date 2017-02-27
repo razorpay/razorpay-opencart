@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.'/../razorpay-sdk/Razorpay.php';
+require_once __DIR__.'/../../../system/library/razorpay-sdk/Razorpay.php';
 use Razorpay\Api\Api;
 
 class ControllerPaymentRazorpay extends Controller
@@ -13,8 +13,11 @@ class ControllerPaymentRazorpay extends Controller
 
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
+        $keyId = $this->config->get('razorpay_key_id'); 
+        $keySecret = $this->config->get('razorpay_key_secret');
+
         // Orders API with payment autocapture
-        $api = new Api($this->config->get('razorpay_key_id'), $this->config->get('razorpay_key_secret'));
+        $api = new Api($keyId, $keySecret);
 
         $orderData = $this->get_order_creation_data($this->session->data['order_id']);   
 
@@ -22,7 +25,7 @@ class ControllerPaymentRazorpay extends Controller
 
         $this->session->data['razorpay_order_id'] = $razorpay_order['id'];
 
-        $data['key_id'] = $this->config->get('razorpay_key_id');
+        $data['key_id'] = $keyId;
         $data['currency_code'] = $order_info['currency_code'];
         $data['total'] = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
         $data['merchant_order_id'] = $this->session->data['order_id'];
@@ -34,9 +37,12 @@ class ControllerPaymentRazorpay extends Controller
         $data['return_url'] = $this->url->link('payment/razorpay/callback', '', 'SSL');
         $data['razorpay_order_id'] = $razorpay_order['id'];
 
-        if (file_exists(DIR_TEMPLATE.$this->config->get('config_template').'/template/payment/razorpay.tpl')) {
+        if (file_exists(DIR_TEMPLATE.$this->config->get('config_template').'/template/payment/razorpay.tpl')) 
+        {
             return $this->load->view($this->config->get('config_template').'/template/payment/razorpay.tpl', $data);
-        } else {
+        } 
+        else 
+        {
             return $this->load->view('payment/razorpay', $data);
         }
     }
@@ -45,26 +51,12 @@ class ControllerPaymentRazorpay extends Controller
     {
         $order = $this->model_checkout_order->getOrder($this->session->data['order_id']);
         
-        switch($this->payment_action)
-        {
-            case 'authorize':
-                $data = array(
-                  'receipt' => $order_id,
-                  'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
-                  'currency' => $order['currency_code'],
-                  'payment_capture' => 0
-                );    
-                break;
-
-            default:
-                $data = array(
-                  'receipt' => $order_id,
-                  'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
-                  'currency' => $order['currency_code'],
-                  'payment_capture' => 1
-                );
-                break;
-        }
+        $data = array(
+            'receipt' => $order_id,
+            'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
+            'currency' => $order['currency_code'],
+            'payment_capture' => $this->payment_action === 'authorize' ? 0 : 1
+        );
 
         return $data;
     }
@@ -74,8 +66,8 @@ class ControllerPaymentRazorpay extends Controller
     {
         $this->load->model('checkout/order');
 
-        if ($this->request->request['razorpay_payment_id']) {
-            
+        if ($this->request->request['razorpay_payment_id']) 
+        {    
             $razorpay_payment_id = $this->request->request['razorpay_payment_id'];
             $merchant_order_id = $this->request->request['merchant_order_id'];
             $razorpay_order_id = $this->session->data['razorpay_order_id']; 
@@ -87,53 +79,24 @@ class ControllerPaymentRazorpay extends Controller
             $key_id = $this->config->get('razorpay_key_id');
             $key_secret = $this->config->get('razorpay_key_secret');
 
-            $api = new Api($key_id, $key_secret);
-
             $success = false;
             $error = "";
-            $captured = false;
 
-            try 
+            $signature = hash_hmac('sha256', $razorpay_order_id . '|' . $razorpay_payment_id, $key_secret);
+
+            $success = $this->hash_equals($signature , $razorpay_signature);
+
+            if ($success === true) 
             {
-                if ($this->payment_action === 'authorize')
-                {   
-                    $payment = $api->payment->fetch($razorpay_payment_id);
-                }
-                else
-                {   
-                    $signature = hash_hmac('sha256', $razorpay_order_id . '|' . $razorpay_payment_id, $key_secret);
-
-                    if ($this->hash_equals($signature , $razorpay_signature))
-                    {
-                        $captured = true;;
-                    }
-                }
-
-                //Check success response
-                if ($captured)
+                if (!$order_info['order_status_id']) 
                 {
-                    $success = true;
-                }
-
-                else{
-                    $success = false;
-
-                    $error = "PAYMENT_ERROR = Payment failed";
-                }
-            }
-
-            catch (Exception $e) 
-            {
-                $success = false;
-                $error = 'OPENCART_ERROR:Request to Razorpay Failed';
-            }
-
-            if ($success === true) {
-                if (!$order_info['order_status_id']) {
                     $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:'.$razorpay_payment_id);
-                } else {
+                } 
+                else 
+                {
                     $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:'.$razorpay_payment_id);
                 }
+
                 echo '<html>'."\n";
                 echo '<head>'."\n";
                 echo '  <meta http-equiv="Refresh" content="0; url='.$this->url->link('checkout/success').'">'."\n";
@@ -143,7 +106,9 @@ class ControllerPaymentRazorpay extends Controller
                 echo '</body>'."\n";
                 echo '</html>'."\n";
                 exit();
-            } else {
+            } 
+            else 
+            {
                 $this->model_checkout_order->addOrderHistory($this->request->request['merchant_order_id'], 10, $error.' Payment Failed! Check Razorpay dashboard for details of Payment Id:'.$razorpay_payment_id);
                 echo '<html>'."\n";
                 echo '<head>'."\n";
@@ -155,8 +120,9 @@ class ControllerPaymentRazorpay extends Controller
                 echo '</html>'."\n";
                 exit();
             }
-            
-        }  else {
+        }  
+        else 
+        {
             echo 'An error occured. Contact site administrator, please!';
         }
     }
@@ -167,10 +133,12 @@ class ControllerPaymentRazorpay extends Controller
         {
             return hash_equals($str1, $str2);
         }
+
         if (strlen($str1) !== strlen($str2)) 
         {
             return false;
         }
+
         $result = 0;
         
         for ($i = 0; $i < strlen($str1); $i++) 
