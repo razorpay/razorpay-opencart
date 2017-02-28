@@ -1,5 +1,8 @@
 <?php
 
+require_once __DIR__.'/../../../system/library/razorpay-sdk/Razorpay.php';
+use Razorpay\Api\Api;
+
 class ControllerPaymentRazorpay extends Controller
 {
     protected function index()
@@ -16,7 +19,16 @@ class ControllerPaymentRazorpay extends Controller
 
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
-        $this->data['key_id'] = $this->config->get('razorpay_key_id');
+        $key_id = $this->config->get('razorpay_key_id');
+        $key_secret = $this->config->get('razorpay_key_secret');
+
+        // Orders API with payment autocapture
+        $api = new Api($key_id, $key_secret);
+        $data = $this->get_order_creation_data($this->session->data['order_id']);   
+        $razorpay_order = $api->order->create($data);
+        $this->session->data['razorpay_order_id'] = $razorpay_order['id'];
+
+        $this->data['key_id'] = $key_id;
         $this->data['currency_code'] = $order_info['currency_code'];
         $this->data['total'] = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
         $this->data['merchant_order_id'] = $this->session->data['order_id'];
@@ -26,92 +38,65 @@ class ControllerPaymentRazorpay extends Controller
         $this->data['name'] = $this->config->get('config_name');
         $this->data['lang'] = $this->session->data['language'];
         $this->data['return_url'] = $this->url->link('payment/razorpay/callback', '', 'SSL');
+        $this->data['razorpay_order_id'] = $razorpay_order['id'];
 
-        if (file_exists(DIR_TEMPLATE.$this->config->get('config_template').'/template/payment/razorpay.tpl')) {
+        if (file_exists(DIR_TEMPLATE.$this->config->get('config_template').'/template/payment/razorpay.tpl')) 
+        {
             $this->template = $this->config->get('config_template').'/template/payment/razorpay.tpl';
-        } else {
+        } 
+        else 
+        {
             $this->template = 'default/template/payment/razorpay.tpl';
         }
 
         $this->render();
     }
 
-    private function get_curl_handle($payment_id, $amount)
+    function get_order_creation_data($order_id)
     {
-        $url = 'https://api.razorpay.com/v1/payments/'.$payment_id.'/capture';
-        $key_id = $this->config->get('razorpay_key_id');
-        $key_secret = $this->config->get('razorpay_key_secret');
-        $fields_string = "amount=$amount";
+        $order = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
-        //cURL Request
-        $ch = curl_init();
+        $data = array(
+            'receipt' => $order_id,
+            'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
+            'currency' => $order['currency_code'],
+            'payment_capture' => ($this->payment_capture === 'authorize') ? 0 : 1
+        );
 
-        //set the url, number of POST vars, POST data
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_USERPWD, $key_id.':'.$key_secret);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__).'/ca-bundle.crt');
-
-        return $ch;
+        return $data;
     }
 
     public function callback()
     {
         $request_params = array_merge($_GET, $_POST);
         $this->load->model('checkout/order');
-        if (isset($request_params['razorpay_payment_id']) and isset($request_params['merchant_order_id'])) {
+        if (isset($request_params['razorpay_payment_id']) and isset($request_params['merchant_order_id'])) 
+        {    
             $razorpay_payment_id = $request_params['razorpay_payment_id'];
             $merchant_order_id = $request_params['merchant_order_id'];
+            $razorpay_order_id = $this->session->data['razorpay_order_id']; // session variable
+            $razorpay_signature = $request_params['razorpay_signature'];
 
             $order_info = $this->model_checkout_order->getOrder($merchant_order_id);
             $amount = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
 
+            $key_id = $this->config->get('razorpay_key_id');
+            $key_secret = $this->config->get('razorpay_key_secret');
+
             $success = false;
-            $error = '';
 
-            try {
-                $ch = $this->get_curl_handle($razorpay_payment_id, $amount);
+            $signature = hash_hmac('sha256', $razorpay_order_id . '|' . $razorpay_payment_id, $key_secret);
 
-                //execute post
-                $result = curl_exec($ch);
-                $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $success = $this->hash_equals($signature, $razorpay_signature);
 
-                if ($result === false) {
-                    $success = false;
-                    $error = 'Curl error: '.curl_error($ch);
-
-                } else {
-                    $response_array = json_decode($result, true);
-
-                    //Check success response
-                    if ($http_status === 200 and isset($response_array['error']) === false) {
-                        $success = true;
-                    } else {
-                        $success = false;
-
-                        if (!empty($response_array['error']['code'])) {
-                            $error = $response_array['error']['code'].':'.$response_array['error']['description'];
-                        } else {
-                            $error = 'RAZORPAY_ERROR:Invalid Response <br/>'.$result;
-                        }
-                    }
-                }
-
-                    //close connection
-                    curl_close($ch);
-            } catch (Exception $e) {
-                $success = false;
-                $error = 'OPENCART_ERROR:Request to Razorpay Failed';
-            }
-
-            if ($success === true) {
-                if (!$order_info['order_status_id']) {
+            if ($success === true) 
+            {
+                if (!$order_info['order_status_id']) 
+                {
                     $this->model_checkout_order->confirm($merchant_order_id, $this->config->get('razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:'.$razorpay_payment_id, true);
-                } else {
+                } 
+                else 
+                {
                     $this->model_checkout_order->update($merchant_order_id, $this->config->get('razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:'.$razorpay_payment_id, true);
                 }
 
@@ -124,10 +109,16 @@ class ControllerPaymentRazorpay extends Controller
                 echo '</body>'."\n";
                 echo '</html>'."\n";
                 exit();
-            } else {
+            } 
+            else 
+            {
+                $error = "PAYMENT_ERROR : Payment failed";
+
                 if (!$order_info['order_status_id']) {
                     $this->model_checkout_order->confirm($merchant_order_id, 10, $error.' Payment Failed! Check Razorpay dashboard for details of Payment Id:'.$razorpay_payment_id, true);
-                } else {
+                } 
+                else 
+                {
                     $this->model_checkout_order->update($merchant_order_id, 10, $error.' Payment Failed! Check Razorpay dashboard for details of Payment Id:'.$razorpay_payment_id, true);
                 }
 
@@ -140,18 +131,37 @@ class ControllerPaymentRazorpay extends Controller
                 echo '</html>'."\n";
                 exit();
             }
-        } else if (isset($request['error'])) {
-            echo '<html>'."\n";
-            echo '<head>'."\n";
-            echo '</head>'."\n";
-            echo '<body>'."\n";
-            echo $request['error'] . "\n" . '. <p>Please <a href="'.$this->url->link('checkout/checkout').'">click here to go back</a>!</p>'."\n";
-            echo '</body>'."\n";
-            echo '</html>'."\n";
-            exit();
-        }  else {
+        }  
+        else 
+        {
             echo 'An error occured. Contact site administrator, please!';
         }
+    }
+
+    /*
+     * Taken from https://stackoverflow.com/questions/10576827/secure-string-compare-function
+     * under the MIT license
+     */
+    protected function hash_equals($actual, $generated)
+    {
+        if (function_exists('hash_equals'))
+        {
+            return hash_equals($actual, $generated);
+        }
+
+        if (strlen($actual) !== strlen($generated)) 
+        {
+            return false;
+        }
+
+        $result = 0;
+        
+        for ($i = 0; $i < strlen($actual); $i++) 
+        {
+            $result |= ord($actual[$i]) ^ ord($generated[$i]);
+        }
+        
+        return ($result == 0);
     }
 
     private function is_serialized($value, &$result = null)
