@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.'/../../razorpay-sdk/Razorpay.php';
+require_once __DIR__.'/../../../../system/library/razorpay-sdk/Razorpay.php';
 use Razorpay\Api\Api;
 
 class ControllerExtensionPaymentRazorpay extends Controller
@@ -31,9 +31,12 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['return_url'] = $this->url->link('payment/razorpay/callback', '', 'true');
         $data['razorpay_order_id'] = $razorpay_order['id'];
 
-        if (file_exists(DIR_TEMPLATE.$this->config->get('config_template').'/template/payment/razorpay.tpl')) {
+        if (file_exists(DIR_TEMPLATE.$this->config->get('config_template').'/template/payment/razorpay.tpl')) 
+        {
             return $this->load->view($this->config->get('config_template').'/template/payment/razorpay.tpl', $data);
-        } else {
+        } 
+        else 
+        {
             return $this->load->view('payment/razorpay', $data);
         }
     }
@@ -46,9 +49,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
             'receipt' => $order_id,
             'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
             'currency' => $order['currency_code'],
+            'payment_capture' => ($this->payment_action === 'authorize') ? 0 : 1
         ];
-
-        $data['payment_capture'] = ($this->payment_action === 'authorize') ? 0 : 1;
 
         return $data;
     }
@@ -58,8 +60,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
     {
         $this->load->model('checkout/order');
 
-        if ($this->request->request['razorpay_payment_id']) {
-            
+        if ($this->request->request['razorpay_payment_id']) 
+        {    
             $razorpay_payment_id = $this->request->request['razorpay_payment_id'];
             $merchant_order_id = $this->request->request['merchant_order_id'];
             $razorpay_order_id = $this->session->data['razorpay_order_id']; 
@@ -68,49 +70,14 @@ class ControllerExtensionPaymentRazorpay extends Controller
             $order_info = $this->model_checkout_order->getOrder($merchant_order_id);
             $amount = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
 
-            $key_id = $this->config->get('razorpay_key_id');
             $key_secret = $this->config->get('razorpay_key_secret');
-
-            $api = new Api($key_id, $key_secret);
 
             $success = false;
             $error = "";
-            $captured = false;
 
-            try 
-            {
-                if ($this->payment_action === 'authorize')
-                {   
-                    $payment = $api->payment->fetch($razorpay_payment_id);
-                }
-                else
-                {   
-                    $signature = hash_hmac('sha256', $razorpay_order_id . '|' . $razorpay_payment_id, $key_secret);
+            $signature = hash_hmac('sha256', $razorpay_order_id . '|' . $razorpay_payment_id, $key_secret);
 
-                    if (hash_equals($signature , $razorpay_signature))
-                    {
-                        $captured = true;;
-                    }
-                }
-
-                //Check success response
-                if ($captured)
-                {
-                    $success = true;
-                }
-                else
-                {
-                    $success = false;
-
-                    $error = "PAYMENT_ERROR = Payment failed";
-                }
-            }
-
-            catch (Exception $e) 
-            {
-                $success = false;
-                $error = 'OPENCART_ERROR:Request to Razorpay Failed';
-            }
+            $success = $this->hash_equals($signature , $razorpay_signature);
 
             if ($success === true) 
             {
@@ -159,4 +126,27 @@ class ControllerExtensionPaymentRazorpay extends Controller
             echo 'An error occured. Contact site administrator, please!';
         }
     }
+
+    protected function hash_equals($expected, $actual)
+    {
+        if (function_exists('hash_equals'))
+        {
+            return hash_equals($expected, $actual);
+        }
+
+        if (strlen($expected) !== strlen($actual)) 
+        {
+            return false;
+        }
+
+        $result = 0;
+        
+        for ($i = 0; $i < strlen($expected); $i++) 
+        {
+            $result |= ord($expected[$i]) ^ ord($actual[$i]);
+        }
+        
+        return ($result == 0);
+    }
+
 }

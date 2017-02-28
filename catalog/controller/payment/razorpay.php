@@ -76,7 +76,6 @@ class ControllerPaymentRazorpay extends Controller
             $order_info = $this->model_checkout_order->getOrder($merchant_order_id);
             $amount = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
 
-            $key_id = $this->config->get('razorpay_key_id');
             $key_secret = $this->config->get('razorpay_key_secret');
 
             $success = false;
