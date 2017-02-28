@@ -127,23 +127,23 @@ class ControllerPaymentRazorpay extends Controller
         }
     }
 
-    protected function hash_equals($str1, $str2)
+    protected function hash_equals($expected, $actual)
     {
         if (function_exists('hash_equals'))
         {
-            return hash_equals($str1, $str2);
+            return hash_equals($expected, $actual);
         }
 
-        if (strlen($str1) !== strlen($str2)) 
+        if (strlen($expected) !== strlen($actual)) 
         {
             return false;
         }
 
         $result = 0;
         
-        for ($i = 0; $i < strlen($str1); $i++) 
+        for ($i = 0; $i < strlen($expected); $i++) 
         {
-            $result |= ord($str1[$i]) ^ ord($str2[$i]);
+            $result |= ord($expected[$i]) ^ ord($actual[$i]);
         }
         
         return ($result == 0);
