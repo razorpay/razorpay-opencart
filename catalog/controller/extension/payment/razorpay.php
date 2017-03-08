@@ -123,7 +123,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
         } 
         else 
         {
-            echo 'An error occured. Contact site administrator, please!';
+            $error = $_POST['error'];
+
+            echo 'An error occured. Description : ' . $error['description'] . '. Code : ' . $error['code'];
         }
     }
 

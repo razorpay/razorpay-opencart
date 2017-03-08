@@ -15,6 +15,7 @@
     notes: {
       opencart_order_id: "<?php echo $merchant_order_id; ?>"
     },
+    callback_url: "<?php echo $return_url; ?>",
     order_id: "<?php echo $razorpay_order_id; ?>",
     handler: function (transaction) {
         document.getElementById('razorpay_payment_id').value = transaction.razorpay_payment_id;
