@@ -49,7 +49,6 @@
 <form name="razorpay-form" id="razorpay-form" action="<?php echo $return_url; ?>" method="POST">
   <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id" />
   <input type="hidden" name="razorpay_signature" id="razorpay_signature" />
-  <input type="hidden" name="merchant_order_id" value="<?php echo $merchant_order_id; ?>" />
 </form>
 <div class="buttons">
   <div class="pull-right">
