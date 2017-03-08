@@ -15,6 +15,7 @@
     notes: {
       opencart_order_id: "<?php echo $merchant_order_id; ?>"
     },
+    callback_url: "<?php echo $return_url; ?>",
     order_id: "<?php echo $razorpay_order_id; ?>",
     handler: function (transaction) {
         document.getElementById('razorpay_payment_id').value = transaction.razorpay_payment_id;
@@ -48,7 +49,6 @@
 <form name="razorpay-form" id="razorpay-form" action="<?php echo $return_url; ?>" method="POST">
   <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id" />
   <input type="hidden" name="razorpay_signature" id="razorpay_signature" />
-  <input type="hidden" name="merchant_order_id" value="<?php echo $merchant_order_id; ?>" />
 </form>
 <div class="buttons">
   <div class="pull-right">

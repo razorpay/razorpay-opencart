@@ -63,7 +63,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         if ($this->request->request['razorpay_payment_id']) 
         {    
             $razorpay_payment_id = $this->request->request['razorpay_payment_id'];
-            $merchant_order_id = $this->request->request['merchant_order_id'];
+            $merchant_order_id = $this->session->data['order_id'];
             $razorpay_order_id = $this->session->data['razorpay_order_id']; 
             $razorpay_signature = $this->request->request['razorpay_signature'];
 
@@ -123,7 +123,23 @@ class ControllerExtensionPaymentRazorpay extends Controller
         } 
         else 
         {
-            echo 'An error occured. Contact site administrator, please!';
+            if (isset($_POST['error']) === true)
+            {
+                $error = $_POST['error'];
+
+                $message = 'An error occured. Description : ' . $error['description'] . '. Code : ' . $error['code'];
+
+                if (isset($error['field']) === true)
+                {
+                    $message .= 'Field : ' . $error['field'];
+                }
+            } 
+            else 
+            {
+                $message = 'An error occured. Please contact administrator for assistance';
+            }
+
+            echo $message;
         }
     }
 
