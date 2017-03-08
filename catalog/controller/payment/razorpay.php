@@ -43,7 +43,7 @@ class ControllerPaymentRazorpay extends Controller
         } 
         else 
         {
-            return $this->load->view('default/template/payment/razorpay.tpl', $data);
+            return $this->load->view('payment/razorpay.tpl', $data);
         }
     }
 
