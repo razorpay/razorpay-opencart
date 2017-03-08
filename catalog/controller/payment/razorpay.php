@@ -124,7 +124,14 @@ class ControllerPaymentRazorpay extends Controller
         {
             $error = $_POST['error'];
 
-            echo 'An error occured. Description : ' . $error['description'] . '. Code : ' . $error['code'];
+            $message = 'An error occured. Description : ' . $error['description'] . '. Code : ' . $error['code'];
+
+            if (isset($error['field']) === true)
+            {
+                $message .= 'Field : ' . $error['field'];
+            }
+
+            echo $message;
         }
     }
 
