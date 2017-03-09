@@ -15,6 +15,7 @@ $_['entry_key_secret'] = 'Razorpay Key Secret';
 $_['entry_order_status'] = 'Order Status';
 $_['entry_status'] = 'Status';
 $_['entry_sort_order'] = 'Sort Order';
+$_['entry_geo_zone']     = 'Geo Zone';
 
 //tooltips
 $_['help_key_id'] = 'The Api Key Id and Key Secret you will recieve from the API keys section of Razorpay Dashboard. Use test Key for testing purposes.';
