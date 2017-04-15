@@ -24,8 +24,6 @@ class ControllerPaymentRazorpay extends Controller
         $this->data['total'] = $this->currency->format($order_info['total'], 'INR', 1, false) * 100;
 
         $this->data['key_id'] = $this->config->get('razorpay_key_id');
-        // $this->data['currency_code'] = $order_info['currency_code'];
-        // $this->data['total'] = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
         $this->data['merchant_order_id'] = $this->session->data['order_id'];
         $this->data['card_holder_name'] = $order_info['payment_firstname'].' '.$order_info['payment_lastname'];
         $this->data['email'] = $order_info['email'];
