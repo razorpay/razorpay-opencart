@@ -21,7 +21,7 @@ class ControllerPaymentRazorpay extends Controller
         $this->data['currency_code'] = 'INR';
         $this->data['display_currency'] = $order_info['currency_code'];
         $this->data['display_total'] = number_format($display_total, 2, '.', '');
-        $this->data['total'] = $this->currency->format($order_info['total'], 'INR', 1, false) * 100;
+        $this->data['total'] = (int) round($this->currency->format($order_info['total'], 'INR', 1, false) * 100);
 
         $this->data['key_id'] = $this->config->get('razorpay_key_id');
         $this->data['merchant_order_id'] = $this->session->data['order_id'];
@@ -73,7 +73,7 @@ class ControllerPaymentRazorpay extends Controller
             $merchant_order_id = $request_params['merchant_order_id'];
 
             $order_info = $this->model_checkout_order->getOrder($merchant_order_id);
-            $amount = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
+            $amount = (int) round($this->currency->format($order_info['total'], 'INR', 1, false) * 100);
 
             $success = false;
             $error = '';
