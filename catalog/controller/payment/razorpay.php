@@ -16,6 +16,8 @@ class ControllerPaymentRazorpay extends Controller
         $keyId = $this->config->get('razorpay_key_id'); 
         $keySecret = $this->config->get('razorpay_key_secret');
 
+        $display_total = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false);
+
         // Orders API with payment autocapture
         $api = new Api($keyId, $keySecret);
 
@@ -26,8 +28,13 @@ class ControllerPaymentRazorpay extends Controller
         $this->session->data['razorpay_order_id'] = $razorpay_order['id'];
 
         $data['key_id'] = $keyId;
-        $data['currency_code'] = $order_info['currency_code'];
-        $data['total'] = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
+
+        $data['currency_code'] = 'INR';
+        $data['display_currency'] = $order_info['currency_code'];
+
+        $data['display_total'] = number_format($display_total, 2, '.', '');
+        $data['total'] = (int) round($this->currency->format($order_info['total'], 'INR', 1, false) * 100);
+        
         $data['merchant_order_id'] = $this->session->data['order_id'];
         $data['card_holder_name'] = $order_info['payment_firstname'].' '.$order_info['payment_lastname'];
         $data['email'] = $order_info['email'];

@@ -13,6 +13,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
+        $display_total = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false);
+
         // Orders API with payment autocapture
         $api = new Api($this->config->get('razorpay_key_id'), $this->config->get('razorpay_key_secret'));
         $order_data = $this->get_order_creation_data($this->session->data['order_id']);   
@@ -20,8 +22,13 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $this->session->data['razorpay_order_id'] = $razorpay_order['id'];
 
         $data['key_id'] = $this->config->get('razorpay_key_id');
-        $data['currency_code'] = $order_info['currency_code'];
-        $data['total'] = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
+
+        $data['currency_code'] = 'INR';
+        $data['display_currency'] = $order_info['currency_code'];
+
+        $data['display_total'] = number_format($display_total, 2, '.', '');
+        $data['total'] = (int) round($this->currency->format($order_info['total'], 'INR', 1, false) * 100);
+
         $data['merchant_order_id'] = $this->session->data['order_id'];
         $data['card_holder_name'] = $order_info['payment_firstname'].' '.$order_info['payment_lastname'];
         $data['email'] = $order_info['email'];
@@ -47,8 +54,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
         
         $data = [
             'receipt' => $order_id,
-            'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
-            'currency' => $order['currency_code'],
+            'amount' => (int) round($this->currency->format($order_info['total'], 'INR', 1, false) * 100),
+            'currency' => 'INR',
             'payment_capture' => ($this->payment_action === 'authorize') ? 0 : 1
         ];
 
