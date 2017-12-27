@@ -35,7 +35,7 @@ class ControllerPaymentRazorpay extends Controller
         if (file_exists(DIR_TEMPLATE.$this->config->get('config_template').'/template/payment/razorpay.tpl')) {
             $this->template = $this->config->get('config_template').'/template/payment/razorpay.tpl';
         } else {
-            $this->template = 'payment/razorpay.tpl';
+            $this->template = 'default/template/payment/razorpay.tpl';
         }
 
         $this->render();
