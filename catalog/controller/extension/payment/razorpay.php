@@ -54,7 +54,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         
         $data = [
             'receipt' => $order_id,
-            'amount' => (int) round($this->currency->format($order_info['total'], 'INR', 1, false) * 100),
+            'amount' => (int) round($this->currency->format($order['total'], 'INR', 1, false) * 100),
             'currency' => 'INR',
             'payment_capture' => ($this->payment_action === 'authorize') ? 0 : 1
         ];
