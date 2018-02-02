@@ -27,7 +27,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['display_currency'] = $order_info['currency_code'];
 
         $data['display_total'] = number_format($display_total, 2, '.', '');
-        $data['total'] = (int) round($this->currency->format($order_info['total'], 'INR', 1, false) * 100);
+        $data['total'] = (int) round($this->currency->convert($order_info['total'], $order_info['currency_code'], 'INR') * 100);
 
         $data['merchant_order_id'] = $this->session->data['order_id'];
         $data['card_holder_name'] = $order_info['payment_firstname'].' '.$order_info['payment_lastname'];
@@ -54,7 +54,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         
         $data = [
             'receipt' => $order_id,
-            'amount' => (int) round($this->currency->format($order_info['total'], 'INR', 1, false) * 100),
+            'amount' => (int) round($this->currency->convert($order['total'], $order['currency_code'], 'INR') * 100),
             'currency' => 'INR',
             'payment_capture' => ($this->payment_action === 'authorize') ? 0 : 1
         ];
