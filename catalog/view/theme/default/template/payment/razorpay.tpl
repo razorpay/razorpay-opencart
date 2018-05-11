@@ -1,5 +1,5 @@
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script>
+<script data-cfasync='false' type='text/javascript' src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script data-cfasync='false' type='text/javascript'>
   var razorpay_options = {
     key: "<?php echo $key_id; ?>",
     amount: "<?php echo $total; ?>",
