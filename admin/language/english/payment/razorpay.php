@@ -13,6 +13,7 @@ $_['text_razorpay'] = '<a href="https://www.razorpay.com" target="_blank"><img s
 $_['entry_key_id'] = 'Razorpay Key Id';
 $_['entry_key_secret'] = 'Razorpay Key Secret';
 $_['entry_order_status'] = 'Order Status';
+$_['entry_geo_zone']     = 'Geo Zone';
 $_['entry_status'] = 'Status';
 $_['entry_sort_order'] = 'Sort Order';
 
