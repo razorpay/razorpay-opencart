@@ -2,6 +2,8 @@
 
 namespace Razorpay\Api;
 
+use Requests;
+
 class Payment extends Entity
 {
     /**
@@ -18,13 +20,29 @@ class Payment extends Entity
     }
 
     /**
+     * Patches given payment with new attributes
+     *
+     * @param array $attributes
+     *
+     * @return Payment
+     */
+    public function edit($attributes = array())
+    {
+        $url = $this->getEntityUrl() . $this->id;
+
+        return $this->request(Requests::PATCH, $url, $attributes);
+    }
+
+    /**
      * @param $id Payment id
      */
     public function refund($attributes = array())
     {
-        $relativeUrl = $this->getEntityUrl() . $this->id . '/refund';
+        $refund = new Refund;
 
-        return $this->request('POST', $relativeUrl, $attributes);
+        $attributes = array_merge($attributes, array('payment_id' => $this->id));
+
+        return $refund->create($attributes);
     }
 
     /**
@@ -37,12 +55,35 @@ class Payment extends Entity
         return $this->request('POST', $relativeUrl, $attributes);
     }
 
+    public function transfer($attributes = array())
+    {
+        $relativeUrl = $this->getEntityUrl() . $this->id . '/transfers';
+
+        return $this->request('POST', $relativeUrl, $attributes);
+    }
+
     public function refunds()
     {
-        $refund = new Refund();
+        $refund = new Refund;
 
-        $refund['payment_id'] = $this->id;
+        $options = array('payment_id' => $this->id);
 
-        return $refund;
+        return $refund->all($options);
+    }
+
+    public function transfers()
+    {
+        $transfer = new Transfer();
+
+        $transfer->payment_id = $this->id;
+
+        return $transfer->all();
+    }
+
+    public function bankTransfer()
+    {
+        $relativeUrl = $this->getEntityUrl() . $this->id . '/bank_transfer';
+
+        return $this->request('GET', $relativeUrl);
     }
 }
