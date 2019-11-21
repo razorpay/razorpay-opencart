@@ -15,6 +15,11 @@
     notes: {
       opencart_order_id: "<?php echo $merchant_order_id; ?>"
     },
+    _: {
+        integration: 'opencart',
+        integration_version: '<?php echo $version; ?>',
+        integration_parent_version: '<?php echo $oc_version; ?>'
+    },
     callback_url: "<?php echo $return_url; ?>",
     order_id: "<?php echo $razorpay_order_id; ?>",
     handler: function (transaction) {

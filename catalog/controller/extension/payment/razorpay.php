@@ -14,6 +14,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
     const PAYMENT_FAILED        = 'payment.failed';
     const ORDER_PAID            = 'order.paid';
 
+    // Set RZP plugin version
+    private $version = '3.0.0';
+
     public function index()
     {
         $data['button_confirm'] = $this->language->get('button_confirm');
@@ -40,6 +43,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['lang'] = $this->session->data['language'];
         $data['return_url'] = $this->url->link('extension/payment/razorpay/callback', '', 'true');
         $data['razorpay_order_id'] = $razorpay_order['id'];
+        $data['version'] = $this->version;
+        $data['oc_version'] = VERSION;
 
         if (file_exists(DIR_TEMPLATE.$this->config->get('config_template').'/template/extension/payment/razorpay.tpl')) 
         {
