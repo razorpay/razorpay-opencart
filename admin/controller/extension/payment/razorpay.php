@@ -13,11 +13,11 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $this->load->model('setting/setting');
 
         if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
-            $this->model_setting_setting->editSetting('razorpay', $this->request->post);
+            $this->model_setting_setting->editSetting('payment_razorpay', $this->request->post);
 
             $this->session->data['success'] = $this->language->get('text_success');
 
-            $this->response->redirect($this->url->link('extension/extension', 'token=' . $this->session->data['token'] . '&type=payment', true));
+            $this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true));
         }
 
         $data['heading_title'] = $this->language->get('heading_title');
@@ -28,17 +28,14 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['text_all_zones'] = $this->language->get('text_all_zones');
         $data['text_yes'] = $this->language->get('text_yes');
         $data['text_no'] = $this->language->get('text_no');
-        $data['text_authorize'] = $this->language->get('text_authorize');
-        $data['text_capture'] = $this->language->get('text_capture');
 
         $data['entry_key_id'] = $this->language->get('entry_key_id');
         $data['entry_key_secret'] = $this->language->get('entry_key_secret');
         $data['entry_order_status'] = $this->language->get('entry_order_status');
         $data['entry_status'] = $this->language->get('entry_status');
         $data['entry_sort_order'] = $this->language->get('entry_sort_order');
+
         $data['entry_payment_action'] = $this->language->get('entry_payment_action');
-
-
         $data['entry_webhook_secret'] = $this->language->get('entry_webhook_secret');
         $data['entry_webhook_status'] = $this->language->get('entry_webhook_status');
         $data['entry_webhook_url'] = $this->language->get('entry_webhook_url');
@@ -56,20 +53,20 @@ class ControllerExtensionPaymentRazorpay extends Controller
             $data['error_warning'] = '';
         }
 
-        if (isset($this->error['razorpay_key_id'])) {
-            $data['error_key_id'] = $this->error['razorpay_key_id'];
+        if (isset($this->error['payment_razorpay_key_id'])) {
+            $data['error_key_id'] = $this->error['payment_razorpay_key_id'];
         } else {
             $data['error_key_id'] = '';
         }
 
-        if (isset($this->error['razorpay_key_secret'])) {
-            $data['error_key_secret'] = $this->error['razorpay_key_secret'];
+        if (isset($this->error['payment_razorpay_key_secret'])) {
+            $data['error_key_secret'] = $this->error['payment_razorpay_key_secret'];
         } else {
             $data['error_key_secret'] = '';
         }
 
-        if (isset($this->error['razorpay_webhook_secret'])) {
-            $data['error_webhook_secret'] = $this->error['razorpay_webhook_secret'];
+        if (isset($this->error['payment_razorpay_webhook_secret'])) {
+            $data['error_webhook_secret'] = $this->error['payment_razorpay_webhook_secret'];
         } else {
             $data['error_webhook_secret'] = '';
         }
@@ -78,76 +75,88 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
         $data['breadcrumbs'][] = array(
             'text' => $this->language->get('text_home'),
-            'href' => $this->url->link('common/dashboard', 'token='.$this->session->data['token'], 'SSL'),
-            'separator' => true,
+            'href' => $this->url->link('common/dashboard', 'user_token='.$this->session->data['user_token'], 'SSL'),
+            'separator' => false,
         );
 
         $data['breadcrumbs'][] = array(
             'text' => $this->language->get('text_extension'),
-            'href' => $this->url->link('extension/extension', 'token='.$this->session->data['token'] . '&type=payment', 'SSL'),
-            'separator' => true,
+            'href' => $this->url->link('marketplace/extension', 'user_token='.$this->session->data['user_token'].'&type=payment', 'SSL'),
+            'separator' => ' :: ',
         );
 
         $data['breadcrumbs'][] = array(
             'text' => $this->language->get('heading_title'),
-            'href' => $this->url->link('extension/payment/razorpay', 'token='.$this->session->data['token'], 'SSL'),
-            'separator' => true,
+            'href' => $this->url->link('extension/payment/razorpay', 'user_token='.$this->session->data['user_token'], 'SSL'),
+            'separator' => ' :: ',
         );
 
-        $data['action'] = $this->url->link('extension/payment/razorpay', 'token=' . $this->session->data['token'], true);
+        $data['action'] = $this->url->link('extension/payment/razorpay', 'user_token=' . $this->session->data['user_token'], true);
 
-        $data['cancel'] = $this->url->link('extension/extension', 'token=' . $this->session->data['token'] . '&type=payment', true);
+        $data['cancel'] = $this->url->link('extension/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true);
 
-        if (isset($this->request->post['razorpay_key_id'])) {
-            $data['razorpay_key_id'] = $this->request->post['razorpay_key_id'];
+        if (isset($this->request->post['payment_razorpay_key_id'])) {
+            $data['razorpay_key_id'] = $this->request->post['payment_razorpay_key_id'];
         } else {
-            $data['razorpay_key_id'] = $this->config->get('razorpay_key_id');
+            $data['razorpay_key_id'] = $this->config->get('payment_razorpay_key_id');
         }
 
-        if (isset($this->request->post['razorpay_key_secret'])) {
-            $data['razorpay_key_secret'] = $this->request->post['razorpay_key_secret'];
+        if (isset($this->request->post['payment_razorpay_key_secret'])) {
+            $data['razorpay_key_secret'] = $this->request->post['payment_razorpay_key_secret'];
         } else {
-            $data['razorpay_key_secret'] = $this->config->get('razorpay_key_secret');
+            $data['razorpay_key_secret'] = $this->config->get('payment_razorpay_key_secret');
         }
 
-        if (isset($this->request->post['razorpay_order_status_id'])) {
-            $data['razorpay_order_status_id'] = $this->request->post['razorpay_order_status_id'];
+        if (isset($this->request->post['payment_razorpay_order_status_id'])) {
+            $data['razorpay_order_status_id'] = $this->request->post['payment_razorpay_order_status_id'];
         } else {
-            $data['razorpay_order_status_id'] = $this->config->get('razorpay_order_status_id');
+            $data['razorpay_order_status_id'] = $this->config->get('payment_razorpay_order_status_id');
         }
 
         $this->load->model('localisation/order_status');
 
         $data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
 
-        if (isset($this->request->post['razorpay_status'])) {
-            $data['razorpay_status'] = $this->request->post['razorpay_status'];
+        if (isset($this->request->post['payment_razorpay_status'])) {
+            $data['razorpay_status'] = $this->request->post['payment_razorpay_status'];
         } else {
-            $data['razorpay_status'] = $this->config->get('razorpay_status');
+            $data['razorpay_status'] = $this->config->get('payment_razorpay_status');
         }
 
-        if (isset($this->request->post['razorpay_sort_order'])) {
-            $data['razorpay_sort_order'] = $this->request->post['razorpay_sort_order'];
+        if (isset($this->request->post['payment_razorpay_sort_order'])) {
+            $data['razorpay_sort_order'] = $this->request->post['payment_razorpay_sort_order'];
         } else {
-            $data['razorpay_sort_order'] = $this->config->get('razorpay_sort_order');
+            $data['razorpay_sort_order'] = $this->config->get('payment_razorpay_sort_order');
         }
 
-        if (isset($this->request->post['razorpay_webhook_status'])) {
-            $data['razorpay_webhook_status'] = $this->request->post['razorpay_webhook_status'];
+        if (isset($this->request->post['payment_razorpay_payment_action'])) {
+            $data['razorpay_payment_action'] = $this->request->post['payment_razorpay_payment_action'];
         } else {
-            $data['razorpay_webhook_status'] = $this->config->get('razorpay_webhook_status');
+            $data['razorpay_payment_action'] = $this->config->get('payment_razorpay_payment_action');
         }
 
-        if (isset($this->request->post['razorpay_webhook_secret'])) {
-            $data['razorpay_webhook_secret'] = $this->request->post['razorpay_webhook_secret'];
+        if (isset($this->request->post['payment_razorpay_max_capture_delay'])) {
+            $data['razorpay_max_capture_delay'] = $this->request->post['payment_razorpay_max_capture_delay'];
         } else {
-            $data['razorpay_webhook_secret'] = $this->config->get('razorpay_webhook_secret');
+            $data['razorpay_max_capture_delay'] = $this->config->get('payment_razorpay_max_capture_delay');
         }
 
+        if (isset($this->request->post['payment_razorpay_webhook_status'])) {
+            $data['razorpay_webhook_status'] = $this->request->post['payment_razorpay_webhook_status'];
+        } else {
+            $data['razorpay_webhook_status'] = $this->config->get('payment_razorpay_webhook_status');
+        }
+
+        if (isset($this->request->post['payment_razorpay_webhook_secret'])) {
+            $data['razorpay_webhook_secret'] = $this->request->post['payment_razorpay_webhook_secret'];
+        } else {
+            $data['razorpay_webhook_secret'] = $this->config->get('payment_razorpay_webhook_secret');
+        }
         
         $data['razorpay_webhook_url'] = HTTPS_CATALOG . 'index.php?route=extension/payment/razorpay/webhook';
 
-        $this->template = 'payment/razorpay.tpl';
+
+        $this->template = 'extension/payment/razorpay2';
         $this->children = array(
             'common/header',
             'common/footer',
@@ -156,7 +165,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
 
-        $this->response->setOutput($this->load->view('extension/payment/razorpay.tpl', $data));
+        $this->response->setOutput($this->load->view('extension/payment/razorpay', $data));
     }
 
     protected function validate()
@@ -165,16 +174,16 @@ class ControllerExtensionPaymentRazorpay extends Controller
             $this->error['warning'] = $this->language->get('error_permission');
         }
 
-        if (!$this->request->post['razorpay_key_id']) {
-            $this->error['razorpay_key_id'] = $this->language->get('error_key_id');
+        if (!$this->request->post['payment_razorpay_key_id']) {
+            $this->error['payment_razorpay_key_id'] = $this->language->get('error_key_id');
         }
 
-        if (!$this->request->post['razorpay_key_secret']) {
-            $this->error['razorpay_key_secret'] = $this->language->get('error_key_secret');
+        if (!$this->request->post['payment_razorpay_key_secret']) {
+            $this->error['payment_razorpay_key_secret'] = $this->language->get('error_key_secret');
         }
 
-        if ($this->request->post['razorpay_webhook_status'] and !$this->request->post['razorpay_webhook_secret']) {
-            $this->error['razorpay_webhook_secret'] = $this->language->get('error_webhook_secret');
+        if ($this->request->post['payment_razorpay_webhook_status'] and !$this->request->post['payment_razorpay_webhook_secret']) {
+            $this->error['payment_razorpay_webhook_secret'] = $this->language->get('error_webhook_secret');
         }
 
         if (!$this->error) {

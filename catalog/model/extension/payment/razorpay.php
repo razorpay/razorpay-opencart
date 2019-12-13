@@ -10,7 +10,7 @@ class ModelExtensionPaymentRazorpay extends Model
             'code' => 'razorpay',
             'title' => $this->language->get('text_title'),
             'terms' => '',
-            'sort_order' => $this->config->get('razorpay_sort_order'),
+            'sort_order' => $this->config->get('payment_razorpay_sort_order'),
         );
 
         return $method_data;
