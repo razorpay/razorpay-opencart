@@ -106,7 +106,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 $attributes = array(
                     'razorpay_order_id' => $razorpay_order_id,
                     'razorpay_payment_id' => $razorpay_payment_id,
-                    'razorpay_signature' => $razorpay_signature.'s'
+                    'razorpay_signature' => $razorpay_signature
                 );
 
                 $api->utility->verifyPaymentSignature($attributes);
