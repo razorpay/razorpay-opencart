@@ -205,12 +205,11 @@ class ControllerExtensionPaymentRazorpay extends Controller
         {    
             $order_info = $this->model_checkout_order->getOrder($merchant_order_id);
 
-            if($order_info['payment_code'] === 'razorpay')
+            if($order_info['payment_code'] === 'razorpay' and
+                !$order_info['order_status_id'])
             {
-                if ($order_info['order_status_id'] !== $this->config->get('payment_razorpay_order_status_id')) 
-                {
-                    $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:'.$razorpay_payment_id);
-                } 
+
+                $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:'.$razorpay_payment_id
             }
         }
         // Graceful exit since payment is now processed.
@@ -250,22 +249,26 @@ class ControllerExtensionPaymentRazorpay extends Controller
             {    
                 $order_info = $this->model_checkout_order->getOrder($merchant_order_id);
                 
-                if($order_info['payment_code'] === 'razorpay')
+                if($order_info['payment_code'] === 'razorpay' and
+                    !$order_info['order_status_id'])
                 {
                     try
                     { 
                         $capture_amount = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
 
-                        //capture the payment and update the order
-                        $payment  = $api->payment->fetch($razorpay_payment_id)
-                                                 ->capture(array('amount' => $capture_amount,
-                                                                'currency' => $order_info['currency_code']
-                                                                )
-                                                    );
-                        if ($order_info['order_status_id'] !== $this->config->get('payment_razorpay_order_status_id')) 
+                        //fetch the payment
+                        $payment = $api->payment->fetch($razorpay_payment_id);
+
+                        //capture only if payment status is 'authorized'
+                        if($payment->status === 'authorized')
                         {
-                            $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:'.$razorpay_payment_id);
-                        } 
+                            $payment->capture(array('amount' => $capture_amount,
+                                                    'currency' => $order_info['currency_code']
+                                                    ));
+                        }
+
+                        //update the order status in store
+                        $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:'.$razorpay_payment_id);
                     }
                     catch(\Razorpay\Api\Errors\Error $e)
                     {
