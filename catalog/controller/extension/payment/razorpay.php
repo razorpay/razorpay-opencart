@@ -209,7 +209,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 !$order_info['order_status_id'])
             {
 
-                $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:'.$razorpay_payment_id
+                $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:'.$razorpay_payment_id);
             }
         }
         // Graceful exit since payment is now processed.
