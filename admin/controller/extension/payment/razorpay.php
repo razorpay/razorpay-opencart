@@ -156,7 +156,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['razorpay_webhook_url'] = HTTPS_CATALOG . 'index.php?route=extension/payment/razorpay/webhook';
 
 
-        $this->template = 'extension/payment/razorpay2';
+        $this->template = 'extension/payment/razorpay';
         $this->children = array(
             'common/header',
             'common/footer',
