@@ -218,7 +218,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
     }
 
     /**
-     * Handling order.paid event    
+     * Handling payment.failed event    
      * @param array $data Webook Data
      */
     protected function paymentFailed(array $data)
@@ -227,7 +227,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
     }
 
     /**
-     * Handling order.paid event    
+     * Handling payment.authorized event    
      * @param array $data Webook Data
      */
     protected function paymentAuthorized(array $data)
