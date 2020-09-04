@@ -14,7 +14,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
     const ORDER_PAID            = 'order.paid';
 
     // Set RZP plugin version
-    private $version = '4.0.0';
+    private $version = '4.0.1';
 
     public function index()
     {
@@ -34,7 +34,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         catch(\Razorpay\Api\Errors\Error $e)
         {
             $this->log->write($e->getMessage());
-            $this->session->data['error'] = $e->getMessage();//exit;
+            $this->session->data['error'] = $e->getMessage();
             echo "<div class='alert alert-danger alert-dismissible'> Something went wrong. Unable to create Razorpay Order Id.</div>";
             exit;
         }
