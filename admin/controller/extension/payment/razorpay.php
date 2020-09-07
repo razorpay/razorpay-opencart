@@ -110,7 +110,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         if (isset($this->request->post['payment_razorpay_order_status_id'])) {
             $data['razorpay_order_status_id'] = $this->request->post['payment_razorpay_order_status_id'];
         } else {
-            $data['razorpay_order_status_id'] = $this->config->get('payment_razorpay_order_status_id');
+            $data['razorpay_order_status_id'] = ($this->config->get('payment_razorpay_order_status_id')) ? $this->config->get('payment_razorpay_order_status_id') : 2;
         }
 
         $this->load->model('localisation/order_status');
