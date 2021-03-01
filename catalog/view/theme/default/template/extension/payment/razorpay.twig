@@ -69,12 +69,10 @@
           el.value = 'Please wait...';  
         }
       } else {
-        if(!razorpay_instance){
-          razorpay_instance = new Razorpay(razorpay_options);
-          if(razorpay_submit_btn){
-            razorpay_submit_btn.disabled = false;
-            razorpay_submit_btn.value = "{{ button_confirm }}";
-          }
+        razorpay_instance = new Razorpay(razorpay_options);
+        if(razorpay_submit_btn){
+          razorpay_submit_btn.disabled = false;
+          razorpay_submit_btn.value = "{{ button_confirm }}";
         }
         razorpay_instance.open();
       }
