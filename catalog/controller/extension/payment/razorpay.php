@@ -14,7 +14,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
     const ORDER_PAID            = 'order.paid';
 
     // Set RZP plugin version
-    private $version = '4.0.1';
+    private $version = '4.0.2';
 
     public function index()
     {
@@ -28,8 +28,18 @@ class ControllerExtensionPaymentRazorpay extends Controller
         try
         { 
             $api = $this->getApiIntance();
-            $order_data = $this->get_order_creation_data($this->session->data['order_id']);   
-            $razorpay_order = $api->order->create($order_data);
+
+            $order_data = $this->get_order_creation_data($this->session->data['order_id']);
+
+            if(empty($this->session->data["razorpay_order_id_" . $this->session->data['order_id']]) === true)
+            {
+                $razorpay_order = $api->order->create($order_data);
+
+                $this->session->data["razorpay_order_id_" . $this->session->data['order_id']] = $razorpay_order['id'];
+
+                $this->log->write("RZP orderID (:" . $razorpay_order['id'] . ") created for Opencart OrderID (:" . $this->session->data['order_id'] . ")");
+            }
+
         }
         catch(\Razorpay\Api\Errors\Error $e)
         {
@@ -38,7 +48,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
             echo "<div class='alert alert-danger alert-dismissible'> Something went wrong. Unable to create Razorpay Order Id.</div>";
             exit;
         }
-        $this->session->data['razorpay_order_id'] = $razorpay_order['id'];
+
 
         $data['key_id'] = $this->config->get('payment_razorpay_key_id');
         $data['currency_code'] = $order_info['currency_code'];
@@ -50,7 +60,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['name'] = $this->config->get('config_name');
         $data['lang'] = $this->session->data['language'];
         $data['return_url'] = $this->url->link('extension/payment/razorpay/callback', '', 'true');
-        $data['razorpay_order_id'] = $razorpay_order['id'];
+        $data['razorpay_order_id'] = $this->session->data["razorpay_order_id_" . $this->session->data['order_id']];
         $data['version'] = $this->version;
         $data['oc_version'] = VERSION;
 
@@ -93,7 +103,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         {    
             $razorpay_payment_id = $this->request->request['razorpay_payment_id'];
             $merchant_order_id = $this->session->data['order_id'];
-            $razorpay_order_id = $this->session->data['razorpay_order_id']; 
+            $razorpay_order_id = $this->session->data["razorpay_order_id_" . $this->session->data['order_id']];
             $razorpay_signature = $this->request->request['razorpay_signature'];
 
             $order_info = $this->model_checkout_order->getOrder($merchant_order_id);
