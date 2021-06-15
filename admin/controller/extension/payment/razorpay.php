@@ -236,7 +236,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
         $webhook = $this->webhookAPI("GET", "webhooks");
 
-        if(count($webhook) > 0)
+        if(isset($webhook['count']) & $webhook['count'] > 0)
         {
             foreach ($webhook['items'] as $key => $value) 
             {
@@ -246,7 +246,6 @@ class ControllerExtensionPaymentRazorpay extends Controller
                     $webhookId     = $value['id'];
                 }
             }
-
         }
 
         if($webhookExist)
