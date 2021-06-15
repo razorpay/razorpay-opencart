@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__.'/../../../../system/library/razorpay-sdk/Razorpay.php';
+use Razorpay\Api\Api;
 
 class ControllerExtensionPaymentRazorpay extends Controller
 {
@@ -13,6 +15,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $this->load->model('setting/setting');
 
         if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
+
+            $this->autoEnableWebhook();
+
             $this->model_setting_setting->editSetting('payment_razorpay', $this->request->post);
 
             $this->session->data['success'] = $this->language->get('text_success');
@@ -38,6 +43,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['entry_payment_action'] = $this->language->get('entry_payment_action');
         $data['entry_webhook_secret'] = $this->language->get('entry_webhook_secret');
         $data['entry_webhook_status'] = $this->language->get('entry_webhook_status');
+        $data['entry_webhook_events'] = $this->language->get('entry_webhook_events');
         $data['entry_webhook_url'] = $this->language->get('entry_webhook_url');
 
         $data['button_save'] = $this->language->get('button_save');
@@ -147,6 +153,12 @@ class ControllerExtensionPaymentRazorpay extends Controller
             $data['razorpay_webhook_status'] = $this->config->get('payment_razorpay_webhook_status');
         }
 
+        if (isset($this->request->post['payment_razorpay_event_selection'])) {
+            $data['razorpay_event_selection'] = $this->request->post['payment_razorpay_event_selection'];
+        } else {
+            $data['razorpay_event_selection'] = $this->config->get('payment_razorpay_event_selection');
+        }
+
         if (isset($this->request->post['payment_razorpay_webhook_secret'])) {
             $data['razorpay_webhook_secret'] = $this->request->post['payment_razorpay_webhook_secret'];
         } else {
@@ -166,6 +178,108 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['footer'] = $this->load->controller('common/footer');
 
         $this->response->setOutput($this->load->view('extension/payment/razorpay', $data));
+    }
+
+    public function autoEnableWebhook()
+    {
+        $webhookExist = false;
+        $webhookUrl   = HTTPS_CATALOG . 'index.php?route=extension/payment/razorpay/webhook';
+
+        $eventsSubscribe = $this->request->post['payment_razorpay_event_selection'];
+
+        $prepareEventsData = [];
+
+        if(empty($eventsSubscribe) == false)
+        {
+            foreach ($eventsSubscribe as $value) 
+            {
+                $prepareEventsData[$value] = true;
+            }
+        }
+
+        if(in_array($_SERVER['SERVER_ADDR'], ["127.0.0.1","::1"]))
+        {
+            $this->session->data['error'] = $this->language->get('error_webhook_localhost');
+
+            $this->log->write($this->language->get('error_webhook_localhost'));
+
+            return;
+        }
+
+        if($this->request->post['payment_razorpay_webhook_status'] === 0)
+        {
+            $data = [
+                'url'    => $webhookUrl,
+                'active' => false,
+            ];
+        }
+        else
+        {
+            //validating event is not empty
+            if(empty($eventsSubscribe) === true)
+            {
+                $this->session->data['error'] = $this->language->get('error_webhook_events');
+
+                $this->log->write($this->language->get('error_webhook_events'));
+
+                return;
+            }
+
+            $data = [
+                'url'    => $webhookUrl,
+                'active' => $this->request->post['payment_razorpay_webhook_status'] == 1 ? true: false,
+                'events' => $prepareEventsData,
+                'secret' => $this->request->post['payment_razorpay_webhook_secret'],
+            ];
+
+        }
+
+        $webhook = $this->webhookAPI("GET", "webhooks");
+
+        if(count($webhook) > 0)
+        {
+            foreach ($webhook['items'] as $key => $value) 
+            {
+                if($value['url'] === $webhookUrl)
+                {
+                    $webhookExist  = true;
+                    $webhookId     = $value['id'];
+                }
+            }
+
+        }
+
+        if($webhookExist)
+        {
+            $this->webhookAPI('PUT', "webhooks/".$webhookId, $data);
+        }
+        else
+        {
+            $this->webhookAPI('POST', "webhooks/", $data);
+        }
+        
+    }
+
+    protected function webhookAPI($method, $url, $data = array())
+    {
+        $webhook = [];
+        try
+        {
+            $api = $this->getApiIntance();
+
+            $webhook = $api->request->request($method, $url, $data);
+        }
+        catch(Exception $e)
+        {
+            $this->log->write($e->getMessage());
+        }
+
+        return $webhook;
+    }
+
+    protected function getApiIntance()
+    {
+        return new Api($this->config->get('payment_razorpay_key_id'), $this->config->get('payment_razorpay_key_secret'));
     }
 
     protected function validate()
