@@ -114,15 +114,31 @@
               </select>
             </div>
           </div>
-          <div class="form-group">
-            <label class="col-sm-2 control-label" for="input-webhook-url"><span data-toggle="tooltip" title="{{ help_webhook_url }}">{{ entry_webhook_url }}</span></label>
+
+          <div class="form-group" id="webhook_events">
+            <label class="col-sm-2 control-label" for="input-webhook-events">{{ entry_webhook_events }}</label>
             <div class="col-sm-10">
-              <div class="input-group"><span class="input-group-addon"><i class="fa fa-link"></i></span>
-                <input type="text" readonly value="{{ razorpay_webhook_url }}" id="input-webhook-url" class="form-control" />
-              </div>
+              {% if 'order.paid' in razorpay_event_selection %} 
+              <input type="checkbox" name="payment_razorpay_event_selection[]" value="order.paid" checked>
+              {% else %}
+              <input type="checkbox" name="payment_razorpay_event_selection[]" value="order.paid">
+              {% endif %}
+              <label style="margin-left:10px;font-weight:normal;">
+                {{text_order_paid}}
+              </label>
+              </br>
+              {% if 'payment.authorized' in razorpay_event_selection %} 
+              <input type="checkbox" name="payment_razorpay_event_selection[]" value="payment.authorized" checked>
+              {% else %}
+              <input type="checkbox" name="payment_razorpay_event_selection[]" value="payment.authorized" >
+              {% endif %}
+              <label style="margin-left:10px;font-weight:normal;">
+                {{text_payment_authorized}}
+              </label>
             </div>
           </div>
-          <div class="form-group">
+
+          <div class="form-group" id="webhook_secret">
             <label class="col-sm-2 control-label" for="input-webhook-secret">{{ entry_webhook_secret }}</label>
             <div class="col-sm-10">
               <input type="text" name="payment_razorpay_webhook_secret" value="{{ razorpay_webhook_secret }}" placeholder="{{ entry_webhook_secret }}" id="input-webhook-secret" class="form-control" />
@@ -131,9 +147,37 @@
               {% endif %}
             </div>
           </div>
+
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-webhook-url"><span data-toggle="tooltip" title="{{ help_webhook_url }}">{{ entry_webhook_url }}</span></label>
+            <div class="col-sm-10">
+              <div class="input-group"><span class="input-group-addon"><i class="fa fa-link"></i></span>
+                <input type="text" readonly value="{{ razorpay_webhook_url }}" id="input-webhook-url" class="form-control" />
+              </div>
+            </div>
+          </div>
         </form>
       </div>
     </div>
   </div>
 </div>
 {{ footer }}
+<script type='text/javascript'>
+   $(function() {
+       $('#input-webhook-status').change(function () {
+   
+        var value = document.getElementById("input-webhook-status");  
+        var getvalue = value.options[value.selectedIndex].value;      
+
+        if (getvalue == 1){
+           $('#webhook_events').fadeIn('slow');
+           $('#webhook_secret').fadeIn('slow');
+       }else {
+           $('#webhook_events').toggle();
+           $('#webhook_secret').toggle();
+       }
+   
+       }).change();
+   });
+  
+</script>

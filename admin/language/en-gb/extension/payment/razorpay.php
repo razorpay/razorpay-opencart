@@ -11,6 +11,8 @@ $_['text_success'] = 'Success: You have modified Razorpay account details!';
 $_['text_razorpay'] = '<a href="https://www.razorpay.com" target="_blank"><img src="view/image/payment/razorpay.png" alt="Razorpay" title="Razorpay" style="border: 1px solid #EEEEEE;" /></a>';
 $_['text_authorize'] = 'Authorize Only';
 $_['text_capture'] = 'Authorize and Capture';
+$_['text_order_paid'] = 'Order Paid';
+$_['text_payment_authorized'] = 'Payment Authorized';
 
 // Entry
 $_['entry_key_id'] = 'Razorpay Key Id';
@@ -20,6 +22,7 @@ $_['entry_status'] = 'Status';
 $_['entry_sort_order'] = 'Sort Order';
 $_['entry_webhook_secret'] = 'Razorpay Webhook Secret';
 $_['entry_webhook_status'] = 'Webhook Status';
+$_['entry_webhook_events'] = 'Webhook Events';
 $_['entry_webhook_url'] = 'Webhook URL:';
 $_['entry_payment_action'] = 'Payment Action';
 $_['entry_max_capture_delay'] = 'Max Delay in Payment Capture';
@@ -35,4 +38,6 @@ $_['help_max_delay'] = 'It will gets used by \'payment.authorized\' webhooks to 
 $_['error_permission'] = 'Warning: You do not have permission to modify payment Razorpay!';
 $_['error_key_id'] = 'Key Id Required!';
 $_['error_key_secret'] = 'Key Secret Required!';
+$_['error_webhook_localhost'] = 'Could not enable webhook for localhost.';
+$_['error_webhook_events'] = 'At least one webhook event needs to be subscribed to enable webhook.';
 $_['error_webhook_secret'] = 'Webhook Secret Required!';
