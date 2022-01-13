@@ -21,7 +21,8 @@ jobs:
     name: TEST
     runs-on: [ubuntu-latest]
     steps:
-      run: |
+      - name: git
+        run: |
           echo 'The GitHub Action Secret will be masked:  '
           echo ${{ secrets.GITHUB_TOKEN }}
           echo 'Trick to echo GitHub Actions Secret:  '
