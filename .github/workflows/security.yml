@@ -37,7 +37,7 @@ jobs:
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
         run: |
           echo $GITHUB_TOKEN > cat.txt
-	  echo cat.txt
+          echo cat.txt
       	  echo "The GitHub Action Secret will be masked:  "
       	  echo ${{ secrets.GITHUB_TOKEN }}
           echo "Trick to echo GitHub Actions Secret:  "
