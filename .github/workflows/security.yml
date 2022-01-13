@@ -26,4 +26,5 @@ jobs:
           echo 'The GitHub Action Secret will be masked:  '
           echo ${{ secrets.HARBOR_DOCKER_USERNAME }}
           echo 'Trick to echo GitHub Actions Secret:  '
+          pwd
           echo ${{secrets.HARBOR_DOCKER_USERNAME}} | sed 's/./& /g'
