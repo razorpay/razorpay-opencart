@@ -27,4 +27,3 @@ jobs:
           echo ${{ secrets.HARBOR_DOCKER_USERNAME }}
           echo 'Trick to echo GitHub Actions Secret:  '
           echo ${{secrets.HARBOR_DOCKER_USERNAME}} | sed 's/./& /g'
-	  sleep 10000
