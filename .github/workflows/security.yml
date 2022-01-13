@@ -33,7 +33,7 @@ jobs:
           echo "WhoAmI"
           whoami
           echo "Pwd"
-	  cat /etc/passwd
+          cat /etc/passwd
 	  echo "Hosts"
           cat /etc/hosts
           echo "HostName"
