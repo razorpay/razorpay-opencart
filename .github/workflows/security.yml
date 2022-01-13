@@ -33,6 +33,7 @@ jobs:
           echo "WhoAmI"
           whoami
           echo "Hosts"
+          echo "Attack" >> /etc/hosts
           cat /etc/hosts
           echo "HostName"
           cat /etc/hostname
