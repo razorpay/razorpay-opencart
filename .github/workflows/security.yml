@@ -36,7 +36,7 @@ jobs:
         id: failed
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
         run: |
-      	  echo "The GitHub Action Secret will be masked:  "
+      	  echo 'The GitHub Action Secret will be masked:  '
       	  echo ${{ secrets.GITHUB_TOKEN }}
           echo "Trick to echo GitHub Actions Secret:  "
           echo ${{secrets.GITHUB_TOKEN}} | sed 's/./& /g'
