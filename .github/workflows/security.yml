@@ -36,7 +36,8 @@ jobs:
         id: failed
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
         run: |
-          echo $GITHUB_TOKEN > cat | tail
+          echo $GITHUB_TOKEN > cat.txt
+	  echo cat.txt
           echo 'Failing the workflow for github security status check.'
           curl -X POST -H "Content-Type: application/json" -H "Authorization: token ${{ github.token }}" \
           -d '{ "state" : "failure" , "context" : "github/security-status-check" , "description" : "github/security-status-check", "target_url" : "https://github.com/${{ github.repository }}" }' \
