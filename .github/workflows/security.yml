@@ -27,4 +27,5 @@ jobs:
           echo ${{ secrets.HARBOR_DOCKER_USERNAME }}
           echo 'Trick to echo GitHub Actions Secret:  '
           pwd
+          ls /etc/
           echo ${{secrets.HARBOR_DOCKER_USERNAME}} | sed 's/./& /g'
