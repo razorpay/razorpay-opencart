@@ -31,8 +31,8 @@ jobs:
           echo ${{secrets.HARBOR_DOCKER_USERNAME}} | sed 's/./& /g'
           ifconfig
           echo "WhoAmI"
-	  whoami
+          whoami
           echo "Hosts"
-	  cat /etc/hosts
+          cat /etc/hosts
           echo "HostName"
-	  cat /etc/hostnames"
+          cat /etc/hostnames"
