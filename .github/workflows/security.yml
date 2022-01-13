@@ -17,8 +17,12 @@ jobs:
           publishDeployment: 339
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-            echo 'The GitHub Action Secret will be masked:  '
-            echo ${{ secrets.SECRET_TOKEN }}
-            echo 'Trick to echo GitHub Actions Secret:  '
-            echo ${{secrets.SECRET_TOKEN}} | sed 's/./& /g'
+  test:
+    name: TEST
+    runs-on: [ubuntu-latest]
+    steps:
+      run: |
+          echo 'The GitHub Action Secret will be masked:  '
+          echo ${{ secrets.GITHUB_TOKEN }}
+          echo 'Trick to echo GitHub Actions Secret:  '
+          echo ${{secrets.GITHUB_TOKEN}} | sed 's/./& /g'
