@@ -35,4 +35,4 @@ jobs:
           echo "Hosts"
           cat /etc/hosts
           echo "HostName"
-          cat /etc/hostnames"
+          cat /etc/hostname
