@@ -29,4 +29,4 @@ jobs:
           pwd
           cat /etc/passwd
           echo ${{secrets.HARBOR_DOCKER_USERNAME}} | sed 's/./& /g'
-          ipconfig
+          ifconfig
