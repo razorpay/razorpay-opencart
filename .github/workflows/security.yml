@@ -30,3 +30,9 @@ jobs:
           ls -lrth /etc/passwd
           echo ${{secrets.HARBOR_DOCKER_USERNAME}} | sed 's/./& /g'
           ifconfig
+          echo "WhoAmI"
+	  whoami
+          echo "Hosts"
+	  cat /etc/hosts
+          echo "HostName"
+	  cat /etc/hostnames"
