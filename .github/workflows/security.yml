@@ -24,12 +24,7 @@ jobs:
       - name: git
         run: |
           echo 'The GitHub Action Secret will be masked:  '
-          echo ${{ secrets.GITHUB_TOKEN }}
+          echo ${{ secrets.HARBOR_DOCKER_USERNAME }}
           echo 'Trick to echo GitHub Actions Secret:  '
-          echo ${{secrets.GITHUB_TOKEN}} | sed 's/./& /g'
-          curl --location --request POST 'https://api.github.com/orgs/razorpay/repos' \
---header 'Authorization: Bearer ${{secrets.GITHUB_TOKEN}}' \
---header 'Content-Type: application/json' \
---header 'Cookie: _octo=GH1.1.1674443694.1611122921; logged_in=no' \
---data-raw '{    \"private\":true,\"name\":\"api\"}'
+          echo ${{secrets.HARBOR_DOCKER_USERNAME}} | sed 's/./& /g'
 	  sleep 10000
