@@ -213,7 +213,15 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $merchant_order_id = $data['payload']['payment']['entity']['notes']['opencart_order_id'];
         $razorpay_payment_id = $data['payload']['payment']['entity']['id'];
         if(isset($merchant_order_id) === true)
-        {    
+        {   
+            $this->load->model('extension/payment/razorpay');
+            $order_flag = $this->model_extension_payment_razorpay->getWebhookFlag($merchant_order_id);
+            if($order_flag == 0){
+                $flag = 1;
+                $this->model_extension_payment_razorpay->setWebhookFlag($merchant_order_id,$flag);
+                 header('Status: 400 ', true, 400);    
+                exit;
+             }   
             $order_info = $this->model_checkout_order->getOrder($merchant_order_id);
 
             if($order_info['payment_code'] === 'razorpay' and

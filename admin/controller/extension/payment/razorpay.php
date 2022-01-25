@@ -4,6 +4,25 @@ class ControllerExtensionPaymentRazorpay extends Controller
 {
     private $error = array();
 
+    public function install()
+    {
+        $result = $this->db->query("SHOW COLUMNS FROM " . DB_PREFIX . "order LIKE 'webhook_flag'"); 
+        if($result->num_rows == 0){
+              
+              $sql = "ALTER TABLE `".DB_PREFIX."order` ADD `webhook_flag` INT( 11 ) NOT NULL DEFAULT 0";
+              $this->db->query($sql);  
+        }
+    }
+
+    public function uninstall() {
+        
+        $result = $this->db->query("SHOW COLUMNS FROM " . DB_PREFIX . "order LIKE 'webhook_flag'"); 
+        if($result->num_rows > 0){
+        $sql = "ALTER TABLE `".DB_PREFIX."order` DROP COLUMN `webhook_flag`";
+        $this->db->query($sql);
+        }
+    }
+    
     public function index()
     {
         $this->language->load('extension/payment/razorpay');
