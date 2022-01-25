@@ -120,9 +120,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 );
 
                 $api->utility->verifyPaymentSignature($attributes);
-                if(!$order_info['order_status_id']){ 
-                $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:'.$razorpay_payment_id, true); 
-                }             
+                $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:'.$razorpay_payment_id, true);             
                 $this->response->redirect($this->url->link('checkout/success', '', true));
             }
             catch(\Razorpay\Api\Errors\SignatureVerificationError $e)
