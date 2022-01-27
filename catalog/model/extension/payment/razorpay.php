@@ -18,7 +18,7 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function setWebhookFlag($order_id,$flag) {
         
-        $this->db->query("UPDATE " . DB_PREFIX . "order SET webhook_flag = '" . (int)$flag . "' WHERE order_id = '" . (int)$order_id . "'");
+        $this->db->query("UPDATE " . DB_PREFIX . "order SET razorpay_webhook_count = '" . (int)$flag . "' WHERE order_id = '" . (int)$order_id . "'");
             
     }
 
@@ -26,8 +26,8 @@ class ModelExtensionPaymentRazorpay extends Model
 
              $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order WHERE order_id = '" . (int)$order_id . "'");
               
-             if(isset($query->rows[0]['webhook_flag'])){
-                return $query->rows[0]['webhook_flag']; 
+             if(isset($query->rows[0]['razorpay_webhook_count'])){
+                return $query->rows[0]['razorpay_webhook_count']; 
              }
             
     }
