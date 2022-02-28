@@ -19,7 +19,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
     public function index()
     {
         $data['button_confirm'] = $this->language->get('button_confirm');
-        
+
         $this->load->model('checkout/order');
 
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
@@ -29,17 +29,33 @@ class ControllerExtensionPaymentRazorpay extends Controller
         { 
             $api = $this->getApiIntance();
 
-            $order_data = $this->get_order_creation_data($this->session->data['order_id']);
+            if($this->cart->hasRecurringProducts()){
+                $order_data = $this->get_subscription_order_creation_data($this->session->data['order_id']);
 
-            if(empty($this->session->data["razorpay_order_id_" . $this->session->data['order_id']]) === true)
-            {
-                $razorpay_order = $api->order->create($order_data);
+                if(empty($this->session->data["razorpay_subscription_id_" . $this->session->data['order_id']]) === true)
+                {
+                    $subscription_order = $api->subscription->create($order_data);
 
-                $this->session->data["razorpay_order_id_" . $this->session->data['order_id']] = $razorpay_order['id'];
+                    $this->session->data["razorpay_subscription_order_id_" . $this->session->data['order_id']] = $subscription_order['id'];
+                    $data['razorpay_subscription_order_id'] = "sub_IrrtytdV5ECxa0";// $this->session->data["razorpay_subscription_order_id_" . $this->session->data['order_id']];
+                    $data['is_recurring'] = false;
+                    $this->log->write("RZP subscriptionID (:" . $subscription_order['id'] . ") created for Opencart OrderID (:" . $this->session->data['order_id'] . ")");
+                }
 
-                $this->log->write("RZP orderID (:" . $razorpay_order['id'] . ") created for Opencart OrderID (:" . $this->session->data['order_id'] . ")");
+            } else {
+                $order_data = $this->get_order_creation_data($this->session->data['order_id']);
+                $order_data["amount"] = 5000;
+
+                if(empty($this->session->data["razorpay_order_id_" . $this->session->data['order_id']]) === true)
+                {
+                    $razorpay_order = $api->order->create($order_data);
+
+                    $this->session->data["razorpay_order_id_" . $this->session->data['order_id']] = $razorpay_order['id'];
+                    $data['razorpay_order_id'] = $this->session->data["razorpay_order_id_" . $this->session->data['order_id']];
+
+                    $this->log->write("RZP orderID (:" . $razorpay_order['id'] . ") created for Opencart OrderID (:" . $this->session->data['order_id'] . ")");
+                }
             }
-
         }
         catch(\Razorpay\Api\Errors\Error $e)
         {
@@ -60,7 +76,6 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['name'] = $this->config->get('config_name');
         $data['lang'] = $this->session->data['language'];
         $data['return_url'] = $this->url->link('extension/payment/razorpay/callback', '', 'true');
-        $data['razorpay_order_id'] = $this->session->data["razorpay_order_id_" . $this->session->data['order_id']];
         $data['version'] = $this->version;
         $data['oc_version'] = VERSION;
 
@@ -70,7 +85,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['api_url']    = $api->getBaseUrl();
         $data['cancel_url'] =  $this->url->link('checkout/checkout', '', 'true');
 
-        if (file_exists(DIR_TEMPLATE.$this->config->get('config_template').'/template/extension/payment/razorpay')) 
+        if (file_exists(DIR_TEMPLATE.$this->config->get('config_template').'/template/extension/payment/razorpay'))
         {
             return $this->load->view($this->config->get('config_template').'/template/extension/payment/razorpay', $data);
         } 
@@ -92,6 +107,34 @@ class ControllerExtensionPaymentRazorpay extends Controller
         ];
 
         return $data;
+    }
+
+    private function get_subscription_order_creation_data($order_id){
+        $order = $this->model_checkout_order->getOrder($order_id);
+//        echo "<pre>"; print_r($order);die;
+        $order_product_details = $this->model_checkout_order->getOrderProducts($order_id);
+//
+//        echo"<pre>";print_r($this->cart->getRecurringProducts());die;
+//        foreach ($this->cart->getRecurringProducts() as $item) {
+//            echo"<pre>";print_r($item);
+//        }die;
+//        echo "<pre>"; print_r($order_product_details);die;
+        return [
+            "customer_id" => $this->getRazorpayCustomerData($order),
+            "plan_id" => "plan_ItTR3Jou5MBZT2",
+            "total_count" => 3,
+            "quantity" => 2,//$order_product_details['quantity'],
+            "customer_notify" => 0,
+            "notes" => [
+                "source" => "opencart-subscription",
+                "merchant_order_id" => $order_id,
+            ],
+            "source" => "opencart-subscription",
+
+        ];
+
+//        echo"<pre>";print_r($order);die;
+
     }
 
 
@@ -348,6 +391,35 @@ class ControllerExtensionPaymentRazorpay extends Controller
     protected function getApiIntance()
     {
         return new Api($this->config->get('payment_razorpay_key_id'), $this->config->get('payment_razorpay_key_secret'));
+    }
+
+    /**
+     * This line of code tells api that if a customer is already created,
+     * return the created customer instead of throwing an exception
+     * https://docs.razorpay.com/v1/page/customers-api
+     * @param $order
+     * @return void
+     */
+    protected function getRazorpayCustomerData($order)
+    {
+        try {
+
+            $api = $this->getApiIntance();
+            $customerData = [
+                'email' => $order['email'],
+                'name' => $order['firstname']. " ". $order['lastname'],
+                'contact' => $order['telephone'],
+                'fail_existing' => 0
+            ];
+            $customerResponse = $api->customer->create($customerData);
+
+            return $customerResponse->id;
+        } catch (\Exception $e) {
+            $this->log->write("Razopray exception: {$e->getMessage()}");
+            $this->session->data['error'] = $e->getMessage();
+            echo "<div class='alert alert-danger alert-dismissible'> Something went wrong</div>";
+            exit;
+        }
     }
 
 }
