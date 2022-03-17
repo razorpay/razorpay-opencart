@@ -17,7 +17,7 @@
 			if ($this->user->hasPermission('access', 'extension/payment/razorpay')) {		
 				$adminmenus[] = array(
 					'name'	   => 'Plans',
-					'href'     => $this->url->link('extension/payment/razorpay', 'user_token=' . $this->session->data['user_token'], true),
+					'href'     => $this->url->link('extension/payment/razorpay/getPlan', 'user_token=' . $this->session->data['user_token'], true),
 					'children' => array()		
 				);					
                 	
@@ -25,7 +25,7 @@
             if ($this->user->hasPermission('access', 'extension/payment/razorpay')) {		
 				$adminmenus[] = array(
 					'name'	   => 'Subscriptions',
-					'href'     => $this->url->link('extension/payment/razorpay', 'user_token=' . $this->session->data['user_token'], true),
+					'href'     => $this->url->link('extension/payment/razorpay/getSubscription', 'user_token=' . $this->session->data['user_token'], true),
 					'children' => array()		
 				);					
                 	
