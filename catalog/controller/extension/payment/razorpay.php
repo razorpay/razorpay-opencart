@@ -16,6 +16,14 @@ class ControllerExtensionPaymentRazorpay extends Controller
     // Set RZP plugin version
     private $version = '4.0.2';
 
+    private $api;
+
+    public function __construct($registry)
+    {
+        parent::__construct($registry);
+        $this->api = $this->getApiIntance();
+    }
+
     public function index()
     {
         $data['button_confirm'] = $this->language->get('button_confirm');
@@ -27,7 +35,6 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
         try
         {
-            $api = $this->getApiIntance();
 
             if($this->cart->hasRecurringProducts()){
                 $this->load->model('extension/payment/razorpay');
@@ -45,7 +52,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
                 if(empty($this->session->data["razorpay_subscription_id_" . $this->session->data['order_id']]) === true)
                 {
-                    $subscription_order = $api->subscription->create($subscriptionData['subscriptionData'])->toArray();
+                    $subscription_order = $this->api->subscription->create($subscriptionData['subscriptionData'])->toArray();
                     $subscription_order['id'] = $subscription_order["id"];
                     // Save subscription details to DB
                     $this->model_extension_payment_razorpay->saveSubscriptionDetails($subscription_order, $subscriptionData["planData"],$subscriptionData['subscriptionData']['customer_id'] );
@@ -63,7 +70,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
                 if(empty($this->session->data["razorpay_order_id_" . $this->session->data['order_id']]) === true)
                 {
-                    $razorpay_order = $api->order->create($order_data);
+                    $razorpay_order = $this->api->order->create($order_data);
 
                     $this->session->data["razorpay_order_id_" . $this->session->data['order_id']] = $razorpay_order['id'];
                     $data['razorpay_order_id'] = $this->session->data["razorpay_order_id_" . $this->session->data['order_id']];
@@ -97,7 +104,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         //varify if 'hosted' checkout required and set related data
         $this->getMerchantPreferences($data);
 
-        $data['api_url']    = $api->getBaseUrl();
+        $data['api_url']    = $this->api->getBaseUrl();
         $data['cancel_url'] =  $this->url->link('checkout/checkout', '', 'true');
 
         if (file_exists(DIR_TEMPLATE.$this->config->get('config_template').'/template/extension/payment/razorpay'))
@@ -210,12 +217,11 @@ class ControllerExtensionPaymentRazorpay extends Controller
             $amount = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
 
             //validate Rzp signature
-            $api = $this->getApiIntance();
             try
             {
-                $api->utility->verifyPaymentSignature($attributes);
+                $this->api->utility->verifyPaymentSignature($attributes);
                 if($isSubscriptionCallBack){
-                    $subscriptionData = $api->subscription->fetch($razorpay_subscription_id)->toArray();
+                    $subscriptionData = $this->api->subscription->fetch($razorpay_subscription_id)->toArray();
                     $this->model_extension_payment_razorpay->updateSubscription($subscriptionData, $razorpay_subscription_id);
                 }
 
@@ -344,8 +350,6 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $max_capture_delay = $this->config->get('payment_razorpay_max_capture_delay') * 60;
         $payment_created_time = $data['payload']['payment']['entity']['created_at'];
 
-        $api = $this->getApiIntance();
-
         if((time() - $payment_created_time) < $max_capture_delay)
         {
             // reference_no (opencart_order_id) should be passed in payload
@@ -365,7 +369,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
                         $capture_amount = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
 
                         //fetch the payment
-                        $payment = $api->payment->fetch($razorpay_payment_id);
+                        $payment = $this->api->payment->fetch($razorpay_payment_id);
 
                         //capture only if payment status is 'authorized'
                         if($payment->status === 'authorized')
@@ -401,13 +405,11 @@ class ControllerExtensionPaymentRazorpay extends Controller
      */
     public function validateSignature($payloadRawData, $actualSignature)
     {
-        $api = $this->getApiIntance();
-
         $webhookSecret = $this->config->get('payment_razorpay_webhook_secret');
 
         if (empty($webhookSecret) === false)
         {
-            $api->utility
+            $this->api->utility
                 ->verifyWebhookSignature($payloadRawData, $actualSignature, $webhookSecret);
         }
 
@@ -415,11 +417,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
     public function getMerchantPreferences(array &$preferences)
     {
-        $api = $this->getApiIntance();
-
         try
         {
-            $response = Requests::get($api->getBaseUrl() . 'preferences?key_id=' . $api->getKey());
+            $response = Requests::get($this->api->getBaseUrl() . 'preferences?key_id=' . $this->api->getKey());
         }
         catch (Exception $e)
         {
@@ -459,14 +459,13 @@ class ControllerExtensionPaymentRazorpay extends Controller
     {
         try {
 
-            $api = $this->getApiIntance();
             $customerData = [
                 'email' => $order['email'],
                 'name' => $order['firstname']. " ". $order['lastname'],
                 'contact' => $order['telephone'],
                 'fail_existing' => 0
             ];
-            $customerResponse = $api->customer->create($customerData);
+            $customerResponse = $this->api->customer->create($customerData);
 
             return $customerResponse->id;
         } catch (\Exception $e) {
