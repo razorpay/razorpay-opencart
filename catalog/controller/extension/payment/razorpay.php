@@ -33,8 +33,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
-        try {
-            $api = $this->getApiIntance();
+        try
+        {
 
             if ($this->cart->hasRecurringProducts()) {
                 $this->load->model('extension/payment/razorpay');
@@ -50,8 +50,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
                 $subscriptionData = $this->get_subscription_order_creation_data($this->session->data['order_id']);
 
-                if (empty($this->session->data["razorpay_subscription_id_" . $this->session->data['order_id']]) === true) {
-                    $subscription_order = $api->subscription->create($subscriptionData['subscriptionData'])->toArray();
+                if(empty($this->session->data["razorpay_subscription_id_" . $this->session->data['order_id']]) === true)
+                {
+                    $subscription_order = $this->api->subscription->create($subscriptionData['subscriptionData'])->toArray();
                     $subscription_order['id'] = $subscription_order["id"];
                     // Save subscription details to DB
                     $this->model_extension_payment_razorpay->saveSubscriptionDetails($subscription_order, $subscriptionData["planData"], $subscriptionData['subscriptionData']['customer_id']);
@@ -67,8 +68,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 // Orders API with payment autocapture
                 $order_data = $this->get_order_creation_data($this->session->data['order_id']);
 
-                if (empty($this->session->data["razorpay_order_id_" . $this->session->data['order_id']]) === true) {
-                    $razorpay_order = $api->order->create($order_data);
+                if(empty($this->session->data["razorpay_order_id_" . $this->session->data['order_id']]) === true)
+                {
+                    $razorpay_order = $this->api->order->create($order_data);
 
                     $this->session->data["razorpay_order_id_" . $this->session->data['order_id']] = $razorpay_order['id'];
                     $data['razorpay_order_id'] = $this->session->data["razorpay_order_id_" . $this->session->data['order_id']];
@@ -126,8 +128,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
         //varify if 'hosted' checkout required and set related data
         $this->getMerchantPreferences($data);
 
-        $data['api_url'] = $this->api->getBaseUrl();
-        $data['cancel_url'] = $this->url->link('checkout/checkout', '', 'true');
+        $data['api_url']    = $this->api->getBaseUrl();
+        $data['cancel_url'] =  $this->url->link('checkout/checkout', '', 'true');
 
         if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/extension/payment/razorpay')) {
             return $this->load->view($this->config->get('config_template') . '/template/extension/payment/razorpay', $data);
@@ -236,11 +238,11 @@ class ControllerExtensionPaymentRazorpay extends Controller
             $amount = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
 
             //validate Rzp signature
-            $api = $this->getApiIntance();
-            try {
-                $api->utility->verifyPaymentSignature($attributes);
-                if ($isSubscriptionCallBack) {
-                    $subscriptionData = $api->subscription->fetch($razorpay_subscription_id)->toArray();
+            try
+            {
+                $this->api->utility->verifyPaymentSignature($attributes);
+                if($isSubscriptionCallBack){
+                    $subscriptionData = $this->api->subscription->fetch($razorpay_subscription_id)->toArray();
                     $this->model_extension_payment_razorpay->updateSubscription($subscriptionData, $razorpay_subscription_id);
                 }
 
@@ -348,11 +350,12 @@ class ControllerExtensionPaymentRazorpay extends Controller
      */
     protected function paymentAuthorized(array $data)
     {
-        //verify if we need to consume it as late authorized 
+        //verify if we need to consume it as late authorized
         $max_capture_delay = $this->config->get('payment_razorpay_max_capture_delay') * 60;
         $payment_created_time = $data['payload']['payment']['entity']['created_at'];
 
-        if ((time() - $payment_created_time) < $max_capture_delay) {
+        if((time() - $payment_created_time) < $max_capture_delay)
+        {
             // reference_no (opencart_order_id) should be passed in payload
             $merchant_order_id = $data['payload']['payment']['entity']['notes']['opencart_order_id'];
             $razorpay_payment_id = $data['payload']['payment']['entity']['id'];
@@ -402,7 +405,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
     {
         $webhookSecret = $this->config->get('payment_razorpay_webhook_secret');
 
-        if (empty($webhookSecret) === false) {
+        if (empty($webhookSecret) === false)
+        {
             $this->api->utility
                 ->verifyWebhookSignature($payloadRawData, $actualSignature, $webhookSecret);
         }
@@ -411,9 +415,12 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
     public function getMerchantPreferences(array &$preferences)
     {
-        try {
+        try
+        {
             $response = Requests::get($this->api->getBaseUrl() . 'preferences?key_id=' . $this->api->getKey());
-        } catch (Exception $e) {
+        }
+        catch (Exception $e)
+        {
             $this->log->write($e->getMessage());
             throw new Exception($e->getMessage(), $e->getHttpCode());
         }
