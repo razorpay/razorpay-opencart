@@ -69,6 +69,10 @@ $_['column_subscription_created_at']                     = 'Created At';
 $_['column_next_charge_at']                              = 'Next Charge At';
 $_['column_start_at']                                    = 'Start At';
 $_['column_end_at']                                      = 'Ends At';
+$_['column_invoice_id']                                  = 'Invoice Id';
+$_['column_recurring_amt']                               = 'Recurring Amount';
+$_['column_date']                                        = 'Date';
+$_['column_total_amount']                                 = 'Total Amount';
 
 //Breadcrumbs
 $_['text_extension']                                    = 'Extensions';
@@ -83,7 +87,7 @@ $_['text_yearly']                                       = 'Yearly';
 $_['text_add']                                          = 'Add Plan';
 $_['text_enabled']                                      = 'Enable';
 $_['text_disabled']                                     = 'Disable';
-$_['text_success']                                      = 'Success: You have modified Plan!';
+$_['text_update_plan_success']                          = 'Success: You have modified Plan!';
 $_['text_list']                                         = 'Plan List';
 $_['text_subscription_list']                            = 'Subscription List';
 $_['text_add']                                          = 'Add Plan';
@@ -133,6 +137,7 @@ $_['button_disable']                                    = 'Disable';
 $_['button_resume']                                     = 'Resume';
 $_['button_pause']                                      = 'Pause';
 $_['button_cancel']                                     = 'Cancel';
+$_['button_back']                                       = 'Back';
 
 
 // Error

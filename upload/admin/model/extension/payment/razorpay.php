@@ -104,7 +104,42 @@ class ModelExtensionPaymentRazorpay extends Model {
 
         return $query->rows;
     }
+    public function getTotalPlan($data = array()) {
+		$sql = "SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "razorpay_plans` p";
+        
+        $sql .=" LEFT JOIN " . DB_PREFIX . "product_description op ON (op.product_id = p.opencart_product_id)";
 
+		if (!empty($data['filter_plan_id'])) {
+			$implode = array();
+
+			$sub_statuses = explode(',', $data['filter_plan_id']);
+
+			foreach ($sub_statuses as $sub_id) {
+				$implode[] = "plan_id = '" . $sub_id . "'";
+			}
+
+			if ($implode) {
+				$sql .= " WHERE (" . implode(" OR ", $implode) . ")";
+			}
+		} elseif (isset($data['filter_plan_name']) && $data['filter_plan_name'] !== '') {
+			$sql .= " WHERE plan_name = '" . $data['filter_plan_name'] . "'";
+		} else {
+			$sql .= " WHERE plan_name > '0'";
+		}
+
+        if (!empty($data['filter_plan_status'])) {
+			$sql .= " AND plan_status = '" . $data['filter_plan_status'] . "'";
+		}
+		if (!empty($data['filter_date_created'])) {
+			$sql .= " AND DATE(s.created_at) = DATE('" . $this->db->escape($data['filter_date_created']) . "')";
+		}
+
+		
+
+		$query = $this->db->query($sql);
+
+		return $query->row['total'];
+	}
     public function addPlan($data,$plan_id)
     {
         $this->db->query("INSERT INTO " . DB_PREFIX . "razorpay_plans SET plan_name = '" . $this->db->escape($data['plan_name']) . "', plan_desc = '" . $this->db->escape($data['plan_desc']) . "', plan_id = '" . $this->db->escape($plan_id) . "',opencart_product_id = '" . $this->db->escape($data['product_id']) . "', plan_type = '" . $this->db->escape($data['plan_type']) . "', 	plan_frequency = '" . $this->db->escape($data['billing_frequency']) . "', 	plan_bill_cycle = '" . (int)$data['billing_cycle'] . "', plan_trial = '" . $this->db->escape($data['plan_trial']) . "', plan_bill_amount = '" . $data['billing_amount'] . "',plan_addons = '" . $data['plan_addons'] . "',plan_status = '" . (int)$data['plan_status'] . "', 	created_at = NOW()");
@@ -163,22 +198,58 @@ class ModelExtensionPaymentRazorpay extends Model {
             $sql .= " ASC";
         }
 
-        // if (isset($data['start']) || isset($data['limit'])) {
-        //     if ($data['start'] < 0) {
-        //         $data['start'] = 0;
-        //     }
-
-        //     if ($data['limit'] < 1) {
-        //         $data['limit'] = 20;
-        //     }
-
-        //     $sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
-        // }
-
         $query = $this->db->query($sql);
 
         return $query->rows;
     }
+    public function getTotalSubscriptions($data = array()) {
+		$sql = "SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "razorpay_subscriptions` s";
+        
+        $sql .=" LEFT JOIN " . DB_PREFIX . "razorpay_plans p ON (p.entity_id = s.plan_entity_id)";
+        $sql .=" LEFT JOIN " . DB_PREFIX . "product_description op ON (op.product_id = p.opencart_product_id)";
+        $sql .=" LEFT JOIN " . DB_PREFIX . "customer c ON (s.opencart_user_id = c.customer_id )";
+
+		if (!empty($data['filter_subscription_id'])) {
+			$implode = array();
+
+			$sub_statuses = explode(',', $data['filter_subscription_id']);
+
+			foreach ($sub_statuses as $sub_id) {
+				$implode[] = "subscription_id = '" . $sub_id . "'";
+			}
+
+			if ($implode) {
+				$sql .= " WHERE (" . implode(" OR ", $implode) . ")";
+			}
+		} elseif (isset($data['filter_plan_name']) && $data['filter_plan_name'] !== '') {
+			$sql .= " WHERE plan_id = '" . $data['filter_plan_name'] . "'";
+		} else {
+			$sql .= " WHERE plan_id > '0'";
+		}
+
+
+		if (!empty($data['filter_date_created'])) {
+			$sql .= " AND DATE(s.created_at) = DATE('" . $this->db->escape($data['filter_date_created']) . "')";
+		}
+
+	
+
+		$query = $this->db->query($sql);
+
+		return $query->row['total'];
+	}
+    public function getSubscriptionInfo($entity_id) {
+
+        $sql = "SELECT s.*,s.entity_id as sub_id,s.status as sub_status,s.created_at as sub_created,p.*,op.name,c.firstname,c.lastname FROM `" . DB_PREFIX . "razorpay_subscriptions` s";
+        $sql .=" LEFT JOIN " . DB_PREFIX . "razorpay_plans p ON (p.entity_id = s.plan_entity_id)";
+        $sql .=" LEFT JOIN " . DB_PREFIX . "product_description op ON (op.product_id = p.opencart_product_id)";
+        $sql .=" LEFT JOIN " . DB_PREFIX . "customer c ON (s.opencart_user_id = c.customer_id )";
+        
+        $sql .= " WHERE s.entity_id= '" .$entity_id . "'";
+        $query = $this->db->query($sql);
+
+		return $query->row;
+	}
     public function resumeSubscription($entity_id,$updated_by)
     {
         $this->db->query("UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = 'active',updated_by = '".$updated_by. "' WHERE entity_id = '" .$entity_id . "'");
@@ -197,4 +268,7 @@ class ModelExtensionPaymentRazorpay extends Model {
         return $this->db->query("SELECT * FROM `" . DB_PREFIX . "razorpay_subscriptions` WHERE entity_id='" . (int)$entity_id . "'")->row;
             
     }
+
+
+
 }

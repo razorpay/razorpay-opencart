@@ -3,8 +3,18 @@
   <div class="page-header">
     <div class="container-fluid">
       <div class="pull-right">
-      {# <a href="{{ invoice }}" target="_blank" data-toggle="tooltip" title="{{ button_invoice_print }}" class="btn btn-info"><i class="fa fa-print"></i></a> <a href="{{ shipping }}" target="_blank" data-toggle="tooltip" title="{{ button_shipping_print }}" class="btn btn-info"><i class="fa fa-truck"></i></a> <a href="{{ edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a> #}
-       <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+     
+      {% if (status=='active') %}
+    
+  <a href="{{ singlePause }}" id="button-pause" data-toggle="tooltip" title="{{ button_pause }}" class="btn btn-warning" name="pause"  ><i class="fa fa-pause"></i> Pause</a> 
+     <a href="{{ singleCancel }}" type="submit" id="button-cancel" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-danger" name="cancel"  ><i class="fa fa-ban"></i> Cancel</a> 
+{% elseif (status=='paused') %}
+ <a href="{{ singleResume }}" type="submit" id="button-resume" data-toggle="tooltip" title="{{ button_resume }}" class="btn btn-primary" name="resume" ><i class="fa fa-undo" ></i> Resume</a>
+  <a href="{{ singleCancel }}" type="submit" id="button-cancel" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-danger" name="cancel"  ><i class="fa fa-ban"></i> Cancel</a> 
+ {% endif %}
+
+    
+       <a href="{{ back }}" data-toggle="tooltip" title="{{ button_back }}" class="btn btn-default"><i class="fa fa-reply"></i> Back</a></div>
       <h1>{{ heading_title }}</h1>
       <ul class="breadcrumb">
         {% for breadcrumb in breadcrumbs %}
@@ -24,41 +34,37 @@
        <div class="row">
       <div class="col-md-12">
         <div class="panel panel-default">
-         
+        
           <table class="table">
           
             <tbody>
-             
+            
                                 <tr>
-                        <td style="width: 25%;">{{ column_customer }} : {{ sub.customer_fname }} {{ sub.customer_lname }}</td>
-                        <td style="width: 25%;">{{ column_product_name }} :</td>
-                        <td style="width: 25%;">{{ column_status }} :</td>
-                        <td style="width: 25%;" > {{ column_start_at }} :</td>
+                        <td style="width: 25%;"><b>{{ column_customer }} :</b> {{ firstname }} {{ lastname }}</td>
+                        <td style="width: 25%;"><b>{{ column_product_name }} :</b> {{ product_name }}</td>
+                        <td style="width: 25%;"><b>{{ column_status }} : </b>{{ status}}</td>
+                        <td style="width: 25%;" ><b>{{ column_start_at }} :</b>{{ start_at}}</td>
                     </tr>
                     <tr>
-                        <td>{{ column_subscription_id }} :</td>
-                        <td>{{ column_billing_amount }} :</td>
-                        <td>{{ column_total_count }} :</td>
-                        <td>{{ column_end_at }} :</td>
+                        <td><b>{{ column_subscription_id }} :</b> {{ subscription_id }}</td>
+                        <td><b>{{ column_billing_amount }} :</b> {{ plan_bill_amount }}</td>
+                        <td><b>{{ column_total_count }} :</b> {{ total_count }}</td>
+                        <td><b>{{ column_end_at }} :</b> {{ end_at }}</td>
                     </tr>
                     <tr>
-                        <td>{{ column_plan_id }} :</td>
-                        <td>{{ column_billing_frequence }} :</td>
-                        <td>{{ column_paid_count }} :</td>
-                        <td>{{ column_next_charge_at }} :</td>
+                        <td><b>{{ column_plan_id }} :</b> {{ plan_id }}</td>
+                        <td><b>{{ column_billing_frequence }} :</b> {{ plan_frequency }}</td>
+                        <td><b>{{ column_paid_count }} :</b> {{ paid_count }}</td>
+                        <td><b>{{ column_next_charge_at }} :</b> {{ next_charge_at }}</td>
                     </tr>
                     <tr>
-                        <td>{{ column_plan_name }} :</td>
-                        <td>{{ column_billing_cycle }} :</td>
-                        <td>{{ column_remaining_count }} :</td>
-                        <td>{{ column_created_at }} :</td>
+                        <td><b>{{ column_plan_name }} :</b> {{ plan_name }}</td>
+                        <td><b>{{ column_billing_cycle }} :</b> {{ plan_bill_cycle }}</td>
+                        <td><b>{{ column_remaining_count }} :</b> {{ remaining_count }}</td>
+                        <td><b>{{ column_created_at }} :</b> {{ sub_created }}</td>
                     </tr>
-                    {# <tr>
-                        <td>{{ column_subscription_id }} :</td>
-                        <td>{{ column_subscription_id }} :</td>
-                        <td>{{ column_subscription_id }} :K</td>
-                        <td>{{ column_subscription_id }} :</td>
-                    </tr> #}
+                     
+                    
             </tbody>
 
           </table>
@@ -69,47 +75,53 @@
         <table class="table table-bordered">
           <thead>
             <tr>
-              <td class="text-left">{{ text_invoice }} : </td>
-              <td class="text-left">{{ column_model }}</td>
-              <td class="text-left">{{ column_quantity }}</td>
-              <td class="text-left">{{ column_price }}</td>
-              <td class="text-left">{{ column_total }}</td>
+              <td colspan="6" class="text-left">{{ text_invoice }} : </td>
+             
+            </tr>
+               {% if invoiceDetails %}
+              
+
+            <tr>
+             <td class="text-left">{{ column_invoice_id }}</td>
+              <td class="text-left">{{ column_recurring_amt }}</td>
+              <td class="text-left">{{ column_plan_addons }}</td>
+              <td class="text-left">{{ column_total_amount }}</td>
+              <td class="text-left">{{ column_status }}</td>
+            <td class="text-left">{{ column_date }}</td>
             </tr>
           </thead>
           <tbody>
+           
+            {% if ((results['next_charge_at'] != results['end_at']) and  (results['sub_status'] !="cancelled") and (results['sub_status'] !="created") and (results['remaining_count'] !=0 )) %}
+          <tr>
+           <td>--</td>
+          <td>{{ invoiceResult['items'][0]['line_items'][0]['net_amount']/100 }}</td>
+                <td>--</td>
+                <td>{{ invoiceResult['items'][0]['line_items'][0]['net_amount']/100 }}</td>
+                <td>Next Due</td>
+               <td>
+               {% if not (invoiceResult['items'][0]['billing_end']) %}
+   {{ date('M d, Y', invoiceResult['items'][0]['billing_end']) }}
+    {% else %}
+  --
+{% endif %}
+               </td>
+                
+               
+          </tr>
+          {% endif %}
+           {% for inv in invoiceDetails %}
+          <tr>
+                <td><a href="{{ inv.short_url }}" target="_blank">{{ inv.id }} </a></td>
+                <td>{{ inv.recurring_amt }}</td>
+                <td>{{ inv.addons }}</td>
+                <td>{{ inv.total_amt}}</td>
+                <td>{{ inv.status}}</td>
+                <td>{{ inv.date}}</td>
+          </tr>
+          {% endfor %}
 
-            {% for product in products %}
-              <tr>
-                <td class="text-left"><a href="{{ product.href }}">{{ product.name }}</a> {% for option in product.option %}
-                    <br/>
-                    {% if option.type != 'file' %}
-                      &nbsp;
-                      <small> - {{ option.name }}: {{ option.value }}</small> {% else %}
-                      &nbsp;
-                      <small> - {{ option.name }}: <a href="{{ option.href }}">{{ option.value }}</a></small> {% endif %}
-                  {% endfor %}</td>
-                <td class="text-left">{{ product.model }}</td>
-                <td class="text-right">{{ product.quantity }}</td>
-                <td class="text-right">{{ product.price }}</td>
-                <td class="text-right">{{ product.total }}</td>
-              </tr>
-            {% endfor %}
-            {% for voucher in vouchers %}
-              <tr>
-                <td class="text-left"><a href="{{ voucher.href }}">{{ voucher.description }}</a></td>
-                <td class="text-left"></td>
-                <td class="text-right">1</td>
-                <td class="text-right">{{ voucher.amount }}</td>
-                <td class="text-right">{{ voucher.amount }}</td>
-              </tr>
-            {% endfor %}
-            {% for total in totals %}
-              <tr>
-                <td colspan="4" class="text-right">{{ total.title }}</td>
-                <td class="text-right">{{ total.text }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
+         {% endif %}
 
         </table>
        </div>
