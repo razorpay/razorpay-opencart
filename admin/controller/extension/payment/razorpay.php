@@ -1249,6 +1249,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $this->load->model('extension/payment/razorpay');
         
         $this->model_extension_payment_razorpay->createTables();
+        $this->model_extension_payment_razorpay->addLayout();
+
     }
 
     public function uninstall()
