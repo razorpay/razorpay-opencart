@@ -456,7 +456,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['footer'] = $this->load->controller('common/footer');
         $data['header'] = $this->load->controller('common/header');
 
-        return $this->response->setOutput($this->load->view('extension/recurring/razorpay_subscription', $data));
+        return $this->response->setOutput($this->load->view('extension/payment/razorpay_subscription', $data));
     }
 
     /**
@@ -535,7 +535,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
             $data['footer'] = $this->load->controller('common/footer');
             $data['header'] = $this->load->controller('common/header');
 
-            return $this->response->setOutput($this->load->view('extension/recurring/razorpay_subscription_info', $data));
+            return $this->response->setOutput($this->load->view('extension/payment/razorpay_subscription_info', $data));
         } else {
             $this->document->setTitle($this->language->get('text_heading_title_subscription'));
 
