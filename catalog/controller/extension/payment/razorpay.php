@@ -35,7 +35,6 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
         try
         {
-
             if ($this->cart->hasRecurringProducts()) {
                 $this->load->model('extension/payment/razorpay');
 
