@@ -310,4 +310,15 @@ class ModelExtensionPaymentRazorpay extends Model {
 		return $recurring_id;
 	}
 
+    public function addLayout()
+    {
+        $this->db->query("INSERT INTO " . DB_PREFIX . "layout SET name = 'razorpay' ");
+
+        $layout_id = $this->db->getLastId();
+
+        $this->db->query("INSERT INTO " . DB_PREFIX . "layout_route SET layout_id = '" . (int)$layout_id . "', store_id = 0, route = 'extension/payment/razorpay/subscriptions'");
+
+        $this->db->query("INSERT INTO " . DB_PREFIX . "layout_module SET layout_id = '" . (int)$layout_id . "', code = 'category', position = 'column_right', sort_order = 0 ");
+    }
+
 }
