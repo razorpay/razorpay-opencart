@@ -32,6 +32,7 @@ class ModelExtensionPaymentRazorpay extends Model
                 `opencart_user_id` int(11) NOT NULL,
                 `status` varchar(30) NOT NULL,
                 `updated_by` varchar(30) NOT NULL,
+                `qty` double NOT NULL DEFAULT '0',
                 `total_count` int(11) NOT NULL DEFAULT '0',
                 `paid_count` int(11) NOT NULL DEFAULT '0',
                 `remaining_count` int(11) NOT NULL DEFAULT '0',
