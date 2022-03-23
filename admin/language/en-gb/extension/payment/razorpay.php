@@ -39,8 +39,6 @@ $_['error_webhook_secret'] = 'Webhook Secret Required!';
 
 //Subscription
 
-// Heading
-//$_['heading_title']                                     = 'Razorpay Subscription';
 $_['heading_title_transaction']                         = 'View Transaction #%s';
 
 // Plan Column
@@ -129,6 +127,8 @@ $_['entry_plan_status']                                 = 'Plan Status';
 $_['entry_subscription_id']                             = 'Subscription ID';
 $_['entry_customer_name']                               = 'Customer Name';
 
+//integration 
+$_['entry_subscription_status'] = 'Subscription Status';
 
 // Button
 $_['button_save']                                       = 'Save';

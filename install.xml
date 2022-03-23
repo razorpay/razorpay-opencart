@@ -12,9 +12,8 @@
 			<search><![CDATA[// System]]></search>
 			<add position="before"><![CDATA[
 			/* Admin Side  menu */						
-			$adminmenus = array();
-		
-			if ($this->user->hasPermission('access', 'extension/payment/razorpay')) {		
+			$adminmenus = array();		
+			if ($this->user->hasPermission('access', 'extension/payment/razorpay')) {	
 				$adminmenus[] = array(
 					'name'	   => 'Plans',
 					'href'     => $this->url->link('extension/payment/razorpay/getPlan', 'user_token=' . $this->session->data['user_token'], true),
@@ -29,8 +28,7 @@
 					'children' => array()		
 				);					
                 	
-			}	
-					
+			}				
 			if ($adminmenus) {					
 				$data['menus'][] = array(
 					'id'       => 'menu-megafooter',
@@ -40,7 +38,6 @@
 					'children' => $adminmenus
 				);		
 			}
-			
 			/* Admin menu */	]]></add>
 		</operation>
 	</file>
