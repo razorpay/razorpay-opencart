@@ -74,7 +74,7 @@ class ModelExtensionPaymentRazorpay extends Model
         $query = "UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = '".$status . "'";
 
         if($user){
-            $query = $query .",cancel_by = '" . $user . "'" ;
+            $query = $query .",updated_by = '" . $user . "'" ;
         }
         $query = $query ." WHERE subscription_id = '" . $subscriptionId . "'";
 
