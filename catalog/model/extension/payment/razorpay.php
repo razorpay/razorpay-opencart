@@ -21,20 +21,20 @@ class ModelExtensionPaymentRazorpay extends Model
     public function saveSubscriptionDetails($subscriptionData, $planData, $customerId)
     {
         $query = "INSERT INTO " . DB_PREFIX . "razorpay_subscriptions SET plan_entity_id = '" . (int)$planData['entity_id'] . "', subscription_id = '" . $subscriptionData['id'] . "',";
-        $query = $query . " product_id = '" . (int)$planData['opencart_product_id'] . "', razorpay_customer_id = '" . $customerId . "',', qty = '" . $subscriptionData['quantity'] . "'";
+        $query = $query . " product_id = '" . (int)$planData['opencart_product_id'] . "', razorpay_customer_id = '" . $customerId . "', qty = '" . $subscriptionData['quantity'] . "',";
         $query = $query . " status = '" . $subscriptionData['status'] . "', opencart_user_id = '" . (int)$this->customer->getId() . "', total_count = '" . (int)$subscriptionData['total_count'] . "',";
         $query = $query . "  paid_count = '" . (int)$subscriptionData['paid_count'] . "', remaining_count = '" . (int)$subscriptionData['remaining_count'] . "',";
-        $query = $query . "  start_at = '" . $subscriptionData['start_at'] . "', subscription_created_at = '" . $subscriptionData['created_at'] . "', next_charge_at = '" . $subscriptionData['next_charge_at'] . "'";
+        $query = $query . "  start_at = '" . date("Y-m-d h:i:sa", $subscriptionData['start_at'] ). "', subscription_created_at = '" . date("Y-m-d h:i:sa",$subscriptionData['created_at']) . "', next_charge_at = '" . date("Y-m-d h:i:sa", $subscriptionData['charge_at']) . "'";
 
         $this->db->query($query);
     }
 
     public function updateSubscription($subscriptionData, $subscriptionId)
     {
-        $query = "UPDATE" . DB_PREFIX . "razorpay_subscriptions SET  qty = '" . $subscriptionData['quantity'] . "'";
+        $query = "UPDATE " . DB_PREFIX . "razorpay_subscriptions SET  qty = '" . $subscriptionData['quantity'] . "',";
         $query = $query . " status = '" . $subscriptionData['status'] . "', total_count = '" . (int)$subscriptionData['total_count'] . "',";
         $query = $query . "  paid_count = '" . (int)$subscriptionData['paid_count'] . "', remaining_count = '" . (int)$subscriptionData['remaining_count'] . "',";
-        $query = $query . "  start_at = '" . $subscriptionData['start_at'] . "', next_charge_at = '" . $subscriptionData['next_charge_at'] . "'";
+        $query = $query . "  start_at = '" . date("Y-m-d h:i:sa", $subscriptionData['start_at'] ) . "', next_charge_at = '" . date("Y-m-d h:i:sa",$subscriptionData['charge_at'] ). "'";
         $query = $query ." WHERE subscription_id = '" . $subscriptionId . "'";
 
         $this->db->query($query);
@@ -94,14 +94,14 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function getProductBasedPlans($productId)
     {
-        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "razorpay_plans WHERE `plan_status` = 1 AND `opencart_product_id` = $productId");
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "razorpay_plans WHERE plan_status = 1 AND opencart_product_id = '". $productId ."'");
 
         return $query->rows;
     }
 
-    public function getPlanByRecurringIdAndFrequency($recurringId, $frequency)
+    public function getPlanByRecurringIdAndFrequencyAndProductId($recurringId, $frequency, $productId)
     {
-        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "razorpay_plans WHERE `recurring_id` = $recurringId AND `frequency` = $frequency");
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "recurring WHERE recurring_id = '".$recurringId. "' AND frequency = '".$frequency."' AND opencart_product_id = '".$productId."'");
 
         return $query->rows;
     }
@@ -111,5 +111,11 @@ class ModelExtensionPaymentRazorpay extends Model
         $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "razorpay_plans WHERE `plan_status` = 1 AND `entity_id` = $planId");
 
         return $query->row;
+    }
+
+    public function recurringPayments()
+    {
+        return (bool)$this->config->get('payment_razorpay_subscription_status');
+
     }
 }

@@ -7,8 +7,8 @@
   </ul>
 
   <div class=“container-fluid”>
-    {% if error_warning %}
-      <div class=“alert alert-danger alert-dismissible”><i class=“fa fa-exclamation-circle”></i> {{ error_warning }}
+    {% if error %}
+      <div class=“alert alert-danger alert-dismissible”><i class=“fa fa-exclamation-circle”></i> {{ error }}
         <button type=“button” class=“close” data-dismiss=“alert”>&times;</button>
       </div>
     {% endif %}
@@ -70,7 +70,10 @@
           <thead>
             <tr>
               <td class="text-left">{{ text_plan_details }}
-                <div class="pull-right" id="update-button"><a onclick="updatePlan()" class="btn btn-primary" id="updatePlan ">{{ update_plan }}</a></div>
+{#                TODO: Donot allow is status not active to update plan#}
+                {% if subscription_details.status  not in ["cancelled","completed","expired","created"] %}
+                  <div class="pull-right" id="update-button"><a onclick="updatePlan()" class="btn btn-primary" id="updatePlan ">{{ update_plan }}</a></div>
+                {% endif %}
               </td>
             </tr>
           </thead>
@@ -79,7 +82,7 @@
               <td class="text-left" style="width: 50%;">
                 <b>{{ text_plan_name }}</b> {{ subscription_details.plan_name }}<br/>
                 <b>{{ text_plan_id }}</b> #{{ subscription_details.plan_id }}<br/>
-                <b>{{ text_plan_type }}</b> {{ subscription_details.plan_type  }}<br/>
+                <b>{{ text_plan_type }}</b> {{ subscription_details.plan_type | capitalize }}<br/>
               </td>
             </tr>
             <tr id="update-form" style="display: none;">

@@ -33,40 +33,59 @@
 
 {% else %}
 
-    <script data-cfasync='false' type='text/javascript' src="https://checkout.razorpay.com/v1/checkout.js"></script>
+        <script data-cfasync='false' type='text/javascript' src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script data-cfasync='false' type='text/javascript'>
-        var razorpay_options = {
-            key: "{{ key_id }}",
-            amount: "{{ total }}",
-            name: "{{ name }}",
-            description: "Order # {{ merchant_order_id }}",
-            netbanking: true,
-            currency: "{{ currency_code }}",
-            prefill: {
-                name: "{{ card_holder_name }}",
-                email: "{{ email }}",
-                contact: "{{ phone }}"
-            },
-            notes: {
-                opencart_order_id: "{{ merchant_order_id }}"
-            },
-            _: {
-                integration: 'opencart',
-                integration_version: '{{ version }}',
-                integration_parent_version: '{{ oc_version }}'
-            },
-            callback_url: "{{ return_url }}",
-            handler: function (transaction) {
-                document.getElementById('razorpay_payment_id').value = transaction.razorpay_payment_id;
-                document.getElementById('razorpay_signature').value = transaction.razorpay_signature;
-                document.getElementById('razorpay-form').submit();
-            }
-        };
 
         if ({{ is_recurring }}) {
-            razorpay_options.subscription_id = "{{ razorpay_order_id }}";
+            var razorpay_options = {
+                key: "{{ key_id }}",
+                subscription_id: "{{ razorpay_order_id }}",
+                name: "{{ name }}",
+                description: "Order # {{ merchant_order_id }}",
+                notes: {
+                    opencart_order_id: "{{ merchant_order_id }}"
+                },
+                _: {
+                    integration: 'opencart',
+                    integration_version: '{{ version }}',
+                    integration_parent_version: '{{ oc_version }}'
+                },
+                callback_url: "{{ return_url }}",
+                handler: function (transaction) {
+                    document.getElementById('razorpay_payment_id').value = transaction.razorpay_payment_id;
+                    document.getElementById('razorpay_signature').value = transaction.razorpay_signature;
+                    document.getElementById('razorpay-form').submit();
+                }
+            };
         } else {
-            razorpay_options.order_id = "{{ razorpay_order_id }}";
+            var razorpay_options = {
+                key: "{{ key_id }}",
+                amount: "{{ total }}",
+                name: "{{ name }}",
+                description: "Order # {{ merchant_order_id }}",
+                netbanking: true,
+                order_id: "{{ razorpay_order_id }}",
+                currency: "{{ currency_code }}",
+                prefill: {
+                    name: "{{ card_holder_name }}",
+                    email: "{{ email }}",
+                    contact: "{{ phone }}"
+                },
+                notes: {
+                    opencart_order_id: "{{ merchant_order_id }}"
+                },
+                _: {
+                    integration: 'opencart',
+                    integration_version: '{{ version }}',
+                    integration_parent_version: '{{ oc_version }}'
+                },
+                callback_url: "{{ return_url }}",
+                handler: function (transaction) {
+                    document.getElementById('razorpay_payment_id').value = transaction.razorpay_payment_id;
+                    document.getElementById('razorpay_signature').value = transaction.razorpay_signature;
+                    document.getElementById('razorpay-form').submit();
+                }
+            };
         }
 
         var razorpay_submit_btn, razorpay_instance;
