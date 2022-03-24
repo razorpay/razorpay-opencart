@@ -2,7 +2,10 @@
 <div id="content">
 	<div class="page-header">
 		<div class="container-fluid">
+
+
 			<div class="pull-right">
+
 				<button type="submit" id="button-resume" data-toggle="tooltip" title="{{ button_resume }}" class="btn btn-primary" name="enable">
 					<i class="fa fa-undo"></i>
 					Resume</button>
@@ -12,6 +15,8 @@
 				<button type="submit" id="button-cancel" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-danger" name="disable">
 					<i class="fa fa-ban"></i>
 					Cancel</button>
+
+
 			</div>
 			<h1>{{ heading_title }}</h1>
 			<ul class="breadcrumb">
@@ -51,6 +56,7 @@
 							<label class="control-label" for="input-order-id">{{ entry_subscription_id }}</label>
 							<input type="text" name="filter_subscription_id" value="{{ filter_subscription_id }}" placeholder="{{ entry_subscription_id }}" id="input-order-id" class="form-control"/>
 						</div>
+
 						<div class="form-group">
 							<label class="control-label" for="input-customer">{{ entry_plan_name }}</label>
 							<input type="text" name="filter_plan_name" value="{{ filter_plan_name }}" placeholder="{{ entry_plan_name }}" id="input-customer" class="form-control"/>
@@ -87,7 +93,6 @@
 								</span>
 							</div>
 						</div>
-
 						<div class="form-group text-right">
 							<button type="button" id="button-filter" class="btn btn-default">
 								<i class="fa fa-filter"></i>
@@ -105,7 +110,6 @@
 					</div>
 					<div class="panel-body">
 						<form action={{status}} method="post" enctype="multipart/form-data" id="form-plan" name="form-plan">
-
 							<div class="table-responsive">
 								<table class="table table-bordered table-hover">
 									<thead>
@@ -202,7 +206,6 @@
 													<a href="{{ sort_date_modified }}">{{ column_action }}</a>
 												{% endif %}
 											</td>
-
 										</tr>
 									</thead>
 									<tbody>
@@ -219,7 +222,6 @@
 													</td>
 													<td class="text-right">{{ sub.subscription_id }}</td>
 													<td class="text-right">{{ sub.plan_id }}</td>
-
 													<td class="text-left">{{ sub.customer_fname }}
 														{{ sub.customer_lname }}
 													</td>
@@ -232,7 +234,6 @@
 													<td class="text-left">{{ sub.next_charge_at }}</td>
 													<td class="text-left">{{ sub.start_at }}</td>
 													<td class="text-left">{{ sub.end_at }}</td>
-
 													<td class="text-left">{{ sub.created_at }}</td>
 													<td class="text-right">
 														<div style="min-width: 120px;">
@@ -264,17 +265,14 @@
 														</div>
 													</td>
 												</tr>
-
 											{% endfor %}
 										{% else %}
 											<tr>
 												<td class="text-center" colspan="13">{{ text_no_results }}</td>
 											</tr>
 										{% endif %}
-
 										<input type="hidden" name="status" id="status" value="">
 									</tbody>
-
 								</table>
 							</div>
 						</form>
@@ -332,10 +330,9 @@ url += '&filter_date_created=' + encodeURIComponent(filter_date_created);
 
 location = 'index.php?route=extension/payment/razorpay/getSubscription&user_token= {{ user_token }}' + url;
 });
-//
+// -->
 			-->
 		</script>
-
 
 		<script type="text/javascript"><!--
 
@@ -350,5 +347,6 @@ location = 'index.php?route=extension/payment/razorpay/getSubscription&user_toke
 //
 		-->
 	</script>
-</div>
-{{footer}}
+	{
+		{footer}
+	}
