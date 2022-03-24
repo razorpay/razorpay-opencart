@@ -7,6 +7,7 @@ class ModelExtensionPaymentRazorpay extends Model
             "CREATE TABLE IF NOT EXISTS `".DB_PREFIX."razorpay_plans` (
             `entity_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
             `plan_id` varchar(40) NOT NULL,
+            `recurring_id` int(11) NOT NULL,
             `opencart_product_id` int(11) NOT NULL,
             `plan_name` varchar(255) NOT NULL,
             `plan_desc` varchar(255) NOT NULL,
