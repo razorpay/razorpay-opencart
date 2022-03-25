@@ -54,11 +54,36 @@ class ControllerExtensionPaymentRazorpay extends Controller
                     $subscription_order = $this->api->subscription->create($subscriptionData['subscriptionData'])->toArray();
 
                     // Save subscription details to DB
-                    $this->model_extension_payment_razorpay->saveSubscriptionDetails($subscription_order, $subscriptionData["planData"], $subscriptionData['subscriptionData']['customer_id']);
+                    $this->model_extension_payment_razorpay->saveSubscriptionDetails($subscription_order, $subscriptionData["planData"], $subscriptionData['subscriptionData']['customer_id'], $this->session->data['order_id']);
 
                     $this->session->data["razorpay_subscription_order_id_" . $this->session->data['order_id']] = $subscription_order['id'];
                     $data['razorpay_order_id'] = $this->session->data["razorpay_subscription_order_id_" . $this->session->data['order_id']];
                     $data['is_recurring'] = "true";
+                    $recurring_description = "Recurring order ";
+                    $cartDetails = $this->cart->getProducts();
+
+                    $recurringData = [
+                        "order_id" => $this->session->data['order_id'],
+                        "product_id" => $cartDetails[0]["product_id"],
+                        "product_name" => $cartDetails[0]["name"],
+                        "product_quantity" =>$cartDetails[0]["quantity"],
+                        "recurring_id" => $cartDetails[0]["recurring"]["recurring_id"],
+                        "recurring_name" =>$cartDetails[0]["recurring"]["name"],
+                        "recurring_description" => $cartDetails[0]["recurring"]["frequency"] . "ly recurring with SubscriptionId ".$subscription_order['id'],
+                        "recurring_frequency" => $cartDetails[0]["recurring"]["frequency"] . "ly",
+                        "recurring_cycle" => $cartDetails[0]["recurring"]["cycle"],
+                        "recurring_duration" => $cartDetails[0]["recurring"]["duration"],
+                        "recurring_price" => $cartDetails[0]["recurring"]["price"],
+                        "trial"=> $cartDetails[0]["recurring"]["trial"],
+                        "trial_frequency" => $cartDetails[0]["recurring"]["trial_frequency"],
+                        "trial_cycle" => $cartDetails[0]["recurring"]["trial_cycle"],
+                        "trial_duration" => $cartDetails[0]["recurring"]["trial_duration"],
+                        "trial_price" => $cartDetails[0]["recurring"]["trial_price"],
+                        "reference" => "Subscription Id ". $subscription_order['id']
+                    ];
+
+                    $this->model_extension_payment_razorpay->createOCRecurring($recurringData);
+
 
                     $this->log->write("RZP subscriptionID (:" . $subscription_order['id'] . ") created for Opencart OrderID (:" . $this->session->data['order_id'] . ")");
                 }
@@ -247,7 +272,12 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 if($isSubscriptionCallBack){
                     $subscriptionData = $this->api->subscription->fetch($razorpay_subscription_id)->toArray();
 
+                    $planData = $this->model_extension_payment_razorpay->fetchRZPPlanById($subscriptionData['plan_id']);
                     $this->model_extension_payment_razorpay->updateSubscription($subscriptionData, $razorpay_subscription_id);
+                    $this->model_extension_payment_razorpay->updateOCRecurringStatus($this->session->data['order_id'], 1);
+                    $ocRecurringData = $this->model_extension_payment_razorpay->getOCRecurringStatus($this->session->data['order_id']);
+                    $this->model_extension_payment_razorpay->addOCRecurringTransaction($ocRecurringData['order_recurring_id'], $razorpay_subscription_id, $planData['plan_bill_amount'], "success");
+
                 }
 
                 $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id, true);
@@ -698,6 +728,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
             $this->model_extension_payment_razorpay->updateSubscriptionStatus($this->request->get['subscription_id'], $subscriptionData->status);
 
+            $subscriptionData = $this->model_extension_payment_razorpay->getSubscriptionById($subscription_id);
+            $this->model_extension_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 1);
+
             $this->session->data['success'] = $this->language->get('subscription_resumed_message');
 
             return $this->response->redirect($this->url->link('extension/payment/razorpay/info', 'subscription_id=' . $subscription_id, true));
@@ -731,6 +764,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
             $this->load->model('extension/payment/razorpay');
 
             $this->model_extension_payment_razorpay->updateSubscriptionStatus($subscription_id, $subscriptionData->status);
+
+            $subscriptionData = $this->model_extension_payment_razorpay->getSubscriptionById($subscription_id);
+            $this->model_extension_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 4);
 
             $this->session->data['success'] = $this->language->get('subscription_paused_message');
 
@@ -766,6 +802,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
             $this->load->model('extension/payment/razorpay');
 
             $this->model_extension_payment_razorpay->updateSubscriptionStatus($subscription_id,$subscriptionData->status, "user" );
+
+            $subscriptionData = $this->model_extension_payment_razorpay->getSubscriptionById($subscription_id);
+            $this->model_extension_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 3);
 
             $this->session->data['success'] = $this->language->get('subscription_cancelled_message');
 

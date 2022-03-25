@@ -2,6 +2,31 @@
 
 class ModelExtensionPaymentRazorpay extends Model
 {
+    const RECURRING_ACTIVE = 1;
+    const RECURRING_INACTIVE = 2;
+    const RECURRING_CANCELLED = 3;
+    const RECURRING_SUSPENDED = 4;
+    const RECURRING_EXPIRED = 5;
+    const RECURRING_PENDING = 6;
+
+    const TRANSACTION_DATE_ADDED = 0;
+    const TRANSACTION_PAYMENT = 1;
+    const TRANSACTION_OUTSTANDING_PAYMENT = 2;
+    const TRANSACTION_SKIPPED = 3;
+    const TRANSACTION_FAILED = 4;
+    const TRANSACTION_CANCELLED = 5;
+    const TRANSACTION_SUSPENDED = 6;
+    const TRANSACTION_SUSPENDED_FAILED = 7;
+    const TRANSACTION_OUTSTANDING_FAILED = 8;
+    const TRANSACTION_EXPIRED = 9;
+
+    const PLAN_TYPE = [
+        'day' => "daily",
+        'week' => "weekly",
+        'month' => "monthly",
+        'year' => "yearly"
+    ];
+
     public function getMethod($address, $total)
     {
         $this->language->load('extension/payment/razorpay');
@@ -18,12 +43,12 @@ class ModelExtensionPaymentRazorpay extends Model
 
     // Subscription
 
-    public function saveSubscriptionDetails($subscriptionData, $planData, $customerId)
+    public function saveSubscriptionDetails($subscriptionData, $planData, $customerId, $order_id)
     {
         $query = "INSERT INTO " . DB_PREFIX . "razorpay_subscriptions SET plan_entity_id = '" . (int)$planData['entity_id'] . "', subscription_id = '" . $subscriptionData['id'] . "',";
         $query = $query . " product_id = '" . (int)$planData['opencart_product_id'] . "', razorpay_customer_id = '" . $customerId . "', qty = '" . $subscriptionData['quantity'] . "',";
         $query = $query . " status = '" . $subscriptionData['status'] . "', opencart_user_id = '" . (int)$this->customer->getId() . "', total_count = '" . (int)$subscriptionData['total_count'] . "',";
-        $query = $query . "  paid_count = '" . (int)$subscriptionData['paid_count'] . "', remaining_count = '" . (int)$subscriptionData['remaining_count'] . "',";
+        $query = $query . "  paid_count = '" . (int)$subscriptionData['paid_count'] . "', remaining_count = '" . (int)$subscriptionData['remaining_count'] . "', order_id = '" . (int)$order_id . "',";
         $query = $query . "  start_at = '" . date("Y-m-d h:i:sa", $subscriptionData['start_at'] ). "', subscription_created_at = '" . date("Y-m-d h:i:sa",$subscriptionData['created_at']) . "', next_charge_at = '" . date("Y-m-d h:i:sa", $subscriptionData['charge_at']) . "'";
 
         $this->db->query($query);
@@ -69,6 +94,13 @@ class ModelExtensionPaymentRazorpay extends Model
         return $query->row;
     }
 
+    public function getSubscriptionById($subscriptionId)
+    {
+        $query = $this->db->query("SELECT *  FROM " . DB_PREFIX . "razorpay_subscriptions WHERE `subscription_id` = '" . $subscriptionId. "'");
+
+        return $query->row;
+    }
+
     public function updateSubscriptionStatus($subscriptionId, $status, $user = null)
     {
         $query = "UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = '".$status . "'";
@@ -80,6 +112,7 @@ class ModelExtensionPaymentRazorpay extends Model
 
         $this->db->query($query);
     }
+
     public function updateSubscriptionPlan($planData)
     {
         $query = "UPDATE " . DB_PREFIX . "razorpay_subscriptions SET plan_entity_id = '".$planData['plan_id'] . "'";
@@ -99,16 +132,23 @@ class ModelExtensionPaymentRazorpay extends Model
         return $query->rows;
     }
 
-    public function getPlanByRecurringIdAndFrequencyAndProductId($recurringId, $frequency, $productId)
+    public function getPlanByRecurringIdAndFrequencyAndProductId($recurringId, $planType, $productId)
     {
-        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "recurring WHERE recurring_id = '".$recurringId. "' AND frequency = '".$frequency."' AND opencart_product_id = '".$productId."'");
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "razorpay_plans WHERE recurring_id = '".$recurringId. "' AND plan_type = '".self::PLAN_TYPE[$planType]."' AND opencart_product_id = '".$productId."'");
 
-        return $query->rows;
+        return $query->row;
     }
 
     public function fetchPlanById($planId)
     {
         $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "razorpay_plans WHERE `plan_status` = 1 AND `entity_id` = $planId");
+
+        return $query->row;
+    }
+
+    public function fetchRZPPlanById($planId)
+    {
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "razorpay_plans WHERE `plan_status` = 1 AND `plan_id` = '".$planId."'");
 
         return $query->row;
     }
@@ -132,5 +172,39 @@ class ModelExtensionPaymentRazorpay extends Model
     {
         return (bool)$this->config->get('payment_razorpay_subscription_status');
 
+    }
+
+    public function createOCRecurring($recurringData) {
+        $query = "INSERT INTO `" . DB_PREFIX . "order_recurring` SET `order_id` = '" . (int)$recurringData['order_id'] . "', `date_added` = NOW(), `status` = '" . self::RECURRING_PENDING . "',";
+        $query = $query . " `product_id` = '" . (int)$recurringData['product_id'] . "', `product_name` = '" . $this->db->escape($recurringData['product_name']) . "',";
+        $query = $query . " `product_quantity` = '" . $this->db->escape($recurringData['product_quantity']) . "', `recurring_id` = '" . (int)$recurringData['recurring_id'] . "',";
+        $query = $query . " `recurring_name` = '" . $this->db->escape($recurringData['recurring_name']) . "', `recurring_description` = '" . $this->db->escape($recurringData['recurring_description']) . "',";
+        $query = $query . " `recurring_frequency` = '" . $this->db->escape($recurringData['recurring_frequency']) . "', `recurring_cycle` = '" . (int)$recurringData['recurring_cycle'] . "',";
+        $query = $query . " `recurring_duration` = '" . (int)$recurringData['recurring_duration'] . "', `recurring_price` = '" . (float)$recurringData['recurring_price'] . "',";
+        $query = $query . " `trial` = '" . (int)$recurringData['trial'] . "', `trial_frequency` = '" . $this->db->escape($recurringData['trial_frequency']) . "',";
+        $query = $query . " `trial_cycle` = '" . (int)$recurringData['trial_cycle'] . "', `trial_duration` = '" . (int)$recurringData['trial_duration'] . "',";
+        $query = $query . " `trial_price` = '" . (float)$recurringData['trial_price'] . "', `reference` = '" . $this->db->escape($recurringData['reference']) . "'";
+        return $this->db->query($query);
+    }
+
+    public function updateOCRecurringStatus( $orderId, $status)
+    {
+        $query = "UPDATE " . DB_PREFIX . "order_recurring SET status = '".$status. "' ";
+        $query = $query ." WHERE order_id = '" . $orderId . "';" ;
+
+        $this->db->query($query);
+
+    }
+
+    public function getOCRecurringStatus($orderId)
+    {
+        $query = "SELECT * FROM " . DB_PREFIX . "order_recurring WHERE order_id = '" . $orderId . "';" ;
+
+        return $this->db->query($query)->row;
+    }
+
+    public function addOCRecurringTransaction($orderRecurringId, $subscriptionId, $amount, $status) {
+
+        $this->db->query("INSERT INTO `" . DB_PREFIX . "order_recurring_transaction` SET order_recurring_id='" . (int)$orderRecurringId . "', reference='" . $this->db->escape($subscriptionId) . "', type='" . $status . "', amount='" . (float)$amount . "', date_added=NOW()");
     }
 }
