@@ -44,7 +44,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 if ($this->cart->hasRecurringProducts() > 1) {
                     $this->log->write("Cart has more than 1 recurring product");
                     echo "<div class='alert alert-danger alert-dismissible'>Cannot checkout having more than 1 recurring product </div>";
-                    exit;
+                    return ;
                 }
 
                 $subscriptionData = $this->get_subscription_order_creation_data($this->session->data['order_id']);
@@ -124,7 +124,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['version'] = $this->version;
         $data['oc_version'] = VERSION;
 
-        //varify if 'hosted' checkout required and set related data
+        //verify if 'hosted' checkout required and set related data
         $this->getMerchantPreferences($data);
 
         $data['api_url']    = $this->api->getBaseUrl();
@@ -162,7 +162,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         if (!empty($nonRecurringProduct)) {
             $this->log->write("Cart has recurring product and non recurring product");
             echo "<div class='alert alert-danger alert-dismissible'>You cannot have non-recurring and recurring product in your shopping cart </div>";
-            exit;
+            return;
         }
     }
 
