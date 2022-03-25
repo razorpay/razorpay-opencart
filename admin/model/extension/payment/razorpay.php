@@ -29,6 +29,7 @@ class ModelExtensionPaymentRazorpay extends Model
                 `plan_entity_id` int(11) NOT NULL,
                 `subscription_id` varchar(30) NOT NULL,
                 `product_id` int(11) NOT NULL,
+                `order_id` int(11) NOT NULL,
                 `razorpay_customer_id` varchar(30) NOT NULL,
                 `opencart_user_id` int(11) NOT NULL,
                 `status` varchar(30) NOT NULL,
