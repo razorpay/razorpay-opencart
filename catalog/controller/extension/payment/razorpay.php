@@ -248,17 +248,25 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 if($isSubscriptionCallBack){
                     $subscriptionData = $this->api->subscription->fetch($razorpay_subscription_id)->toArray();
 
-                    $planData = $this->model_extension_payment_razorpay->fetchRZPPlanById($subscriptionData['plan_id']);
+
+                    $planData = $this->model_extension_payment_razorpay->fetchPlanById($subscriptionData['plan_id']);
                     $this->model_extension_payment_razorpay->updateSubscription($subscriptionData, $razorpay_subscription_id);
+
+                    // Update oC recurring table and OC recurring transaction
                     $this->model_extension_payment_razorpay->updateOCRecurringStatus($this->session->data['order_id'], 1);
+
+                    // Creating OC Recurring Transaction
                     $ocRecurringData = $this->model_extension_payment_razorpay->getOCRecurringStatus($this->session->data['order_id']);
                     $this->model_extension_payment_razorpay->addOCRecurringTransaction($ocRecurringData['order_recurring_id'], $razorpay_subscription_id, $planData['plan_bill_amount'], "success");
-
                 }
 
                 $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id, true);
                 $this->response->redirect($this->url->link('checkout/success', '', true));
             } catch (\Razorpay\Api\Errors\SignatureVerificationError $e) {
+                if($isSubscriptionCallBack){
+                    // Update oC recurring table for failed payment
+                    $this->model_extension_payment_razorpay->updateOCRecurringStatus($this->session->data['order_id'], 4);
+                }
                 $this->model_checkout_order->addOrderHistory($merchant_order_id, 10, $e->getMessage() . ' Payment Failed! Check Razorpay dashboard for details of Payment Id:' . $razorpay_payment_id);
 
                 $this->session->data['error'] = $e->getMessage() . ' Payment Failed! Check Razorpay dashboard for details of Payment Id:' . $razorpay_payment_id;
@@ -742,7 +750,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
             $this->model_extension_payment_razorpay->updateSubscriptionStatus($subscription_id, $subscriptionData->status);
 
             $subscriptionData = $this->model_extension_payment_razorpay->getSubscriptionById($subscription_id);
-            $this->model_extension_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 4);
+            $this->model_extension_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 2);
 
             $this->session->data['success'] = $this->language->get('subscription_paused_message');
 
