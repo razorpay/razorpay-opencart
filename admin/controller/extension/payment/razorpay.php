@@ -4,6 +4,19 @@ class ControllerExtensionPaymentRazorpay extends Controller
 {
     private $error = array();
 
+    public function install()
+    {
+        $this->load->model('extension/payment/razorpay');
+        $this->model_extension_payment_razorpay->addWebhookColumn();
+    }
+
+    public function uninstall() {
+
+        $this->load->model('extension/payment/razorpay');
+        $this->model_extension_payment_razorpay->removeWebhookColumn();
+       
+    }
+
     public function index()
     {
         $this->language->load('extension/payment/razorpay');
