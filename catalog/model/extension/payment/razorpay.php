@@ -104,7 +104,7 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function updateSubscriptionPlan($planData)
     {
-        $query = "UPDATE " . DB_PREFIX . "razorpay_subscriptions SET plan_entity_id = '".$planData['plan_id'] . "'";
+        $query = "UPDATE " . DB_PREFIX . "razorpay_subscriptions SET plan_entity_id = '".$planData['plan_entity_id'] . "'";
 
         if($planData["qty"]){
             $query = $query .",qty = '" . $planData["qty"] . "'" ;
@@ -128,9 +128,9 @@ class ModelExtensionPaymentRazorpay extends Model
         return $query->row;
     }
 
-    public function fetchPlanById($planId)
+    public function fetchPlanByEntityId($planEntityId)
     {
-        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "razorpay_plans WHERE `plan_status` = 1 AND `entity_id` = $planId");
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "razorpay_plans WHERE `plan_status` = 1 AND `entity_id` = $planEntityId");
 
         return $query->row;
     }

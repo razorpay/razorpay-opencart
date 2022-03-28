@@ -249,7 +249,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
                     $subscriptionData = $this->api->subscription->fetch($razorpay_subscription_id)->toArray();
 
 
-                    $planData = $this->model_extension_payment_razorpay->fetchPlanById($subscriptionData['plan_id']);
+                    $planData = $this->model_extension_payment_razorpay->fetchRZPPlanById($subscriptionData['plan_id']);
                     $this->model_extension_payment_razorpay->updateSubscription($subscriptionData, $razorpay_subscription_id);
 
                     // Update oC recurring table and OC recurring transaction
@@ -808,14 +808,15 @@ class ControllerExtensionPaymentRazorpay extends Controller
     {
         try{
             $postData = $this->request->post;
+
             $this->load->language('extension/payment/razorpay');
             $this->load->model('extension/payment/razorpay');
-            $planData = $this->model_extension_payment_razorpay->fetchPlanById($postData["plan_id"]);
+            $planData = $this->model_extension_payment_razorpay->fetchPlanByEntityId($postData["plan_entity_id"]);
 
             $planUpdateData['plan_id'] = $planData['plan_id'];
 
             if($postData['qty']){
-                $planUpdateData['qty'] = $postData['qty'];
+                $planUpdateData['quantity'] = $postData['qty'];
             }
 
             $this->api->subscription->fetch($postData["subscriptionId"])->update($planUpdateData)->toArray();
