@@ -248,7 +248,6 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 if($isSubscriptionCallBack){
                     $subscriptionData = $this->api->subscription->fetch($razorpay_subscription_id)->toArray();
 
-
                     $planData = $this->model_extension_payment_razorpay->fetchRZPPlanById($subscriptionData['plan_id']);
                     $this->model_extension_payment_razorpay->updateSubscription($subscriptionData, $razorpay_subscription_id);
 
@@ -487,7 +486,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
             $this->log->write("Razopray exception Customer: {$e->getMessage()}");
             $this->session->data['error'] = $e->getMessage();
             echo "<div class='alert alert-danger alert-dismissible'> Something went wrong</div>";
-            exit;
+            return;
         }
     }
 
@@ -595,6 +594,16 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
         $this->load->model('extension/payment/razorpay');
         $recurring_info = $this->model_extension_payment_razorpay->getSubscriptionDetails($subscription_id);
+
+        if(isset($this->session->data['error'])){
+            $data['error'] = $this->session->data['error'];
+            unset($this->session->data['error']);
+        }
+
+        if(isset($this->session->data['success'])){
+            $data['success'] = $this->session->data['success'];
+            unset($this->session->data['success']);
+        }
 
         if (!empty($recurring_info)) {
             $this->document->setTitle($this->language->get('text_heading_title_subscription'));
@@ -720,7 +729,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
             return $this->response->redirect($this->url->link('extension/payment/razorpay/info', 'subscription_id=' . $subscription_id, true));
         } catch (\Razorpay\Api\Errors\Error $e) {
             $this->log->write($e->getMessage());
-            $this->session->data['error'] = $e->getMessage();
+            $this->session->data['error'] = ucfirst($e->getMessage());
             return  $this->response->redirect($this->url->link('extension/payment/razorpay/info', 'subscription_id=' . $this->request->get['subscription_id'], true));
         }
     }
@@ -759,7 +768,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         } catch (\Razorpay\Api\Errors\Error $e) {
 
             $this->log->write($e->getMessage());
-            $this->session->data['error'] = $e->getMessage();
+            $this->session->data['error'] = ucfirst($e->getMessage());
             return  $this->response->redirect($this->url->link('extension/payment/razorpay/info', 'subscription_id=' . $this->request->get['subscription_id'], true));
         }
     }
@@ -793,10 +802,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
             $this->session->data['success'] = $this->language->get('subscription_cancelled_message');
 
             return $this->response->redirect($this->url->link('extension/payment/razorpay/info', 'subscription_id=' . $subscription_id, true));
-        } catch(\Razorpay\Api\Errors\Error $e)
-        {
+        } catch(\Razorpay\Api\Errors\Error $e) {
             $this->log->write($e->getMessage());
-            $this->session->data['error'] = $e->getMessage();
+            $this->session->data['error'] = ucfirst($e->getMessage());
             return  $this->response->redirect($this->url->link('extension/payment/razorpay/info', 'subscription_id=' . $this->request->get['subscription_id'], true));
         }
     }
@@ -828,10 +836,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
             return $this->response->redirect($this->url->link('extension/payment/razorpay/info', 'subscription_id=' . $postData['subscriptionId'], true));
 
-        } catch(\Razorpay\Api\Errors\Error $e)
-        {
+        } catch(\Razorpay\Api\Errors\Error $e) {
             $this->log->write($e->getMessage());
-            $this->session->data['error'] = $e->getMessage();
+            $this->session->data['error'] = ucfirst($e->getMessage());
             return  $this->response->redirect($this->url->link('extension/payment/razorpay/info', 'subscription_id=' . $postData['subscriptionId'], true));
         }
     }
