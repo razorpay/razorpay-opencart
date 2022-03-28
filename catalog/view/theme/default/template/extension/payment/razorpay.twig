@@ -18,7 +18,11 @@
 
         <input type="hidden" name="notes[opencart_order_id]" value="{{ merchant_order_id }}">
 
-        <input type="hidden" name="_[integration]" value="opencart">
+        {% if is_recurring %}
+            <input type="hidden" name="_[integration]" value="opencart-subscription">
+        {% else %}
+            <input type="hidden" name="_[integration]" value="opencart">
+        {% endif %}
         <input type="hidden" name="_[integration_version]" value="{{ version }}">
         <input type="hidden" name="_[integration_parent_version]" value="{{ oc_version }}">
 
@@ -46,7 +50,7 @@
                     opencart_order_id: "{{ merchant_order_id }}"
                 },
                 _: {
-                    integration: 'opencart',
+                    integration: 'opencart-subscription',
                     integration_version: '{{ version }}',
                     integration_parent_version: '{{ oc_version }}'
                 },
