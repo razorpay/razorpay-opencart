@@ -224,7 +224,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 "currency" => $this->session->data['currency'],
                 "description" => "Addon amount"
             ];
-            $subscriptionData["addons"] = $item;
+            $subscriptionData["addons"][] = $item;
         }
 
         return ["subscriptionData" => $subscriptionData, "planData" => $planData];
