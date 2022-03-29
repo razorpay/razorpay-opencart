@@ -303,4 +303,11 @@ class ModelExtensionPaymentRazorpay extends Model
         $this->db->query("INSERT INTO " . DB_PREFIX . "layout_module SET layout_id = '" . (int)$layout_id . "', code = 'category', position = 'column_right', sort_order = 0 ");
     }
 
+    public function updateOCRecurringStatus( $orderId, $status)
+    {
+        $query = "UPDATE " . DB_PREFIX . "order_recurring SET status = '".$status. "' ";
+        $query = $query ." WHERE order_id = '" . $orderId . "';" ;
+
+        $this->db->query($query);
+    }
 }
