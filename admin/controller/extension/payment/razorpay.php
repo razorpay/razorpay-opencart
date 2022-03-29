@@ -436,7 +436,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
 
-        $this->response->setOutput($this->load->view('extension/payment/razorpay_plan_list', $data));
+        $this->response->setOutput($this->load->view('extension/payment/razorpay_subscription/razorpay_plan_list', $data));
     }
     public function add()
     {
@@ -773,7 +773,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
 
-        $this->response->setOutput($this->load->view('extension/payment/razorpay_plan_form', $data));
+        $this->response->setOutput($this->load->view('extension/payment/razorpay_subscription/razorpay_plan_form', $data));
     }
     public function getSubscription()
     {
@@ -1000,7 +1000,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
        
-        $this->response->setOutput($this->load->view('extension/payment/razorpay_subscription_list', $data));
+        $this->response->setOutput($this->load->view('extension/payment/razorpay_subscription/razorpay_subscription_list', $data));
     }
       //for Subscription status change
     public function changeStatus()
@@ -1235,7 +1235,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
             $data['column_left'] = $this->load->controller('common/column_left');
             $data['footer'] = $this->load->controller('common/footer');
 
-            $this->response->setOutput($this->load->view('extension/payment/razorpay_subscription_info', $data));
+            $this->response->setOutput($this->load->view('extension/payment/razorpay_subscription/razorpay_subscription_info', $data));
 
         }
         else {
