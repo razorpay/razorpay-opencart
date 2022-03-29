@@ -1061,110 +1061,104 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
     
     }
+
     public function resumeSubscription($entity_id)
     {
-      
+
         $this->load->language('extension/payment/razorpay');
-  
+
         $this->document->setTitle($this->language->get('heading_title'));
-  
+
         $this->load->model('extension/payment/razorpay');
         $url = '';
-        try
-                { 
+        try {
             foreach ($entity_id as $entityId) {
                 $subscriptionData = $this->model_extension_payment_razorpay->getSingleSubscription($entityId);
-                if($subscriptionData['status'] == "paused") {
+                if ($subscriptionData['status'] == "paused") {
                     $api = $this->getApiIntance();
-                   
-                    $api->subscription->fetch($subscriptionData['subscription_id'])->resume(array('resume_at'=>'now'));
 
-                   
+                    $api->subscription->fetch($subscriptionData['subscription_id'])->resume(array('resume_at' => 'now'));
+
                     $this->model_extension_payment_razorpay->resumeSubscription($entityId, "admin");
+                    $this->model_extension_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 1);
                 }
 
-            }     
-            $this->session->data['success'] = $this->language->get('text_resume_success'); 
+            }
+            $this->session->data['success'] = $this->language->get('text_resume_success');
             return $this->response->redirect($this->url->link('extension/payment/razorpay/getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true));
-                
-        }
-        catch(\Razorpay\Api\Errors\Error $e)
-                {
+
+        } catch (\Razorpay\Api\Errors\Error $e) {
             $this->log->write($e->getMessage());
             $this->session->data['error_warning'] = $e->getMessage();
-            echo "<div class='alert alert-danger alert-dismissible'> Unable to Resume Razorpay Subscription ".$subscriptionData['subscription_id']. ". ".$e->getMessage()."</div>";
+            echo "<div class='alert alert-danger alert-dismissible'> Unable to Resume Razorpay Subscription " . $subscriptionData['subscription_id'] . ". " . $e->getMessage() . "</div>";
 
             return;
-        }       
+        }
     }
+
     public function pauseSubscription($entity_id)
     {
         $this->load->language('extension/payment/razorpay');
         $url = '';
         $this->document->setTitle($this->language->get('heading_title'));
-        
+
         $this->load->model('extension/payment/razorpay');
-        try
-                { 
+        try {
             foreach ($entity_id as $entityId) {
                 $subscriptionData = $this->model_extension_payment_razorpay->getSingleSubscription($entityId);
-                if($subscriptionData['status'] == "active") {
+                if ($subscriptionData['status'] == "active") {
                     $api = $this->getApiIntance();
-                   
-                    $api->subscription->fetch($subscriptionData['subscription_id'])->pause(["pause_at"=>"now"]);
 
-                   
+                    $api->subscription->fetch($subscriptionData['subscription_id'])->pause(["pause_at" => "now"]);
+
                     $this->model_extension_payment_razorpay->pauseSubscription($entityId, "admin");
+                    $this->model_extension_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 2);
                 }
 
-            }     
+            }
 
-            $this->session->data['success'] = $this->language->get('text_pause_success'); 
+            $this->session->data['success'] = $this->language->get('text_pause_success');
             return $this->response->redirect($this->url->link('extension/payment/razorpay/getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true));
-                
-        }
-        catch(\Razorpay\Api\Errors\Error $e)
-                {
+
+        } catch (\Razorpay\Api\Errors\Error $e) {
             $this->log->write($e->getMessage());
             $this->session->data['error_warning'] = $e->getMessage();
-            echo "<div class='alert alert-danger alert-dismissible'> Unable to Pause Razorpay Subscription ".$subscriptionData['subscription_id']. ". ".$e->getMessage()."</div>";
+            echo "<div class='alert alert-danger alert-dismissible'> Unable to Pause Razorpay Subscription " . $subscriptionData['subscription_id'] . ". " . $e->getMessage() . "</div>";
 
             return;
-        }       
+        }
     }
+
     public function cancelSubscription($entity_id)
     {
         $this->load->language('extension/payment/razorpay');
-  
+
         $this->document->setTitle($this->language->get('heading_title'));
-  
+
         $this->load->model('extension/payment/razorpay');
-        try
-                { 
+        try {
             foreach ($entity_id as $entityId) {
                 $subscriptionData = $this->model_extension_payment_razorpay->getSingleSubscription($entityId);
-                if(($subscriptionData['status'] == "active") || ($subscriptionData['status'] == "paused")) {
+                if (($subscriptionData['status'] == "active") || ($subscriptionData['status'] == "paused")) {
                     $api = $this->getApiIntance();
-                    
+
                     $api->subscription->fetch($subscriptionData['subscription_id'])->cancel(["cancel_at_cycle_end" => 0]);
 
-                   
                     $this->model_extension_payment_razorpay->cancelSubscription($entityId, "admin");
+                    $this->model_extension_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 3);
                 }
 
-            }     
-            $this->session->data['success'] = $this->language->get('text_cancel_success'); 
+            }
+            $this->session->data['success'] = $this->language->get('text_cancel_success');
             return $this->response->redirect($this->url->link('extension/payment/razorpay/getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true));
-                
-        }
-        catch(\Razorpay\Api\Errors\Error $e)
-                {
+
+        } catch (\Razorpay\Api\Errors\Error $e) {
             $this->log->write($e->getMessage());
             $this->session->data['error_warning'] = $e->getMessage();
-            echo "<div class='alert alert-danger alert-dismissible'> Unable to Pause Razorpay Subscription ".$subscriptionData['subscription_id']. ". ".$e->getMessage()."</div>";
+            echo "<div class='alert alert-danger alert-dismissible'> Unable to Pause Razorpay Subscription " . $subscriptionData['subscription_id'] . ". " . $e->getMessage() . "</div>";
 
             return;
-        }       
+        }
     }
 
     public function subscriptionInfo()
