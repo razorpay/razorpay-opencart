@@ -500,10 +500,15 @@ class ControllerExtensionPaymentRazorpay extends Controller
             catch(\Razorpay\Api\Errors\Error $e)
             {
                 $this->log->write($e->getMessage());
-                $this->session->data['error'] = $e->getMessage();
-                echo "<div class='alert alert-danger alert-dismissible'> Something went wrong. Unable to create Razorpay Plan Id.</div>";
-               
-                exit;
+                $this->error['warning'] = $e->getMessage();
+            
+                if (isset($this->error['warning'])) {
+                    $this->session->data['error_warning'] = $this->error['warning'];
+                } else {
+                    $this->session->data['error_warning'] = '';
+                }
+                $this->getForm();
+               return;
             }
             $data['plan_entity_id']=$this->model_extension_payment_razorpay->addPlan($this->request->post, $razorpay_plan['id']);
             $this->load->model('localisation/language');
