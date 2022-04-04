@@ -47,7 +47,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
                 if ($this->cart->hasRecurringProducts() > 1) {
                     $this->log->write("Cart has more than 1 recurring product");
-                    echo "<div class='alert alert-danger alert-dismissible'>Cannot checkout having more than 1 recurring product </div>";
+                    echo "<div class='alert alert-danger alert-dismissible'>We do not support payment of two different subscription products at once. Please remove one of the products from your cart to proceed.</div>";
                     return ;
                 }
 
@@ -165,7 +165,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
         if (!empty($nonRecurringProduct)) {
             $this->log->write("Cart has recurring product and non recurring product");
-            echo "<div class='alert alert-danger alert-dismissible'>You cannot have non-recurring and recurring product in your shopping cart </div>";
+            echo "<div class='alert alert-danger alert-dismissible'>You have a one-time payment product and a subscription payment product in your cart. Please remove one of the products from the cart to proceed.</div>";
             return;
         }
     }
@@ -492,7 +492,6 @@ class ControllerExtensionPaymentRazorpay extends Controller
     protected function getRazorpayCustomerData($order)
     {
         try {
-
             $customerData = [
                 'email' => $order['email'],
                 'name' => $order['firstname'] . " " . $order['lastname'],
@@ -599,7 +598,6 @@ class ControllerExtensionPaymentRazorpay extends Controller
      */
     public function info()
     {
-
         if (!$this->customer->isLogged()) {
             $this->session->data['redirect'] = $this->url->link('extension/payment/razorpay/subscriptions', '', true);
 
