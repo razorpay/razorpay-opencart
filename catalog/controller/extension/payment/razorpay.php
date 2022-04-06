@@ -1,11 +1,9 @@
 <?php
-
-require_once __DIR__.'/../../../../system/library/razorpay-sdk/Razorpay.php';
+require_once DIR_SYSTEM .'library/razorpay-sdk/Razorpay.php';
 use Razorpay\Api\Api;
 use Razorpay\Api\Errors;
 
-class ControllerExtensionPaymentRazorpay extends Controller
-{
+class ControllerExtensionPaymentRazorpay extends Controller {
     /**
      * Event constants
      */
@@ -16,8 +14,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
     // Set RZP plugin version
     private $version = '4.0.2';
 
-    public function index()
-    {
+    public function index() {
         $data['button_confirm'] = $this->language->get('button_confirm');
         
         $this->load->model('checkout/order');
@@ -25,17 +22,15 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
         // Orders API with payment autocapture
-        try
-        { 
+        try { 
             $api = $this->getApiIntance();
 
             $order_data = $this->get_order_creation_data($this->session->data['order_id']);
 
-            if(empty($this->session->data["razorpay_order_id_" . $this->session->data['order_id']]) === true)
-            {
+            if(empty($this->session->data["payment_razorpay_order_id_" . $this->session->data['order_id']]) === true) {
                 $razorpay_order = $api->order->create($order_data);
 
-                $this->session->data["razorpay_order_id_" . $this->session->data['order_id']] = $razorpay_order['id'];
+                $this->session->data["payment_razorpay_order_id_" . $this->session->data['order_id']] = $razorpay_order['id'];
 
                 $this->log->write("RZP orderID (:" . $razorpay_order['id'] . ") created for Opencart OrderID (:" . $this->session->data['order_id'] . ")");
             }
@@ -60,7 +55,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['name'] = $this->config->get('config_name');
         $data['lang'] = $this->session->data['language'];
         $data['return_url'] = $this->url->link('extension/payment/razorpay/callback', '', 'true');
-        $data['razorpay_order_id'] = $this->session->data["razorpay_order_id_" . $this->session->data['order_id']];
+        $data['razorpay_order_id'] = $this->session->data["payment_razorpay_order_id_" . $this->session->data['order_id']];
         $data['version'] = $this->version;
         $data['oc_version'] = VERSION;
 
@@ -70,53 +65,41 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['api_url']    = $api->getBaseUrl();
         $data['cancel_url'] =  $this->url->link('checkout/checkout', '', 'true');
 
-        if (file_exists(DIR_TEMPLATE.$this->config->get('config_template').'/template/extension/payment/razorpay')) 
-        {
-            return $this->load->view($this->config->get('config_template').'/template/extension/payment/razorpay', $data);
-        } 
-        else 
-        {
-            return $this->load->view('extension/payment/razorpay', $data);
-        }
+        return $this->load->view('extension/payment/razorpay', $data);
     }
 
-    private function get_order_creation_data($order_id)
-    {
+    private function get_order_creation_data($order_id) {
         $order = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
         $data = [
-            'receipt' => $order_id,
-            'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
-            'currency' => $order['currency_code'],
+            'receipt'         => $order_id,
+            'amount'          => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
+            'currency'        => $order['currency_code'],
             'payment_capture' => ($this->config->get('payment_razorpay_payment_action') === 'authorize') ? 0 : 1
         ];
 
         return $data;
     }
 
-
-    public function callback()
-    {
+    public function callback() {
         $this->load->model('checkout/order');
 
-        if (isset($this->request->request['razorpay_payment_id']) === true) 
-        {    
-            $razorpay_payment_id = $this->request->request['razorpay_payment_id'];
+        if (isset($this->request->request['payment_razorpay_payment_id']) === true) {    
+            $razorpay_payment_id = $this->request->request['payment_razorpay_payment_id'];
             $merchant_order_id = $this->session->data['order_id'];
-            $razorpay_order_id = $this->session->data["razorpay_order_id_" . $this->session->data['order_id']];
-            $razorpay_signature = $this->request->request['razorpay_signature'];
+            $razorpay_order_id = $this->session->data["payment_razorpay_order_id_" . $this->session->data['order_id']];
+            $razorpay_signature = $this->request->request['payment_razorpay_signature'];
 
             $order_info = $this->model_checkout_order->getOrder($merchant_order_id);
             $amount = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
             
             //validate Rzp signature
             $api = $this->getApiIntance();
-            try
-            {                
+            try {                
                 $attributes = array(
-                    'razorpay_order_id' => $razorpay_order_id,
+                    'razorpay_order_id'   => $razorpay_order_id,
                     'razorpay_payment_id' => $razorpay_payment_id,
-                    'razorpay_signature' => $razorpay_signature
+                    'razorpay_signature'  => $razorpay_signature
                 );
 
                 $api->utility->verifyPaymentSignature($attributes);
@@ -272,9 +255,11 @@ class ControllerExtensionPaymentRazorpay extends Controller
                         //capture only if payment status is 'authorized'
                         if($payment->status === 'authorized')
                         {
-                            $payment->capture(array('amount' => $capture_amount,
-                                                    'currency' => $order_info['currency_code']
-                                                    ));
+                            $payment->capture(array(
+                                'amount' => $capture_amount,
+                                'currency' => $order_info['currency_code']
+                                )
+                            );
                         }
 
                         //update the order status in store
@@ -309,8 +294,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
         if (empty($webhookSecret) === false)
         {
-            $api->utility
-                 ->verifyWebhookSignature($payloadRawData, $actualSignature, $webhookSecret);
+            $api->utility->verifyWebhookSignature($payloadRawData, $actualSignature, $webhookSecret);
         }
 
     }
@@ -345,9 +329,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
     }
 
-    protected function getApiIntance()
-    {
+    protected function getApiIntance() {
         return new Api($this->config->get('payment_razorpay_key_id'), $this->config->get('payment_razorpay_key_secret'));
     }
-
 }
