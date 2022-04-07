@@ -289,6 +289,10 @@ class ModelExtensionPaymentRazorpay extends Model
         $this->db->query("INSERT INTO `" . DB_PREFIX . "product_recurring` (`product_id`, `recurring_id`, `customer_group_id`) VALUES (" . (int)$data['product_id'] . ", " . (int)$recurring_id . ", '" . (int)$data['customer_group_id'] . "')");
         // update plan table with recurring id
         $this->db->query("UPDATE " . DB_PREFIX . "razorpay_plans SET recurring_id = '".(int)$recurring_id. "' WHERE entity_id = '" .(int)$data['plan_entity_id'] . "'");
+
+        //update plan price in product table
+        $this->db->query("UPDATE " . DB_PREFIX . "product SET price = '".(float)$data['price'] . "' WHERE product_id = '" . (int)$data['product_id'] . "'");
+
         return $recurring_id;
     }
 
