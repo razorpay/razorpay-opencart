@@ -207,7 +207,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         if (!filter_var($domain_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE))
         {
             $this->webhookEnable = '0';
-            $this->log->write("Can't enable/disable webhook on $domain or private ip($domain_ip).");
+            $this->log->write('Cannot enable/disable webhook on $domain or private ip($domain_ip).');
             return;
         }
 
@@ -217,32 +217,40 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
             if(empty($this->webhookId) === false)
             {
+                $webhookAttributes = [
+                    'url'    => $this->webhookUrl,
+                    'events' => $this->WebhookEvents,
+                    'active' => true,
+                ];
+
                 $this->webhookSecret = $this->config->get('payment_razorpay_webhook_secret');
 
+                if(empty($this->webhookSecret) === true)
+                {
+                    $this->webhookSecret = bin2hex(openssl_random_pseudo_bytes(8));
+                    $webhookAttributes['secret'] = $this->webhookSecret;
+                }
+
                 $webhook = $api->webhook->edit(
-                    [
-                        "url"    => $this->webhookUrl,
-                        "events" => $this->WebhookEvents,
-                        "active" => true,
-                    ],
+                    $webhookAttributes,
                     $this->webhookId
                 );
 
-                $this->log->write("Razorpay Webhook Updated by Admin.");
+                $this->log->write('Razorpay Webhook Updated by Admin.');
             } else
             {
                 $this->webhookSecret = bin2hex(openssl_random_pseudo_bytes(8));
 
                 $webhook = $api->webhook->create(
                     [
-                        "url"    => $this->webhookUrl,
-                        "events" => $this->WebhookEvents,
-                        "secret" => $this->webhookSecret,
-                        "active" => true,
+                        'url'    => $this->webhookUrl,
+                        'events' => $this->WebhookEvents,
+                        'secret' => $this->webhookSecret,
+                        'active' => true,
                     ]
                 );
 
-                $this->log->write("Razorpay Webhook Created by Admin");
+                $this->log->write('Razorpay Webhook Created by Admin');
             }
 
             $this->webhookEnable = '1';

@@ -65,8 +65,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 {
                     $webhook = $api->webhook->edit(
                         [
-                            "url"    => $this->webhookUrl,
-                            "active" => true,
+                            'url'    => $this->webhookUrl,
+                            'active' => true,
                         ],
                         $webhookId
                     );
