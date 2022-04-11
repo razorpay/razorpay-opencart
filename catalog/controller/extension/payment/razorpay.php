@@ -387,7 +387,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         return new Api($this->config->get('payment_razorpay_key_id'), $this->config->get('payment_razorpay_key_secret'));
     }
 
-    private function getExistingWebhook()
+    protected function getExistingWebhook()
     {
         $api = $this->getApiIntance();
 

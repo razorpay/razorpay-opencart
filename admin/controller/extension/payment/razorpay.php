@@ -12,6 +12,11 @@ class ControllerExtensionPaymentRazorpay extends Controller
     protected $webhookUrl = HTTPS_CATALOG . 'index.php?route=extension/payment/razorpay/webhook';
     protected $webhookEnable = '1';
     protected $webhookSecret = null;
+    protected $WebhookEvents = [
+        'payment.authorized' => true,
+        'payment.failed'     => true,
+        'order.paid'         => true,
+    ];
 
     public function index()
     {
@@ -210,12 +215,6 @@ class ControllerExtensionPaymentRazorpay extends Controller
         {
             $webhookPresent = $this->getExistingWebhook();
 
-            $WebhookEvents = [
-                'payment.authorized' => true,
-                'payment.failed'     => true,
-                'order.paid'         => true,
-            ];
-
             if(empty($this->webhookId) === false)
             {
                 $this->webhookSecret = $this->config->get('payment_razorpay_webhook_secret');
@@ -223,22 +222,21 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 $webhook = $api->webhook->edit(
                     [
                         "url"    => $this->webhookUrl,
-                        "events" => $WebhookEvents,
+                        "events" => $this->WebhookEvents,
                         "active" => true,
                     ],
                     $this->webhookId
                 );
 
                 $this->log->write("Razorpay Webhook Updated by Admin.");
-            }
-            else
+            } else
             {
                 $this->webhookSecret = bin2hex(openssl_random_pseudo_bytes(8));
 
                 $webhook = $api->webhook->create(
                     [
                         "url"    => $this->webhookUrl,
-                        "events" => $WebhookEvents,
+                        "events" => $this->WebhookEvents,
                         "secret" => $this->webhookSecret,
                         "active" => true,
                     ]
@@ -257,7 +255,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         }
     }
 
-    private function getExistingWebhook()
+    protected function getExistingWebhook()
     {
         $api = $this->getApiIntance();
 
@@ -273,6 +271,14 @@ class ControllerExtensionPaymentRazorpay extends Controller
                     if($webhook->url === $this->webhookUrl)
                     {
                         $this->webhookId = $webhook->id;
+
+                        foreach ($webhook->events as $event => $status)
+                        {
+                            if($status === true)
+                            {
+                                $this->WebhookEvents[$event] = $status;
+                            }
+                        }
                     }
                 }
             }
