@@ -13,6 +13,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
     const PAYMENT_FAILED        = 'payment.failed';
     const ORDER_PAID            = 'order.paid';
 
+    protected $webhookUrl = HTTPS_CATALOG . 'index.php?route=extension/payment/razorpay/webhook';
+    protected $webhookStatus = false;
+
     // Set RZP plugin version
     private $version = '4.0.2';
 
@@ -49,6 +52,40 @@ class ControllerExtensionPaymentRazorpay extends Controller
             exit;
         }
 
+        try
+        {
+            $webhookUpdatedAt =  $this->config->get('payment_razorpay_webhook_updated_at');
+
+            if($webhookUpdatedAt + 86400 < time())
+            {
+                $webhookId = $this->getExistingWebhook();
+
+                if((empty($webhookId) === false) and
+                    ($this->webhookStatus === false))
+                {
+                    $webhook = $api->webhook->edit(
+                        [
+                            "url"    => $this->webhookUrl,
+                            "active" => true,
+                        ],
+                        $webhookId
+                    );
+
+                    $this->load->model('extension/payment/razorpay');
+
+                    $this->model_extension_payment_razorpay->editSettingValue(
+                        'payment_razorpay',
+                        'payment_razorpay_webhook_updated_at',
+                        time()
+                    );
+                }
+            }
+        }
+        catch(\Razorpay\Api\Errors\Error $e)
+        {
+            $this->log->write('Unable to update webhook status');
+            $this->log->write($e->getMessage());
+        }
 
         $data['key_id'] = $this->config->get('payment_razorpay_key_id');
         $data['currency_code'] = $order_info['currency_code'];
@@ -350,4 +387,32 @@ class ControllerExtensionPaymentRazorpay extends Controller
         return new Api($this->config->get('payment_razorpay_key_id'), $this->config->get('payment_razorpay_key_secret'));
     }
 
+    private function getExistingWebhook()
+    {
+        $api = $this->getApiIntance();
+
+        try
+        {
+            $webhooks = $api->webhook->all();
+
+            if(($webhooks->count > 0) and
+                (empty($this->webhookUrl) === false))
+            {
+                foreach ($webhooks->items as $key => $webhook)
+                {
+                    if($webhook->url === $this->webhookUrl)
+                    {
+                        $this->webhookStatus = $webhook->active;
+                        return $webhook->id;
+                    }
+                }
+            }
+        }
+        catch(\Razorpay\Api\Errors\Error $e)
+        {
+            $this->log->write($e->getMessage());
+        }
+
+        return null;
+    }
 }
