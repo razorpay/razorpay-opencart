@@ -12,7 +12,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
     protected $webhookUrl = HTTPS_CATALOG . 'index.php?route=extension/payment/razorpay/webhook';
     protected $webhookEnable = '1';
     protected $webhookSecret = null;
-    protected $WebhookEvents = [
+    protected $webhookEvents = [
         'payment.authorized' => true,
         'payment.failed'     => true,
         'order.paid'         => true,
@@ -219,7 +219,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
             {
                 $webhookAttributes = [
                     'url'    => $this->webhookUrl,
-                    'events' => $this->WebhookEvents,
+                    'events' => $this->webhookEvents,
                     'active' => true,
                 ];
 
@@ -244,7 +244,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 $webhook = $api->webhook->create(
                     [
                         'url'    => $this->webhookUrl,
-                        'events' => $this->WebhookEvents,
+                        'events' => $this->webhookEvents,
                         'secret' => $this->webhookSecret,
                         'active' => true,
                     ]
@@ -284,7 +284,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
                         {
                             if($status === true)
                             {
-                                $this->WebhookEvents[$event] = $status;
+                                $this->webhookEvents[$event] = $status;
                             }
                         }
                     }
