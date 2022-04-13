@@ -42,6 +42,7 @@ Save the plugin settings
 - The `opencart-2.x` branch holds the plugin for Opencart 2
 - The `opencart1.5` branch holds the plugin for Opencart 1.5
 - Tags are in either of these three series: `opencart3-x.y.z` or `opencart2-x.y.z` or `opencart1.5-1.x.y`
+- Subscription is only available with Opencart 3
 
 ### Support
 
