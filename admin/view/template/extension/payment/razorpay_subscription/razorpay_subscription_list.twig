@@ -115,13 +115,19 @@
 									<thead>
 										<tr>
 											<td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);"/></td>
+											 <td class="text-left">{% if sort == 's.entity_id' %}
+													<a href="{{ sort_order }}" class="{{ order|lower }}">{{ column_id }}</a>
+												{% else %}
+													<a href="{{ sort_order }}">{{ column_id }}</a>
+												{% endif %}</td>
 											<td class="text-left">
-												{% if sort == 'p.plan_id' %}
+												{% if sort == 's.subscription_id' %}
 													<a href="{{ sort_order }}" class="{{ order|lower }}">{{ column_subscription_id }}</a>
 												{% else %}
 													<a href="{{ sort_order }}">{{ column_subscription_id }}</a>
 												{% endif %}
 											</td>
+											
 											<td class="text-left">
 												{% if sort == 'p.plan_id' %}
 													<a href="{{ sort_order }}" class="{{ order|lower }}">{{ column_plan_id }}</a>
@@ -193,7 +199,7 @@
 												{% endif %}
 											</td>
 											<td class="text-left">
-												{% if sort == 'p.plan_status' %}
+												{% if sort == 's.subscription_created_at' %}
 													<a href="{{ sort_plan_status }}" class="{{ order|lower }}">{{ column_subscription_created_at }}</a>
 												{% else %}
 													<a href="{{ sort_plan_status }}">{{ column_subscription_created_at }}</a>
@@ -220,6 +226,7 @@
 															<input type="checkbox" name="selected[]" value="{{ sub.entity_id }}"/>
 														{% endif %}
 													</td>
+													<td class="text-right">{{ sub.entity_id }}</td>
 													<td class="text-right">{{ sub.subscription_id }}</td>
 													<td class="text-right">{{ sub.plan_id }}</td>
 													<td class="text-left">{{ sub.customer_fname }}

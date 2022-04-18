@@ -57,6 +57,7 @@ $_['column_plan_addons']                                 = 'Addons';
 $_['column_status']                                      = 'Status';
 $_['column_created_at']                                  = 'Created At';
 $_['column_action']                                      = 'Action';
+$_['column_id']                                          = 'ID';
 
 // Subscription Column
 $_['column_subscription_id']                             = 'Subscription ID';
@@ -145,14 +146,16 @@ $_['button_back']                                       = 'Back';
 // Error
 $_['error_plan_name']                                   = 'Enter Plan Name!';
 $_['error_plan_desc']                                   = 'Enter Plan Description';
-$_['error_product_name']                                = 'Please Select Product Name';
+$_['error_product_name']                                = 'Please Select product name using autocomplete!';
 $_['error_plan_type']                                   = 'Please Select Plan Type';
-$_['error_billing_frequency']                           = 'Enter Billing Frequency and it should be an integer.';
-$_['error_billing_cycle']                               = 'Enter Billing Cycle and it should be an integer.';
+$_['error_billing_frequency']                           = 'Enter Billing Frequency and it should be an number.';
+$_['error_billing_cycle']                               = 'Enter Billing Cycle and it should be an number.';
 $_['error_billing_amount']                              = 'The amount must be at least ₹1';
 $_['entry_plan_status']                                 = 'Select Status';
 $_['error_permission']                                  = 'Warning: You do not have permission to modify Plan!';
 $_['error_plan_exists']                                 = 'Warning: Plan already exists!';
+
+
 
 // Statuses
 $_['razorpay_subscription_status_comment_authorized']                = 'The card transaction has been authorized but not yet captured.';

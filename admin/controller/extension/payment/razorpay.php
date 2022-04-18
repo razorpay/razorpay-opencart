@@ -594,6 +594,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
         if (!$this->user->hasPermission('modify', 'extension/payment/razorpay')) {
             $this->error['warning'] = $this->language->get('error_permission');
         }
+        if ((utf8_strlen($this->request->post['product_id']) < 1) || (utf8_strlen($this->request->post['product_id']) > 64)) {
+            $this->error['product-name'] = $this->language->get('error_product_name');
+        }
 
         if ((utf8_strlen($this->request->post['plan_name']) < 1) || (utf8_strlen($this->request->post['plan_name']) > 64)) {
             $this->error['plan_name'] = $this->language->get('error_plan_name');
@@ -647,7 +650,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         } else {
             $data['error_product_name'] = '';
         }
-
+     
         if (isset($this->error['billing_frequency'])) {
             $data['error_billing_frequency'] = $this->error['billing_frequency'];
         } else {
@@ -897,10 +900,11 @@ class ControllerExtensionPaymentRazorpay extends Controller
             'total_count'     => $result['total_count'],
             'paid_count'     => $result['paid_count'],
             'remaining_count'     => $result['remaining_count'],
-            'start_at'     => $result['start_at'],
-            'end_at'     => $result['end_at'],
+            'start_at'     => isset($result['start_at']) ? date($this->language->get('date_format_short'), strtotime($result['start_at'])) : "",
+            'end_at'     => isset($result['end_at']) ? date($this->language->get('date_format_short'), strtotime($result['end_at'])) : "",
             'subscription_created_at'     => $result['subscription_created_at'],
-            'next_charge_at'     => $result['next_charge_at'],   
+            'next_charge_at'     =>  isset($result['next_charge_at']) ? date($this->language->get('date_format_short'), strtotime($result['next_charge_at'])) : "",
+            'created_at'   => isset($result['created_at']) ? date($this->language->get('date_format_short'), strtotime($result['created_at'])) : "",
              'view'          => $this->url->link('extension/payment/razorpay/subscriptionInfo', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true),
             'singleResume' => $this->url->link('extension/payment/razorpay/changeSingleStatus', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . '&status=1'. $url, true),
             'singlePause' => $this->url->link('extension/payment/razorpay/changeSingleStatus', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . '&status=2'. $url, true),
