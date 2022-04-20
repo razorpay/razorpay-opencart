@@ -59,6 +59,7 @@ $_['column_created_at']                                  = 'Created At';
 $_['column_action']                                      = 'Action';
 $_['column_id']                                          = 'ID';
 
+
 // Subscription Column
 $_['column_subscription_id']                             = 'Subscription ID';
 $_['column_customer']                                    = 'Customer';
@@ -154,8 +155,6 @@ $_['error_billing_amount']                              = 'The amount must be at
 $_['entry_plan_status']                                 = 'Select Status';
 $_['error_permission']                                  = 'Warning: You do not have permission to modify Plan!';
 $_['error_plan_exists']                                 = 'Warning: Plan already exists!';
-
-
 
 // Statuses
 $_['razorpay_subscription_status_comment_authorized']                = 'The card transaction has been authorized but not yet captured.';

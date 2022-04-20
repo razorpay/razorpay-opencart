@@ -65,7 +65,7 @@ class ModelExtensionPaymentRazorpay extends Model
             $sql .= " AND p.plan_id = '" . $data['filter_plan_id'] . "'";
         }
         if (!empty($data['filter_plan_status'])) {
-            $sql .= " AND p.plan_status = '" . (int)$data['filter_plan_status'] . "'";
+            $sql .= " AND p.plan_status = '" . $data['filter_plan_status'] . "'";
         }
         if (!empty($data['filter_plan_name'])) {
             $sql .= " AND p.plan_name LIKE '%" . $this->db->escape($data['filter_plan_name']) . "%'";
@@ -74,7 +74,7 @@ class ModelExtensionPaymentRazorpay extends Model
         if (!empty($data['filter_date_created'])) {
             $sql .= " AND DATE(p.created_at) = DATE('" . $this->db->escape($data['filter_date_created']) . "')";
         }
-    
+
         $sort_data = array(
         'p.plan_id',
         'p.created_at',
@@ -108,7 +108,6 @@ class ModelExtensionPaymentRazorpay extends Model
         $query = $this->db->query($sql);
 
         return $query->rows;
-       
     }
     public function getTotalPlan($data = array())
     {
@@ -140,6 +139,8 @@ class ModelExtensionPaymentRazorpay extends Model
         if (!empty($data['filter_date_created'])) {
             $sql .= " AND DATE(p.created_at) = DATE('" . $this->db->escape($data['filter_date_created']) . "')";
         }
+
+        
 
         $query = $this->db->query($sql);
 
@@ -192,10 +193,9 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function disablePlan($entity_id)
     {
-        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_plans SET plan_status = '" . 0 . "' WHERE entity_id = '" .$entity_id . "'");
-          //delete from recurring table;
+        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_plans SET plan_status = '" . 2 . "' WHERE entity_id = '" .$entity_id . "'");
+        //delete from recurring table;
         $this->deleteRecurring($entity_id);
-       
     }
     public function deleteRecurring($entity_id)
     {
@@ -205,8 +205,8 @@ class ModelExtensionPaymentRazorpay extends Model
         $this->db->query("Delete FROM `" . DB_PREFIX . "product_recurring` WHERE recurring_id='" . (int)$recurring_id . "'")->row;
         $this->db->query("Delete FROM `" . DB_PREFIX . "recurring` WHERE recurring_id='" . (int)$recurring_id . "'")->row;
         $this->db->query("Delete FROM `" . DB_PREFIX . "recurring_description` WHERE recurring_id='" . (int)$recurring_id . "'")->row;
-        
-    
+
+
     }
     public function getSubscription($data = array())
     {

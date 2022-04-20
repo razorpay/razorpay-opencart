@@ -263,7 +263,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         if (isset($this->request->get['filter_date_created'])) {
             $url .= '&filter_date_created=' . $this->request->get['filter_date_created'];
         }
-        
+
         if (isset($this->request->get['sort'])) {
             $url .= '&sort=' . $this->request->get['sort'];
         }
@@ -275,7 +275,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         if (isset($this->request->get['page'])) {
             $url .= '&page=' . $this->request->get['page'];
         }
-       
+
         $data['breadcrumbs'] = array();
 
         $data['breadcrumbs'][] = array(
@@ -294,17 +294,16 @@ class ControllerExtensionPaymentRazorpay extends Controller
         'filter_plan_id'        => $filter_plan_id,
         'filter_plan_name'         => $filter_plan_name,
         'filter_plan_status'    => $filter_plan_status,
-         'filter_date_created'      =>$filter_date_created,
+        'filter_date_created'      => $filter_date_created,
         'sort'                   => $sort,
         'order'                  => $order,
         'start'                  => ($page - 1) * $this->config->get('config_limit_admin'),
         'limit'                  => $this->config->get('config_limit_admin')
         );
-      
         $plan_total = $this->model_extension_payment_razorpay->getTotalPlan($filter_data);
-       
+
         $results = $this->model_extension_payment_razorpay->getPlans($filter_data);
-     
+
         foreach ($results as $result) {
             $data['plans'][] = array(
             'entity_id'      => $result['entity_id'],
@@ -325,7 +324,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
             'singleDisable'          => $this->url->link('extension/payment/razorpay/singleDisable', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true)
             );
         }
-       
+
         $data['user_token'] = $this->session->data['user_token'];
 
         if (isset($this->error['warning'])) {
@@ -416,9 +415,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $pagination->total = $plan_total;
         $pagination->page = $page;
         $pagination->limit = $this->config->get('config_limit_admin');
-        $pagination->url = $this->url->link('extension/payment/razorpay/getPlan', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true);
+        $pagination->url = $this->url->link('extension/payment/razorpay/getSubscription', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true);
 
-        
 
         $data['pagination'] = $pagination->render();
 
@@ -437,7 +435,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
-      
+
         $this->response->setOutput($this->load->view('extension/payment/razorpay_subscription/razorpay_plan_list', $data));
     }
     public function add()
@@ -556,15 +554,13 @@ class ControllerExtensionPaymentRazorpay extends Controller
             if($status==1) {
                 foreach ($this->request->post['selected'] as $entity_id) {
                     $this->model_extension_payment_razorpay->enablePlan($entity_id);
-                  
+                   
                 }
 
                 $this->session->data['success'] = $this->language->get('text_enable_success');
             } else if($status==2) {
                 foreach ($this->request->post['selected'] as $entity_id) {
                     $this->model_extension_payment_razorpay->disablePlan($entity_id);
-                   // $this->model_extension_payment_razorpay->deleteRecurring($entity_id);
-                 
                 }
                  $this->session->data['success'] = $this->language->get('text_disable_success');
             } else {
@@ -594,14 +590,13 @@ class ControllerExtensionPaymentRazorpay extends Controller
         if (!$this->user->hasPermission('modify', 'extension/payment/razorpay')) {
             $this->error['warning'] = $this->language->get('error_permission');
         }
-        if ((utf8_strlen($this->request->post['product_id']) < 1) || (utf8_strlen($this->request->post['product_id']) > 64)) {
-            $this->error['product-name'] = $this->language->get('error_product_name');
-        }
 
         if ((utf8_strlen($this->request->post['plan_name']) < 1) || (utf8_strlen($this->request->post['plan_name']) > 64)) {
             $this->error['plan_name'] = $this->language->get('error_plan_name');
         }
-
+        if ((utf8_strlen($this->request->post['product_id']) < 1) || (utf8_strlen($this->request->post['product_id']) > 64)) {
+            $this->error['product-name'] = $this->language->get('error_product_name');
+        }
         if ((utf8_strlen($this->request->post['plan_desc']) < 1) || (utf8_strlen($this->request->post['plan_desc']) > 64)) {
             $this->error['plan_desc'] = $this->language->get('error_plan_desc');
         }
@@ -650,7 +645,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         } else {
             $data['error_product_name'] = '';
         }
-     
+
         if (isset($this->error['billing_frequency'])) {
             $data['error_billing_frequency'] = $this->error['billing_frequency'];
         } else {
