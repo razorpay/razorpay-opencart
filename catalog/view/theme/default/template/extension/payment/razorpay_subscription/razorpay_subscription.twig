@@ -20,8 +20,8 @@
                     <table class="table table-bordered table-hover">
                         <thead>
                         <tr>
-                            <td class="text-right">{{ column_id }}</td>
-                            <td class="text-right">{{ column_order_subscription_id }}</td>
+                            <td class="text-left">{{ column_id }}</td>
+                            <td class="text-left">{{ column_order_subscription_id }}</td>
                             <td class="text-left">{{ column_product }}</td>
                             <td class="text-left">{{ column_status }}</td>
                             <td class="text-left">{{ column_total_count }}</td>
@@ -31,15 +31,15 @@
                             <td class="text-left">{{ column_subscription_start_at }}</td>
                             <td class="text-left">{{ column_subscription_end_at }}</td>
                             <td class="text-left">{{ column_subscription_next_charge_at }}</td>
-                            <td class="text-right"></td>
+                            <td class="text-left"></td>
                         </tr>
                         </thead>
                         <tbody>
 
                         {% for recurring in subscriptions %}
                             <tr>
-                                <td class="text-right">{{ recurring.id }}</td>
-                                <td class="text-right">{{ recurring.subscription_id }}</td>
+                                <td class="text-left">{{ recurring.id }}</td>
+                                <td class="text-left">{{ recurring.subscription_id }}</td>
                                 <td class="text-left">{{ recurring.productName }}</td>
                                 <td class="text-left">{{ recurring.status }}</td>
                                 <td class="text-left">{{ recurring.total_count }}</td>
@@ -49,7 +49,7 @@
                                 <td class="text-left">{{ recurring.start_at }}</td>
                                 <td class="text-left">{{ recurring.end_at }}</td>
                                 <td class="text-left">{{ recurring.next_charge_at }}</td>
-                                <td class="text-right"><a href="{{ recurring.view }}" data-toggle="tooltip" title="{{ button_view }}" class="btn btn-info"><i class="fa fa-eye"></i></a></td>
+                                <td class="text-left"><a href="{{ recurring.view }}" data-toggle="tooltip" title="{{ button_view }}" class="btn btn-info"><i class="fa fa-eye"></i></a></td>
                             </tr>
                         {% endfor %}
 
