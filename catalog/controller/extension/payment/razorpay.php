@@ -567,6 +567,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 'paid_count' => $result["paid_count"],
                 'remaining_count' => $result["remaining_count"],
                 'start_at' => isset($result['start_at']) ? date($this->language->get('date_format_short'), strtotime($result['start_at'])) : "",
+                'end_at' => isset($result['start_at']) ? date($this->language->get('date_format_short'), strtotime($result['end_at'])) : "",
                 'subscription_created_at' => isset($result['subscription_created_at']) ? date($this->language->get('date_format_short'), strtotime($result['subscription_created_at'])) : "",
                 'next_charge_at' => isset($result['next_charge_at']) ? date($this->language->get('date_format_short'), strtotime($result['next_charge_at'])) : "",
                 'view' => $this->url->link('extension/payment/razorpay/info', "subscription_id={$result['subscription_id']}", true),
