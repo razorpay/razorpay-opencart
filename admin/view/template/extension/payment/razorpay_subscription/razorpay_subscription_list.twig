@@ -32,7 +32,7 @@
 		{% if error_warning %}
 			<div class="alert alert-danger alert-dismissible">
 				<i class="fa fa-exclamation-circle"></i>
-				{{ error_warning }}
+				sasd {{ error_warning }}
 				<button type="button" class="close" data-dismiss="alert">&times;</button>
 			</div>
 		{% endif %}
@@ -40,6 +40,13 @@
 			<div class="alert alert-success alert-dismissible">
 				<i class="fa fa-check-circle"></i>
 				{{ success }}
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+			</div>
+		{% endif %}
+	{% if success1 %}
+			<div class="alert alert-danger alert-dismissible">
+				<i class="fa fa-check-circle"></i>
+				{{ success1 }}
 				<button type="button" class="close" data-dismiss="alert">&times;</button>
 			</div>
 		{% endif %}
@@ -225,23 +232,23 @@
 															<input type="checkbox" name="selected[]" value="{{ sub.entity_id }}"/>
 														{% endif %}
 													</td>
-													<td class="text-right">{{ sub.entity_id }}</td>
-													<td class="text-right">{{ sub.subscription_id }}</td>
-													<td class="text-right">{{ sub.plan_id }}</td>
+													<td class="text-left">{{ sub.entity_id }}</td>
+													<td class="text-left">{{ sub.subscription_id }}</td>
+													<td class="text-left">{{ sub.plan_id }}</td>
 													<td class="text-left">{{ sub.customer_fname }}
 														{{ sub.customer_lname }}
 													</td>
 													<td class="text-left">{{ sub.product_name }}
 													</td>
 													<td class="text-left">{{ sub.status }}</td>
-													<td class="text-right">{{ sub.total_count }}</td>
+													<td class="text-left">{{ sub.total_count }}</td>
 													<td class="text-left">{{ sub.paid_count}}</td>
 													<td class="text-left">{{ sub.remaining_count}}</td>
 													<td class="text-left">{{ sub.next_charge_at }}</td>
 													<td class="text-left">{{ sub.start_at }}</td>
 													<td class="text-left">{{ sub.end_at }}</td>
 													<td class="text-left">{{ sub.created_at }}</td>
-													<td class="text-right">
+													<td class="text-left">
 														<div style="min-width: 120px;">
 															<div class="btn-group">
 																<a href="{{ sub.view }}" data-toggle="tooltip" title="{{ button_view }}" class="btn btn-primary">
