@@ -52,7 +52,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
         try
         {
-            $webhookUpdatedAt =  $this->config->get('payment_razorpay_webhook_updated_at');
+            $webhookUpdatedAt = $this->config->get('payment_razorpay_webhook_updated_at');
 
             if($webhookUpdatedAt + 86400 < time())
             {
