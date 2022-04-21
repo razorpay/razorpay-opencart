@@ -37,8 +37,19 @@ class ModelExtensionPaymentRazorpay extends Model
         $query = "INSERT INTO " . DB_PREFIX . "razorpay_subscriptions SET plan_entity_id = '" . (int)$planData['entity_id'] . "', subscription_id = '" . $subscriptionData['id'] . "',";
         $query = $query . " product_id = '" . (int)$planData['opencart_product_id'] . "', razorpay_customer_id = '" . $customerId . "', qty = '" . $subscriptionData['quantity'] . "',";
         $query = $query . " status = '" . $subscriptionData['status'] . "', opencart_user_id = '" . (int)$this->customer->getId() . "', total_count = '" . (int)$subscriptionData['total_count'] . "',";
-        $query = $query . "  paid_count = '" . (int)$subscriptionData['paid_count'] . "', remaining_count = '" . (int)$subscriptionData['remaining_count'] . "', order_id = '" . (int)$order_id . "',";
-        $query = $query . "  start_at = '" . date("Y-m-d h:i:sa", $subscriptionData['start_at'] ). "', subscription_created_at = '" . date("Y-m-d h:i:sa",$subscriptionData['created_at']) . "', next_charge_at = '" . date("Y-m-d h:i:sa", $subscriptionData['charge_at']) . "'";
+        $query = $query . "  paid_count = '" . (int)$subscriptionData['paid_count'] . "', remaining_count = '" . (int)$subscriptionData['remaining_count'] . "', order_id = '" . (int)$order_id . "'";
+
+        if(isset($subscriptionData['start_at'])){
+            $query = $query . ",  start_at = '" . date("Y-m-d h:i:sa", $subscriptionData['start_at']  ). "'";
+        }
+
+        if(isset($subscriptionData['created_at'])){
+            $query = $query . ",  subscription_created_at = '" . date("Y-m-d h:i:sa",$subscriptionData['created_at'] ) . "'";
+        }
+
+        if(isset($subscriptionData['charge_at'])){
+            $query = $query . ",  next_charge_at = '" . date("Y-m-d h:i:sa",$subscriptionData['charge_at'] ) . "'";
+        }
 
         $this->db->query($query);
     }
