@@ -19,6 +19,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
     protected $webhookSecret = null;
 
     protected $webhookSupportedEvents = [
+        'payment.authorized',
+        'payment.failed',
+        'order.paid',
         'subscription.paused',
         'subscription.resumed',
         'subscription.cancelled',
@@ -472,7 +475,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
                         foreach ($webhook->events as $event => $status)
                         {
-                            if($status === true and in_array($event,$this->webhookSupportedEvents))
+                            if(($status === true) and
+                                (in_array($event, $this->webhookSupportedEvents)) === true)
                             {
                                 $this->webhookEvents[$event] = true;
                             }
