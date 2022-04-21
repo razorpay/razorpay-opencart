@@ -1,36 +1,10 @@
 <?php
 
-require_once __DIR__.'/../../../../system/library/razorpay-sdk/Razorpay.php';
-use Razorpay\Api\Api;
-use Razorpay\Api\Errors;
+require_once __DIR__.'/../../../../system/library/razorpay-lib/createwebhook.php';
 
 class ControllerExtensionPaymentRazorpay extends Controller
 {
     private $error = array();
-
-    protected $keyId = null;
-    protected $keySecret = null;
-
-    protected $webhookId = null;
-    protected $webhookUrl = HTTPS_CATALOG . 'index.php?route=extension/payment/razorpay/webhook';
-    protected $webhookEnable = '1';
-    protected $webhookSecret = null;
-
-    protected $webhookSupportedEvents = [
-        'payment.authorized',
-        'payment.failed',
-        'order.paid',
-        'subscription.paused',
-        'subscription.resumed',
-        'subscription.cancelled',
-        'subscription.charged'
-    ];
-
-    protected $webhookEvents = [
-        'payment.authorized' => true,
-        'payment.failed'     => true,
-        'order.paid'         => true,
-    ];
 
     public function index()
     {
@@ -42,16 +16,14 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
         if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate())
         {
-            $this->keyId = $this->request->post['payment_razorpay_key_id'];
-            $this->keySecret = $this->request->post['payment_razorpay_key_secret'];
+            $createWebhook = new CreateWebhook(
+                $this->request->post['payment_razorpay_key_id'],
+                $this->request->post['payment_razorpay_key_secret'],
+                $this->config->get('payment_razorpay_webhook_secret'),
+                HTTPS_CATALOG . 'index.php?route=extension/payment/razorpay/webhook'
+            );
 
-            $this->autoCreateWebhook();
-
-            $webhookConfigData = [
-                'payment_razorpay_webhook_status'     => $this->webhookEnable,
-                'payment_razorpay_webhook_secret'     => $this->webhookSecret,
-                'payment_razorpay_webhook_updated_at' => time(),
-            ];
+            $webhookConfigData = $createWebhook->autoCreateWebhook();
 
             $configData = array_merge($this->request->post, $webhookConfigData);
 
@@ -211,120 +183,5 @@ class ControllerExtensionPaymentRazorpay extends Controller
         } else {
             return false;
         }
-    }
-
-    protected function autoCreateWebhook()
-    {
-        $this->webhookSecret = $this->config->get('payment_razorpay_webhook_secret');
-
-        if(empty($this->webhookSecret) === true)
-        {
-            $this->webhookSecret = $this->createWebhookSecret();
-        }
-
-        $api = $this->getApiIntance();
-
-        $domain = parse_url($this->webhookUrl, PHP_URL_HOST);
-        $domain_ip = gethostbyname($domain);
-
-        if (!filter_var($domain_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE))
-        {
-            $this->webhookEnable = '0';
-            $this->log->write('Cannot enable/disable webhook on $domain or private ip($domain_ip).');
-            return;
-        }
-
-        try
-        {
-            $webhookPresent = $this->getExistingWebhook();
-
-            if(empty($this->webhookId) === false)
-            {
-                $webhook = $api->webhook->edit(
-                    [
-                        'url'    => $this->webhookUrl,
-                        'events' => $this->webhookEvents,
-                        'secret' => $this->webhookSecret,
-                        'active' => true,
-                    ],
-                    $this->webhookId
-                );
-
-                $this->log->write('Razorpay Webhook Updated by Admin.');
-            } else
-            {
-                $webhook = $api->webhook->create(
-                    [
-                        'url'    => $this->webhookUrl,
-                        'events' => $this->webhookEvents,
-                        'secret' => $this->webhookSecret,
-                        'active' => true,
-                    ]
-                );
-
-                $this->log->write('Razorpay Webhook Created by Admin');
-            }
-
-            $this->webhookEnable = '1';
-        }
-        catch(\Razorpay\Api\Errors\Error $e)
-        {
-            $this->webhookEnable = '0';
-
-            $this->log->write($e->getMessage());
-        }
-    }
-
-    protected function getExistingWebhook()
-    {
-        $api = $this->getApiIntance();
-
-        try
-        {
-            $webhooks = $api->webhook->all();
-
-            if(($webhooks->count > 0) and
-                (empty($this->webhookUrl) === false))
-            {
-                foreach ($webhooks->items as $key => $webhook)
-                {
-                    if($webhook->url === $this->webhookUrl)
-                    {
-                        $this->webhookId = $webhook->id;
-
-                        foreach ($webhook->events as $event => $status)
-                        {
-                            if(($status === true) and
-                                (in_array($event, $this->webhookSupportedEvents)) === true)
-                            {
-                                $this->webhookEvents[$event] = true;
-                            }
-                        }
-
-                        return ['id' => $webhook->id];
-                    }
-                }
-            }
-        }
-        catch(\Razorpay\Api\Errors\Error $e)
-        {
-            $this->log->write($e->getMessage());
-
-            $this->webhookEnable = '0';
-        }
-
-        return ['id' => null];
-    }
-
-    protected function createWebhookSecret()
-    {
-        $alphanumericString = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-
-        return substr(str_shuffle($alphanumericString), 0, 14);
-    }
-
-    protected function getApiIntance()
-    {
-        return new Api($this->keyId, $this->keySecret);
     }
 }
