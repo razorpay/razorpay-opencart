@@ -219,7 +219,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
         if(empty($this->webhookSecret) === true)
         {
-            $this->webhookSecret = bin2hex(openssl_random_pseudo_bytes(4));
+            $this->webhookSecret = $this->createWebhookSecret();
         }
 
         $api = $this->getApiIntance();
@@ -314,6 +314,13 @@ class ControllerExtensionPaymentRazorpay extends Controller
         }
 
         return ['id' => null];
+    }
+
+    protected function createWebhookSecret()
+    {
+        $alphanumericString = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+        return substr(str_shuffle($alphanumericString), 0, 14);
     }
 
     protected function getApiIntance()
