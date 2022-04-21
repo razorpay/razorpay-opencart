@@ -58,8 +58,20 @@ class ModelExtensionPaymentRazorpay extends Model
     {
         $query = "UPDATE " . DB_PREFIX . "razorpay_subscriptions SET  qty = '" . $subscriptionData['quantity'] . "',";
         $query = $query . " status = '" . $subscriptionData['status'] . "', total_count = '" . (int)$subscriptionData['total_count'] . "',";
-        $query = $query . "  paid_count = '" . (int)$subscriptionData['paid_count'] . "', remaining_count = '" . (int)$subscriptionData['remaining_count'] . "',";
-        $query = $query . "  start_at = '" . date("Y-m-d h:i:sa", $subscriptionData['start_at'] ) . "', next_charge_at = '" . date("Y-m-d h:i:sa",$subscriptionData['charge_at'] ). "'";
+        $query = $query . "  paid_count = '" . (int)$subscriptionData['paid_count'] . "', remaining_count = '" . (int)$subscriptionData['remaining_count'] . "'";
+
+        if(isset($subscriptionData['start_at'])){
+            $query = $query . ",  start_at = '" . date("Y-m-d h:i:sa", $subscriptionData['start_at']  ). "'";
+        }
+
+        if(isset($subscriptionData['charge_at'])){
+            $query = $query . ",  next_charge_at = '" . date("Y-m-d h:i:sa",$subscriptionData['charge_at'] ) . "'";
+        }
+
+        if(isset($subscriptionData['end_at'])){
+            $query = $query . ",  end_at = '" . date("Y-m-d h:i:sa",$subscriptionData['end_at'] ) . "'";
+        }
+
         $query = $query ." WHERE subscription_id = '" . $subscriptionId . "'";
 
         $this->db->query($query);
