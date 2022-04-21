@@ -108,7 +108,8 @@ $_['text_active']                                       = 'Active';
 $_['text_cancelled']                                    = 'Cancel';
 $_['text_pause']                                        = 'Pause';
 $_['text_resume']                                       = 'Resume';
-$_['text_invoice']                                       = 'Invoice Details';
+$_['text_invoice']                                      = 'Invoice Details';
+$_['text_not_select_sub_ID']                             = 'Please Select Subscription ';
 
 
 //tooltip
@@ -155,7 +156,7 @@ $_['error_billing_amount']                              = 'The amount must be at
 $_['entry_plan_status']                                 = 'Select Status';
 $_['error_permission']                                  = 'Warning: You do not have permission to modify Plan!';
 $_['error_plan_exists']                                 = 'Warning: Plan already exists!';
-
+$_['error_billing_frequency_daily']                           = 'For daily plans, the minimum interval is 7.';
 // Statuses
 $_['razorpay_subscription_status_comment_authorized']                = 'The card transaction has been authorized but not yet captured.';
 $_['razorpay_subscription_status_comment_captured']                  = 'The card transaction was authorized and subsequently captured (i.e., completed).';
