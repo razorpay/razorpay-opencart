@@ -32,7 +32,7 @@
 		{% if error_warning %}
 			<div class="alert alert-danger alert-dismissible">
 				<i class="fa fa-exclamation-circle"></i>
-				{{ error_warning }}
+				sasd {{ error_warning }}
 				<button type="button" class="close" data-dismiss="alert">&times;</button>
 			</div>
 		{% endif %}
@@ -40,6 +40,13 @@
 			<div class="alert alert-success alert-dismissible">
 				<i class="fa fa-check-circle"></i>
 				{{ success }}
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+			</div>
+		{% endif %}
+	{% if success1 %}
+			<div class="alert alert-danger alert-dismissible">
+				<i class="fa fa-check-circle"></i>
+				{{ success1 }}
 				<button type="button" class="close" data-dismiss="alert">&times;</button>
 			</div>
 		{% endif %}
@@ -58,8 +65,8 @@
 						</div>
 
 						<div class="form-group">
-							<label class="control-label" for="input-customer">{{ entry_plan_name }}</label>
-							<input type="text" name="filter_plan_name" value="{{ filter_plan_name }}" placeholder="{{ entry_plan_name }}" id="input-customer" class="form-control"/>
+							<label class="control-label" for="input-customer">{{ entry_plan_id }}</label>
+							<input type="text" name="filter_plan_name" value="{{ filter_plan_name }}" placeholder="{{ entry_plan_id }}" id="input-customer" class="form-control"/>
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="input-order-status">{{ entry_plan_status }}</label>
@@ -115,8 +122,13 @@
 									<thead>
 										<tr>
 											<td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);"/></td>
+											 <td class="text-left">{% if sort == 's.entity_id' %}
+													<a href="{{ sort_order }}" class="{{ order|lower }}">{{ column_id }}</a>
+												{% else %}
+													<a href="{{ sort_order }}">{{ column_id }}</a>
+												{% endif %}</td>
 											<td class="text-left">
-												{% if sort == 'p.plan_id' %}
+												{% if sort == 's.subscription_id' %}
 													<a href="{{ sort_order }}" class="{{ order|lower }}">{{ column_subscription_id }}</a>
 												{% else %}
 													<a href="{{ sort_order }}">{{ column_subscription_id }}</a>
@@ -193,7 +205,7 @@
 												{% endif %}
 											</td>
 											<td class="text-left">
-												{% if sort == 'p.plan_status' %}
+												{% if sort == 's.subscription_created_at' %}
 													<a href="{{ sort_plan_status }}" class="{{ order|lower }}">{{ column_subscription_created_at }}</a>
 												{% else %}
 													<a href="{{ sort_plan_status }}">{{ column_subscription_created_at }}</a>
@@ -220,22 +232,23 @@
 															<input type="checkbox" name="selected[]" value="{{ sub.entity_id }}"/>
 														{% endif %}
 													</td>
-													<td class="text-right">{{ sub.subscription_id }}</td>
-													<td class="text-right">{{ sub.plan_id }}</td>
+													<td class="text-left">{{ sub.entity_id }}</td>
+													<td class="text-left">{{ sub.subscription_id }}</td>
+													<td class="text-left">{{ sub.plan_id }}</td>
 													<td class="text-left">{{ sub.customer_fname }}
 														{{ sub.customer_lname }}
 													</td>
 													<td class="text-left">{{ sub.product_name }}
 													</td>
 													<td class="text-left">{{ sub.status }}</td>
-													<td class="text-right">{{ sub.total_count }}</td>
+													<td class="text-left">{{ sub.total_count }}</td>
 													<td class="text-left">{{ sub.paid_count}}</td>
 													<td class="text-left">{{ sub.remaining_count}}</td>
 													<td class="text-left">{{ sub.next_charge_at }}</td>
 													<td class="text-left">{{ sub.start_at }}</td>
 													<td class="text-left">{{ sub.end_at }}</td>
 													<td class="text-left">{{ sub.created_at }}</td>
-													<td class="text-right">
+													<td class="text-left">
 														<div style="min-width: 120px;">
 															<div class="btn-group">
 																<a href="{{ sub.view }}" data-toggle="tooltip" title="{{ button_view }}" class="btn btn-primary">
@@ -328,7 +341,7 @@ if (filter_date_created) {
 url += '&filter_date_created=' + encodeURIComponent(filter_date_created);
 }
 
-location = 'index.php?route=extension/payment/razorpay/getSubscription&user_token= {{ user_token }}' + url;
+location = 'index.php?route=extension/payment/razorpay/getSubscription&user_token={{ user_token }}' + url;
 });
 // -->
 			-->
@@ -347,6 +360,4 @@ location = 'index.php?route=extension/payment/razorpay/getSubscription&user_toke
 //
 		-->
 	</script>
-	{
-		{footer}
-	}
+	{{footer}}

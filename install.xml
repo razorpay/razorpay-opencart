@@ -46,7 +46,7 @@
         <operation>
             <search><![CDATA[{% for module in modules %}]]></search>
             <add position="after"><![CDATA[
-                <li class="list-group-item"><a href="index.php?route=extension/payment/razorpay/subscriptions">My Subscription</a></li>
+                <li class="list-group-item"><a href="index.php?route=extension/payment/razorpay/subscriptions">My Subscriptions</a></li>
             ]]>            </add>
         </operation>
     </file>

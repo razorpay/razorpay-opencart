@@ -20,7 +20,7 @@ $_['entry_status'] = 'Status';
 $_['entry_sort_order'] = 'Sort Order';
 $_['entry_webhook_secret'] = 'Razorpay Webhook Secret';
 $_['entry_webhook_status'] = 'Webhook Status';
-$_['entry_webhook_url'] = 'Webhook URL:';
+$_['entry_webhook_url'] = 'Webhook URL';
 $_['entry_payment_action'] = 'Payment Action';
 $_['entry_max_capture_delay'] = 'Max Delay in Payment Capture';
 $_['entry_max_capture_delay1'] = 'Max Delay in Payment Capture in minutes';
@@ -57,6 +57,8 @@ $_['column_plan_addons']                                 = 'Addons';
 $_['column_status']                                      = 'Status';
 $_['column_created_at']                                  = 'Created At';
 $_['column_action']                                      = 'Action';
+$_['column_id']                                          = 'ID';
+
 
 // Subscription Column
 $_['column_subscription_id']                             = 'Subscription ID';
@@ -93,8 +95,8 @@ $_['text_subscription_list']                            = 'Subscription List';
 $_['text_add']                                          = 'Add Plan';
 $_['text_edit']                                         = 'Edit Plan';
 $_['text_plan_success']                                 = 'Plan add successfully';
-$_['text_enable_success']                               = 'Plan enabled successfully';
-$_['text_disable_success']                               = 'Plan disabled successfully';
+$_['text_enable_success']                               = 'Plan/s enabled successfully';
+$_['text_disable_success']                               = 'Plan/s disabled successfully';
 $_['text_select_warning']                               = 'Select plan for enable and disable';
 $_['text_subscription']                                 = 'Subscription View';
 $_['text_resume_success']                               = 'Subscription resume successfully';
@@ -106,7 +108,8 @@ $_['text_active']                                       = 'Active';
 $_['text_cancelled']                                    = 'Cancel';
 $_['text_pause']                                        = 'Pause';
 $_['text_resume']                                       = 'Resume';
-$_['text_invoice']                                       = 'Invoice Details';
+$_['text_invoice']                                      = 'Invoice Details';
+$_['text_not_select_sub_ID']                             = 'Please Select Subscription ';
 
 
 //tooltip
@@ -145,15 +148,15 @@ $_['button_back']                                       = 'Back';
 // Error
 $_['error_plan_name']                                   = 'Enter Plan Name!';
 $_['error_plan_desc']                                   = 'Enter Plan Description';
-$_['error_product_name']                                = 'Please Select Product Name';
+$_['error_product_name']                                = 'Please Select product name using autocomplete!';
 $_['error_plan_type']                                   = 'Please Select Plan Type';
-$_['error_billing_frequency']                           = 'Enter Billing Frequency and it should be an integer.';
-$_['error_billing_cycle']                               = 'Enter Billing Cycle and it should be an integer.';
-$_['error_billing_amount']                              = 'Enter Billing Amount';
+$_['error_billing_frequency']                           = 'Enter Billing Frequency and it should be an number.';
+$_['error_billing_cycle']                               = 'Enter Billing Cycle and it should be an number.';
+$_['error_billing_amount']                              = 'The amount must be at least ₹1';
 $_['entry_plan_status']                                 = 'Select Status';
 $_['error_permission']                                  = 'Warning: You do not have permission to modify Plan!';
 $_['error_plan_exists']                                 = 'Warning: Plan already exists!';
-
+$_['error_billing_frequency_daily']                           = 'For daily plans, the minimum interval is 7.';
 // Statuses
 $_['razorpay_subscription_status_comment_authorized']                = 'The card transaction has been authorized but not yet captured.';
 $_['razorpay_subscription_status_comment_captured']                  = 'The card transaction was authorized and subsequently captured (i.e., completed).';
