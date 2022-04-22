@@ -56,12 +56,12 @@ class CreateWebhook
         $api = $this->getApiIntance();
 
         $domain = parse_url($this->webhookUrl, PHP_URL_HOST);
-        $domain_ip = gethostbyname($domain);
+        $domainIp = gethostbyname($domain);
 
-        if (!filter_var($domain_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE))
+        if (!filter_var($domainIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE))
         {
             $this->webhookEnable = '0';
-            $this->log->write('Cannot enable/disable webhook on $domain or private ip($domain_ip).');
+            $this->log->write('Cannot enable/disable webhook on $domain or private ip($domainIp).');
 
             return $this->returnWebhookConfigData();
         }
@@ -131,7 +131,7 @@ class CreateWebhook
                         foreach ($webhook->events as $event => $status)
                         {
                             if(($status === true) and
-                                (in_array($event, $this->webhookSupportedEvents)) === true)
+                                (in_array($event, $this->webhookSupportedEvents) === true))
                             {
                                 $this->webhookEvents[$event] = true;
                             }
@@ -155,9 +155,9 @@ class CreateWebhook
 
     protected function createWebhookSecret()
     {
-        $alphanumericString = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+        $alphanumericString = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-=~!@#$%^&*()_+,./<>?;:[]{}|abcdefghijklmnopqrstuvwxyz';
 
-        return substr(str_shuffle($alphanumericString), 0, 14);
+        return substr(str_shuffle($alphanumericString), 0, 20);
     }
 
     protected function returnWebhookConfigData()

@@ -4,6 +4,8 @@ require_once __DIR__.'/../../../../system/library/razorpay-lib/createwebhook.php
 
 class ControllerExtensionPaymentRazorpay extends Controller
 {
+    const WEBHOOK_URL    = HTTPS_CATALOG . 'index.php?route=extension/payment/razorpay/webhook';
+
     private $error = array();
 
     public function index()
@@ -20,7 +22,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 $this->request->post['payment_razorpay_key_id'],
                 $this->request->post['payment_razorpay_key_secret'],
                 $this->config->get('payment_razorpay_webhook_secret'),
-                HTTPS_CATALOG . 'index.php?route=extension/payment/razorpay/webhook'
+                self::WEBHOOK_URL
             );
 
             $webhookConfigData = $createWebhook->autoCreateWebhook();

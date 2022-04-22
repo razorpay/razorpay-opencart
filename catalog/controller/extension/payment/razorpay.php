@@ -13,6 +13,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
     const PAYMENT_AUTHORIZED    = 'payment.authorized';
     const PAYMENT_FAILED        = 'payment.failed';
     const ORDER_PAID            = 'order.paid';
+    const WEBHOOK_URL           = HTTPS_SERVER . 'index.php?route=extension/payment/razorpay/webhook';
 
     // Set RZP plugin version
     private $version = '4.0.2';
@@ -60,7 +61,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
                     $this->config->get('payment_razorpay_key_id'),
                     $this->config->get('payment_razorpay_key_secret'),
                     $this->config->get('payment_razorpay_webhook_secret'),
-                    HTTPS_SERVER . 'index.php?route=extension/payment/razorpay/webhook'
+                    self::WEBHOOK_URL
                 );
 
                 $webhookConfigData = $createWebhook->autoCreateWebhook();
