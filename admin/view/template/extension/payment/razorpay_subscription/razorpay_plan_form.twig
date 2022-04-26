@@ -1,0 +1,207 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+     
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+  {% if error_warning %}
+			<div class="alert alert-danger alert-dismissible">
+				<i class="fa fa-exclamation-circle"></i>
+				{{ error_warning }}
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+			</div>
+		{% endif %}
+		{% if success %}
+			<div class="alert alert-success alert-dismissible">
+				<i class="fa fa-check-circle"></i>
+				{{ success }}
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+			</div>
+		{% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_form }}</h3>
+      </div>
+      <div class="panel-body">
+             <form action="{{ action }}" name="form-plan"  method="post" enctype="multipart/form-data" id="form-plan" class="form-horizontal">
+          <div class="tab-content">
+            <div class="tab-pane active" id="tab-customer">
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-customer">{{ entry_plan_name }}</label>
+				   <div class="col-sm-10">
+                  <input type="text" name="plan_name" value="{{ plan_name }}" placeholder="{{ entry_plan_name }}" id="input-customer" class="form-control" />
+                  <input type="hidden" name="entity_id" value="{{ entity_id }}" />
+                   {% if error_plan_name %}
+                  <div class="text-danger">{{ error_plan_name }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-customer-group">{{ entry_plan_desc }}</label>
+                <div class="col-sm-10">
+                 <textarea name="plan_desc" rows="5" placeholder="{{ entry_plan_desc }}" id="input-plan-desc" class="form-control">{{ plan_desc }}</textarea>
+                 {% if error_plan_desc %}
+                  <div class="text-danger">{{ error_plan_desc }}</div>
+                  {% endif %}
+                </div>
+              </div>
+			  <div  id="tab-product">
+              <div class="form-group required">
+			   <label class="col-sm-2 control-label" for="input-product-id"><span data-toggle="tooltip" title="{{ help_product_name }}">{{ entry_product_name }}</span></label>
+                
+                <div class="col-sm-10">
+                  <input type="text" name="product-name" placeholder="{{ entry_product_name }}" value="{{ opencart_product_id }}" id="input-product-id" class="form-control" />
+				   <input type="hidden" name="product_id" value="" />
+           {% if error_product_name %}
+                  <div class="text-danger">{{ error_product_name }}</div>
+                  {% endif %}
+                </div>
+				</div>
+              </div>
+			    <div class="form-group required">
+				<label class="col-sm-2 control-label" for="input-plan-type"><span data-toggle="tooltip" title="{{ help_plan_type }}">{{ entry_plan_type }}</span></label>
+                <div class="col-sm-10">
+				   <select name="plan_type" id="input-plan-type" class="form-control">
+                    <option value="daily" selected="selected">{{ text_daily}}</option>
+                    <option value="weekly">{{ text_weekly }}</option>
+					   <option value="monthly">{{ text_monthly }}</option>
+					   <option value="yearly">{{ text_yearly }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group required">
+			  	<label class="col-sm-2 control-label" for="input-billing-frequency"><span data-toggle="tooltip" title="{{ help_billing_frequency }}">{{ entry_billing_frequency }}</span></label>
+                <div class="col-sm-10">
+                  <input type="text" name="billing_frequency" placeholder="{{ entry_billing_frequency }}"  value="{{ plan_frequency }}" id="input-billing-amount" class="form-control" />
+                   {% if error_billing_frequency %}
+                  <div class="text-danger">{{ error_billing_frequency }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-billing-cycle">{{ entry_billing_cycle }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="billing_cycle"  placeholder="{{ entry_billing_cycle }}" value="{{ plan_bill_cycle }}" id="input-billing-cycle" class="form-control" />
+                   {% if error_billing_cycle %}
+                  <div class="text-danger">{{ error_billing_cycle }}</div>
+                  {% endif %}
+                </div>
+              </div>
+    			 <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-billing-amount">{{ entry_billing_amount }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="billing_amount" placeholder="{{ entry_billing_amount }}"  value="{{ plan_bill_amount }}" id="input-billing-amount" class="form-control" />
+                   {% if error_billing_amount %}
+                  <div class="text-danger">{{ error_billing_amount }}</div>
+                  {% endif %}
+                </div>
+              </div>
+			    <div class="form-group ">
+                <label class="col-sm-2 control-label" for="input-trial">{{ entry_trial }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="plan_trial" placeholder="{{ entry_trial }}"  value="{{ plan_trial }}" id="input-trial" class="form-control" />
+                </div>
+              </div>
+			    <div class="form-group ">
+                <label class="col-sm-2 control-label" for="input-plan-addons">{{ entry_plan_addons }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="plan_addons" placeholder="{{ entry_plan_addons }}"  value="{{ plan_addons }}" id="input-plan-addons" class="form-control" />
+                </div>
+              </div>
+			     <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-billing-cycle">{{ entry_plan_status }}</label>
+                 <div class="col-sm-10">
+                  <select name="plan_status" id="input-status" class="form-control">
+                    {% if status %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div class="text-right">
+                 <button form="form-plan" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_save }}</button>
+			<a href="{{ cancel }}" class="btn btn-default"><i class="fa fa-reply"></i> {{ button_cancel }}</a>
+              </div>
+            </div>
+           
+        
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript"><!--
+//auto load product id
+$('#tab-product input[name=\'product-name\']').autocomplete({
+	'source': function(request, response) {
+		$.ajax({
+			url: 'index.php?route=catalog/product/autocomplete&user_token={{ user_token }}&filter_name=' +  encodeURIComponent(request),
+			dataType: 'json',
+			success: function(json) {
+				response($.map(json, function(item) {
+					return {
+						label: item['name'],
+						value: item['product_id'],
+						model: item['model'],
+						option: item['option'],
+						price: item['price']
+					}
+				}));
+			}
+		});
+	},
+	'select': function(item) {
+		$('#tab-product input[name=\'product-name\']').val(item['label']);
+		$('#tab-product input[name=\'product_id\']').val(item['value']);
+		if (item['option'] != '') {
+ 			html  = '<fieldset>';
+            html += '  <legend>{{ entry_option }}</legend>';
+			for (i = 0; i < item['option'].length; i++) {
+				option = item['option'][i];
+				if (option['type'] == 'select') {
+					html += '<div class="form-group' + (option['required'] ? ' required' : '') + '">';
+					html += '  <label class="col-sm-2 control-label" for="input-option' + option['product_option_id'] + '">' + option['name'] + '</label>';
+					html += '  <div class="col-sm-10">';
+					html += '    <select name="option[' + option['product_option_id'] + ']" id="input-option' + option['product_option_id'] + '" class="form-control">';
+					html += '      <option value="">{{ text_select }}</option>';
+
+					for (j = 0; j < option['product_option_value'].length; j++) {
+						option_value = option['product_option_value'][j];
+
+						html += '<option value="' + option_value['product_option_value_id'] + '">' + option_value['name'];
+
+						if (option_value['price']) {
+							html += ' (' + option_value['price_prefix'] + option_value['price'] + ')';
+						}
+
+						html += '</option>';
+					}
+					html += '    </select>';
+					html += '  </div>';
+					html += '</div>';
+				}
+			}
+			html += '</fieldset>';
+		} else {
+			$('#option').html('');
+		}
+	}
+});
+
+
+
+//--></script>
+ 
+{{ footer }}
