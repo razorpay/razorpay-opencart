@@ -1,7 +1,7 @@
 <?php
 
-require_once __DIR__.'/../../../../system/library/razorpay-sdk/Razorpay.php';
-require_once __DIR__.'/../../../../system/library/razorpay-lib/createwebhook.php';
+require_once __DIR__.'/../../../../system/library/razorpay/razorpay-sdk/Razorpay.php';
+require_once __DIR__.'/../../../../system/library/razorpay/razorpay-lib/createwebhook.php';
 use Razorpay\Api\Api;
 use Razorpay\Api\Errors;
 
