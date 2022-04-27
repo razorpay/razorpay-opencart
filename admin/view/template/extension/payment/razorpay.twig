@@ -118,42 +118,6 @@
 					</div>
 
 					<div class="form-group">
-						<label class="col-sm-2 control-label" for="input-webhook-status">{{ entry_webhook_status }}</label>
-						<div class="col-sm-10">
-							<select name="payment_razorpay_webhook_status" id="input-webhook-status" class="form-control">
-								{% if razorpay_webhook_status %}
-									<option value="1" selected="selected">{{ text_enabled }}</option>
-									<option value="0">{{ text_disabled }}</option>
-								{% else %}
-									<option value="1">{{ text_enabled }}</option>
-									<option value="0" selected="selected">{{ text_disabled }}</option>
-								{% endif %}
-							</select>
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label" for="input-webhook-url">
-							<span data-toggle="tooltip" title="{{ help_webhook_url }}">{{ entry_webhook_url }}</span>
-						</label>
-						<div class="col-sm-10">
-							<div class="input-group">
-								<span class="input-group-addon">
-									<i class="fa fa-link"></i>
-								</span>
-								<input type="text" readonly value="{{ razorpay_webhook_url }}" id="input-webhook-url" class="form-control"/>
-							</div>
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label" for="input-webhook-secret">{{ entry_webhook_secret }}</label>
-						<div class="col-sm-10">
-							<input type="text" name="payment_razorpay_webhook_secret" value="{{ razorpay_webhook_secret }}" placeholder="{{ entry_webhook_secret }}" id="input-webhook-secret" class="form-control"/>
-							{% if error_webhook_secret %}
-								<div class="text-danger">{{ error_webhook_secret }}</div>
-							{% endif %}
-						</div>
-					</div>
-					<div class="form-group">
 						<label class="col-sm-2 control-label" for="input-subscription-status">{{ entry_subscription_status }}</label>
 						<div class="col-sm-10">
 							<select name="payment_razorpay_subscription_status" id="input-subscription-status" class="form-control">
