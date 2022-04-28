@@ -20,7 +20,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
     const SUBSCRIPTION_CHARGED    = 'subscription.charged';
 
     // Set RZP plugin version
-    private $version = '4.0.2';
+    private $version = '5.0.0';
 
     private $api;
 
