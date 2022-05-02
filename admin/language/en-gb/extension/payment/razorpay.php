@@ -110,6 +110,7 @@ $_['text_pause']                                        = 'Pause';
 $_['text_resume']                                       = 'Resume';
 $_['text_invoice']                                      = 'Invoice Details';
 $_['text_not_select_sub_ID']                             = 'Please Select Subscription ';
+$_['text_subscription_status']                          = 'Enable Subscription in Settings.';
 
 
 //tooltip

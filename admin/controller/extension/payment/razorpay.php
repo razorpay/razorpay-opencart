@@ -155,7 +155,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         } else {
             $data['razorpay_max_capture_delay'] = $this->config->get('payment_razorpay_max_capture_delay');
         }
-
+      
         //Subscription Status
         if (isset($this->request->post['payment_razorpay_subscription_status'])) {
             $data['razorpay_subscription_status'] = $this->request->post['payment_razorpay_subscription_status'];
@@ -283,7 +283,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
         $data['breadcrumbs'][] = array(
         'text' => $this->language->get('plan_title'),
-        'href' => $this->url->link('extension/payment/razorpay', 'user_token=' . $this->session->data['user_token'] . $url, true)
+        'href' => $this->url->link('extension/payment/razorpay/getPlan', 'user_token=' . $this->session->data['user_token'] . $url, true)
         );
 
         $data['plans'] = array();
@@ -443,7 +443,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $this->document->setTitle($this->language->get('heading_title'));
 
         $this->load->model('extension/payment/razorpay');
-       
+        $subscription_status= $this->config->get('payment_razorpay_subscription_status');
+
+
         if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validateForm()) {
             $data['plan_name']= $planName=$this->request->post['plan_name'];
             $planDesc=$this->request->post['plan_desc'];
@@ -478,62 +480,87 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
             $data['customer_group_id'] =  $this->config->get('config_customer_group_id');
             $currency = $this->config->get('config_currency');
-              // Create Plan API
-            try
-            { 
-                $api = $this->getApiIntance();
-
-                $plan_data =  array('period' => $planType, 
-                'interval' => $frequency,
-                 'item' => array('name' => $planName, 'description' => $planDesc, 'amount' => $amount * 100, 'currency' =>$currency),
-                 'notes'=> array('trial'=> 'test','Addons'=> 'addons')
-            
-                );
-
-                $razorpay_plan = $api->plan->create($plan_data);
-                           
-                $this->log->write("RZP PlanID (:" . $razorpay_plan['id'] . ") created");
-            
-            }
-            catch(\Razorpay\Api\Errors\Error $e)
-            {
-                $this->log->write($e->getMessage());
-                $this->error['warning'] = $e->getMessage();
-            
+             
+               //check subscription status
+            if($subscription_status==0) {
+        
+                $this->error['warning'] = $this->language->get('text_subscription_status');
                 if (isset($this->error['warning'])) {
                     $this->session->data['error_warning'] = $this->error['warning'];
                 } else {
                     $this->session->data['error_warning'] = '';
                 }
-                $this->getForm();
-               return;
-            }
-            $data['plan_entity_id']=$this->model_extension_payment_razorpay->addPlan($this->request->post, $razorpay_plan['id']);
-            $this->load->model('localisation/language');
+                          $this->getForm();
+            } else{
+                 // Create Plan API
+                try 
+                { 
+                    $api = $this->getApiIntance();
 
-            $languages= $data['languages'] = $this->model_localisation_language->getLanguages();
+                    $plan_data =  array('period' => $planType, 
+                    'interval' => $frequency,
+                     'item' => array('name' => $planName, 'description' => $planDesc, 'amount' => $amount * 100, 'currency' =>$currency),
+                     'notes'=> array('trial'=> 'test','Addons'=> 'addons')
+            
+                    );
+
+                    $razorpay_plan = $api->plan->create($plan_data);
+                           
+                    $this->log->write("RZP PlanID (:" . $razorpay_plan['id'] . ") created");
+            
+                }
+                catch(\Razorpay\Api\Errors\Error $e)
+                {
+                    $this->log->write($e->getMessage());
+                    $this->error['warning'] = $e->getMessage();
+            
+                    if (isset($this->error['warning'])) {
+                        $this->session->data['error_warning'] = $this->error['warning'];
+                    } else {
+                        $this->session->data['error_warning'] = '';
+                    }
+                    $this->getForm();
+                    return;
+                }
+            
+                $data['plan_entity_id']=$this->model_extension_payment_razorpay->addPlan($this->request->post, $razorpay_plan['id']);
+                     
+                $this->load->model('localisation/language');
+
+                $languages= $data['languages'] = $this->model_localisation_language->getLanguages();
           
-            $this->model_extension_payment_razorpay->addRecurring($data);
+                $this->model_extension_payment_razorpay->addRecurring($data);
 
-            $this->session->data['success'] = $this->language->get('text_plan_success');
+                $this->session->data['success'] = $this->language->get('text_plan_success');
+       
+                $url = '';
 
-            $url = '';
+                if (isset($this->request->get['sort'])) {
+                    $url .= '&sort=' . $this->request->get['sort'];
+                }
 
-            if (isset($this->request->get['sort'])) {
-                $url .= '&sort=' . $this->request->get['sort'];
-            }
+                if (isset($this->request->get['order'])) {
+                    $url .= '&order=' . $this->request->get['order'];
+                }
 
-            if (isset($this->request->get['order'])) {
-                $url .= '&order=' . $this->request->get['order'];
-            }
+                if (isset($this->request->get['page'])) {
+                    $url .= '&page=' . $this->request->get['page'];
+                }
 
-            if (isset($this->request->get['page'])) {
-                $url .= '&page=' . $this->request->get['page'];
-            }
-
-            $this->response->redirect($this->url->link('extension/payment/razorpay/getPlan', 'user_token=' . $this->session->data['user_token'] . $url, true));
+                $this->response->redirect($this->url->link('extension/payment/razorpay/getPlan', 'user_token=' . $this->session->data['user_token'] . $url, true));
+            } // subscription status 
         }
-
+ 
+    
+        if($subscription_status==0) {
+        
+            $this->error['warning'] = $this->language->get('text_subscription_status');
+            if (isset($this->error['warning'])) {
+                $this->session->data['error_warning'] = $this->error['warning'];
+            } else {
+                $this->session->data['error_warning'] = '';
+            }
+        }
         $this->getForm();
     }
    
@@ -1046,31 +1073,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
             }
           
         } else {
-        // echo ":11";
-         //$this->error['warning']
-        //  if (isset($this->error['warning'])) {
-        //     $data['error_warning'] = $this->error['warning'];
-        // } else {
-        //     $data['error_warning'] = '';
-        // }
-
-                // if (isset($this->error['warning'])) {
-                //     $data['error_warning'] = $this->error['warning'];
-                // } else {
-                //     $data['error_warning'] = '';
-                // }
-                // $data['user_token'] = $this->session->data['user_token'];
-                // $this->session->data['warning'] = $this->language->get('text_not_select_sub_ID');
-                // if (isset($this->error['warning'])) {
-                //     $data['error_warning'] = $this->error['warning'];
-                // } else {
-                //     $data['error_warning'] = '';
-                // }
-        
+                  
                 return $this->response->redirect($this->url->link('extension/payment/razorpay/getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true));
-                  //  echo   $this->session->data['error_warning']  = $this->language->get('text_not_select_sub_ID');
-               
-                //  $this->getSubscription();
+                 
                 return;
         }
        
@@ -1139,7 +1144,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 $this->session->data['error_warning'] = '';
             }
            
-           return;
+            return;
         }
     }
 
@@ -1177,7 +1182,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 $this->session->data['error_warning'] = '';
             }
            
-           return;
+            return;
         }
     }
 
@@ -1214,7 +1219,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 $this->session->data['error_warning'] = '';
             }
            
-           return;
+            return;
         }
     }
 
