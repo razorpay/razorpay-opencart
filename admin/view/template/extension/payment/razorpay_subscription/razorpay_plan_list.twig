@@ -1,0 +1,299 @@
+{{ header }}{{ column_left }}
+<div id="content">
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="pull-right">
+				<button type="submit" id="button-enable" data-toggle="tooltip" title="{{ button_enable }}" class="btn btn-warning" name="enable">
+					<i class="fa fa-toggle-on"></i>
+				</button>
+				<button type="submit" id="button-disable" data-toggle="tooltip" title="{{ button_disable }}" class="btn btn-danger" name="disable">
+					<i class="fa fa-toggle-off"></i>
+				</button>
+				<a href="{{ add }}" data-toggle="tooltip" title="{{ button_add }}" class="btn btn-primary">
+					<i class="fa fa-plus"></i>
+				</a>
+			</div>
+			<h1>{{ heading_title }}</h1>
+			<ul class="breadcrumb">
+				{% for breadcrumb in breadcrumbs %}
+					<li>
+						<a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>
+					</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+	<div class="container-fluid">
+		{% if error_warning %}
+			<div class="alert alert-danger alert-dismissible">
+				<i class="fa fa-exclamation-circle"></i>
+				{{ error_warning }}
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+			</div>
+		{% endif %}
+		{% if success %}
+			<div class="alert alert-success alert-dismissible">
+				<i class="fa fa-check-circle"></i>
+				{{ success }}
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+			</div>
+		{% endif %}
+			
+		<div class="row">
+			<div id="filter-order" class="col-md-3 col-md-push-9 col-sm-12 hidden-sm hidden-xs">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">
+							<i class="fa fa-filter"></i>
+							{{ text_filter }}</h3>
+					</div>
+					<div class="panel-body">
+						<div class="form-group">
+							<label class="control-label" for="input-order-id">{{ entry_plan_id }}</label>
+							<input type="text" name="filter_plan_id" value="{{ filter_plan_id }}" placeholder="{{ entry_plan_id }}" id="input-order-id" class="form-control"/>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="input-customer">{{ entry_plan_name }}</label>
+							<input type="text" name="filter_plan_name" value="{{ filter_plan_name }}" placeholder="{{ entry_plan_name }}" id="input-customer" class="form-control"/>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="input-order-status">{{ entry_plan_status }}</label>
+							<select name="filter_plan_status" id="input-order-status" class="form-control">
+								<option value="">{{text_select}}</option>
+								{% if filter_plan_status == 1 %}
+									<option value="1" selected="selected">{{ text_enabled }}</option>
+								{% else %}
+									<option value="1">{{ text_enabled }}</option>
+								{% endif %}
+								{% if filter_plan_status == 2 %}
+									<option value="2" selected="selected">{{ text_disabled }}</option>
+								{% else %}
+									<option value="2">{{ text_disabled }}</option>
+								{% endif %}
+							</select>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="input-date-added">{{ entry_date_created }}</label>
+							<div class="input-group date">
+								<input type="text" name="filter_date_created" value="{{ filter_date_created }}" placeholder="{{ entry_date_added }}" data-date-format="YYYY-MM-DD" id="input-date-added" class="form-control"/>
+								<span class="input-group-btn">
+									<button type="button" class="btn btn-default">
+										<i class="fa fa-calendar"></i>
+									</button>
+								</span>
+							</div>
+						</div>
+						<div class="form-group text-right">
+							<button type="button" id="button-filter" class="btn btn-default">
+								<i class="fa fa-filter"></i>
+								{{ button_filter }}</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-9 col-md-pull-3 col-sm-12">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">
+							<i class="fa fa-list"></i>
+							{{ text_list }}</h3>
+					</div>
+					<div class="panel-body">
+						<form action={{status}} method="post" enctype="multipart/form-data" id="form-plan" name="form-plan">
+							<div class="table-responsive">
+								<table class="table table-bordered table-hover">
+									<thead>
+										<tr>
+											<td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);"/></td>
+											<td class="text-left">
+												{% if sort == 'p.plan_id' %}
+													<a href="{{ sort_order }}" class="{{ order|lower }}">{{ column_plan_id }}</a>
+												{% else %}
+													<a href="{{ sort_order }}">{{ column_plan_id }}</a>
+												{% endif %}
+											</td>
+											<td class="text-left">
+												{% if sort == 'customer' %}
+													<a href="{{ sort_customer }}" class="{{ order|lower }}">{{ column_plan_name }}</a>
+												{% else %}
+													<a href="{{ sort_customer }}">{{ column_plan_name }}</a>
+												{% endif %}
+											</td>
+											<td class="text-left">
+												{% if sort == 'customer' %}
+													<a href="{{ sort_customer }}" class="{{ order|lower }}">{{ column_plan_desc }}</a>
+												{% else %}
+													<a href="{{ sort_customer }}">{{ column_plan_desc }}</a>
+												{% endif %}
+											</td>
+											<td class="text-left">
+												{% if sort == 'order_status' %}
+													<a href="{{ sort_status }}" class="{{ order|lower }}">{{ column_product_name }}</a>
+												{% else %}
+													<a href="{{ sort_status }}">{{ column_product_name }}</a>
+												{% endif %}
+											</td>
+											<td class="text-left">
+												{% if sort == 'o.total' %}
+													<a href="{{ sort_total }}" class="{{ order|lower }}">{{ column_plan_type }}</a>
+												{% else %}
+													<a href="{{ sort_total }}">{{ column_plan_type }}</a>
+												{% endif %}
+											</td>
+											<td class="text-left">
+												{% if sort == 'o.date_added' %}
+													<a href="{{ sort_date_added }}" class="{{ order|lower }}">{{ column_billing_frequence }}</a>
+												{% else %}
+													<a href="{{ sort_date_added }}">{{ column_billing_frequence }}</a>
+												{% endif %}
+											</td>
+											<td class="text-left">
+												{% if sort == 'o.date_modified' %}
+													<a href="{{ sort_date_modified }}" class="{{ order|lower }}">{{ column_billing_cycle }}</a>
+												{% else %}
+													<a href="{{ sort_date_modified }}">{{ column_billing_cycle }}</a>
+												{% endif %}
+											</td>
+											<td class="text-left">
+												{% if sort == 'o.date_modified' %}
+													<a href="{{ sort_date_modified }}" class="{{ order|lower }}">{{ column_trial }}</a>
+												{% else %}
+													<a href="{{ sort_date_modified }}">{{ column_trial }}</a>
+												{% endif %}
+											</td>
+											<td class="text-left">
+												{% if sort == 'o.date_modified' %}
+													<a href="{{ sort_date_modified }}" class="{{ order|lower }}">{{ column_billing_amount }}</a>
+												{% else %}
+													<a href="{{ sort_date_modified }}">{{ column_billing_amount }}</a>
+												{% endif %}
+											</td>
+											<td class="text-left">
+												{% if sort == 'o.date_modified' %}
+													<a href="{{ sort_date_modified }}" class="{{ order|lower }}">{{ column_plan_addons }}</a>
+												{% else %}
+													<a href="{{ sort_date_modified }}">{{ column_plan_addons }}</a>
+												{% endif %}
+											</td>
+											<td class="text-left">
+												{% if sort == 'p.plan_status' %}
+													<a href="{{ sort_plan_status }}" class="{{ order|lower }}">{{ column_status }}</a>
+												{% else %}
+													<a href="{{ sort_plan_status }}">{{ column_status }}</a>
+												{% endif %}
+											</td>
+											<td class="text-left">
+												{% if sort == 'o.date_modified' %}
+													<a href="{{ sort_date_modified }}" class="{{ order|lower }}">{{ column_created_at }}</a>
+												{% else %}
+													<a href="{{ sort_date_modified }}">{{ column_created_at }}</a>
+												{% endif %}
+											</td>
+										</tr>
+									</thead>
+									<tbody>
+										{% if plans %}
+											{% for plan in plans %}
+												<tr>
+													<td class="text-center">
+														{% if plan.plan_id in selected %}
+															<input type="checkbox" name="selected[]" value="{{ plan.entity_id }}" checked="checked"/>
+														{% else %}
+															<input type="checkbox" name="selected[]" value="{{ plan.entity_id }}"/>
+														{% endif %}
+													</td>
+													<td class="text-left">{{ plan.plan_id }}</td>
+													<td class="text-left">{{ plan.plan_name }}</td>
+													<td class="text-left">{{ plan.plan_desc }}
+													</td>
+													<td class="text-left">{{ plan.name }}</td>
+													<td class="text-left...........">{{ plan.plan_type | capitalize }}</td>
+													<td class="text-left">{{ plan.plan_frequency}}</td>
+													<td class="text-left">{{ plan.plan_bill_cycle}}</td>
+													<td class="text-left">{{ plan.plan_trial }}</td>
+													<td class="text-left">{{ plan.plan_bill_amount }}</td>
+													<td class="text-left">{{ plan.plan_addons }}</td>
+													<td class="text-left">
+														{% if plan.plan_status =='1' %}
+															{{text_enabled}}
+														{% else %}
+															{{text_disabled}}
+														{% endif %}
+													</td>
+													<td class="text-left">{{ plan.created_at }}</td>
+												</tr>
+											{% endfor %}
+										{% else %}
+											<tr>
+												<td class="text-center" colspan="13">{{ text_no_results }}</td>
+											</tr>
+										{% endif %}
+										<input type="hidden" name="status" id="status" value="">
+									</tbody>
+								</table>
+							</div>
+						</form>
+						<div class="row">
+							<div class="col-sm-6 text-left">{{ pagination }}</div>
+							<div class="col-sm-6 text-right">{{ results }}</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script
+			type="text/javascript">
+			<!--
+
+			$('#button-enable').click(function () {
+$('#status').val('1');
+
+});
+$('#button-disable').click(function () {
+$('#status').val('2');
+
+});
+
+// --> </script> <script type="text/javascript"><!--
+	$('#button-filter').on('click', function() {
+		url = '';
+	
+		var filter_plan_id = $('input[name=\'filter_plan_id\']').val();
+	
+		if (filter_plan_id) {
+			url += '&filter_plan_id=' + encodeURIComponent(filter_plan_id);
+		}
+	
+		var filter_plan_name = $('input[name=\'filter_plan_name\']').val();
+	
+		if (filter_plan_name) {
+			url += '&filter_plan_name=' + encodeURIComponent(filter_plan_name);
+		}
+	
+		var filter_plan_status = $('select[name=\'filter_plan_status\']').val();
+	
+		if (filter_plan_status !== '') {
+			url += '&filter_plan_status=' + encodeURIComponent(filter_plan_status);
+		}
+	
+		var filter_date_created = $('input[name=\'filter_date_created\']').val();
+	
+		if (filter_date_created) {
+			url += '&filter_date_created=' + encodeURIComponent(filter_date_created);
+		}
+	
+		location = 'index.php?route=extension/payment/razorpay/getPlan&user_token={{ user_token }}' + url;
+	});
+	//-->--></script>
+
+		<script type="text/javascript"><!--
+
+		//-->
+	</script>
+	<script src="view/javascript/jquery/datetimepicker/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+	<link href="view/javascript/jquery/datetimepicker/bootstrap-datetimepicker.min.css" type="text/css" rel="stylesheet" media="screen"/>
+	<script	type="text/javascript">
+		<!--
+		$('.date').datetimepicker({language: '{{ datepicker }}', pickTime: false});
+//--></script>
+	{{footer}}
