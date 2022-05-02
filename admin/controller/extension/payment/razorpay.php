@@ -285,7 +285,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
         $data['breadcrumbs'][] = array(
         'text' => $this->language->get('plan_title'),
-        'href' => $this->url->link('extension/payment/razorpay', 'user_token=' . $this->session->data['user_token'] . $url, true)
+        'href' => $this->url->link('extension/payment/razorpay/getPlan', 'user_token=' . $this->session->data['user_token'] . $url, true)
         );
 
         $data['plans'] = array();
