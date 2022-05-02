@@ -14,6 +14,7 @@ class CreateWebhook
     protected $webhookUrl = null;
     protected $webhookEnable = '1';
     protected $webhookSecret = null;
+    protected $subscriptionStatus = null;
 
     protected $log = null;
 
@@ -33,11 +34,21 @@ class CreateWebhook
         'order.paid'         => true,
     ];
 
-    function __construct($keyId, $keySecret, $webhookSecret, $webhookUrl)
+    protected $featureEvents = [
+        'subscription' => [
+            'subscription.paused' => true,
+            'subscription.resumed' => true,
+            'subscription.cancelled' => true,
+            'subscription.charged' =>true
+        ]
+    ];
+
+    function __construct($keyId, $keySecret, $webhookSecret, $webhookUrl,$subscriptionStatus)
     {
         $this->keyId = $keyId;
         $this->keySecret = $keySecret;
         $this->webhookUrl = $webhookUrl;
+        $this->subscriptionStatus = $subscriptionStatus;
 
         if(empty($webhookSecret) === true)
         {
@@ -69,6 +80,14 @@ class CreateWebhook
         try
         {
             $webhookPresent = $this->getExistingWebhook();
+
+            if($this->subscriptionStatus === '1')
+            {
+                $this->webhookEvents = array_merge(
+                    $this->webhookEvents,
+                    $this->featureEvents['subscription']
+                );
+            }
 
             if(empty($this->webhookId) === false)
             {
