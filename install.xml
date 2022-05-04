@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+	<name>Razorpay Payment Extension</name>
+	<code>razorpay_payment_extension</code>
+	<version>5.0.0</version>
+	<author>Razorpay Team</author>
+	<link>https://github.com/razorpay/razorpay-opencart</link>
+    <description>Razorpay Subscription Module menu</description>
+    
+	<file path="admin/controller/common/column_left.php">
+		<operation error="skip">
+			<search><![CDATA[// System]]></search>
+			<add position="before"><![CDATA[
+			/* Admin Side  menu */						
+			$adminmenus = array();		
+			if ($this->user->hasPermission('access', 'extension/payment/razorpay')) {	
+				$adminmenus[] = array(
+					'name'	   => 'Plans',
+					'href'     => $this->url->link('extension/payment/razorpay/getPlan', 'user_token=' . $this->session->data['user_token'], true),
+					'children' => array()		
+				);					
+                	
+			}	
+            if ($this->user->hasPermission('access', 'extension/payment/razorpay')) {		
+				$adminmenus[] = array(
+					'name'	   => 'Subscriptions',
+					'href'     => $this->url->link('extension/payment/razorpay/getSubscription', 'user_token=' . $this->session->data['user_token'], true),
+					'children' => array()		
+				);					
+                	
+			}				
+			if ($adminmenus) {					
+				$data['menus'][] = array(
+					'id'       => 'menu-megafooter',
+					'icon'	   => 'fa fa-share-alt fa-fw', 
+					'name'	   => 'Razorpay Subscription',
+					'href'     => '',
+					'children' => $adminmenus
+				);		
+			}
+			/* Admin menu */	]]></add>
+		</operation>
+	</file>
+	<!-- Customer Menu -->
+ <file path="catalog/view/theme/*/template/common/column_right.twig">
+        <operation>
+            <search><![CDATA[{% for module in modules %}]]></search>
+            <add position="after"><![CDATA[
+                <li class="list-group-item"><a href="index.php?route=extension/payment/razorpay/subscriptions">My Subscriptions</a></li>
+            ]]>            </add>
+        </operation>
+    </file>
+</modification>
