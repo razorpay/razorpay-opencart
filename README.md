@@ -31,10 +31,12 @@ Save the plugin settings
 9. This extension supports the following webhook events:
     - payment.authorized
     - payment.failed
+    - order.paid
     - subscription.charged
     - subscription.paused
     - subscription.resumed
     - subscription.cancelled
+    
 
 ### Development
 
