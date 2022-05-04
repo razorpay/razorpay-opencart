@@ -1,6 +1,7 @@
 <?php
 
-require_once __DIR__.'/../../../../system/library/razorpay-sdk/Razorpay.php';
+require_once __DIR__.'/../../../../system/library/razorpay/razorpay-sdk/Razorpay.php';
+require_once __DIR__.'/../../../../system/library/razorpay/razorpay-lib/createwebhook.php';
 use Razorpay\Api\Api;
 use Razorpay\Api\Errors;
 
@@ -12,6 +13,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
     const PAYMENT_AUTHORIZED = 'payment.authorized';
     const PAYMENT_FAILED = 'payment.failed';
     const ORDER_PAID = 'order.paid';
+    const WEBHOOK_URL           = HTTPS_SERVER . 'index.php?route=extension/payment/razorpay/webhook';
     const SUBSCRIPTION_PAUSED     = 'subscription.paused';
     const SUBSCRIPTION_RESUMED    = 'subscription.resumed';
     const SUBSCRIPTION_CANCELLED  = 'subscription.cancelled';
@@ -114,6 +116,31 @@ class ControllerExtensionPaymentRazorpay extends Controller
             exit;
         }
 
+        try
+        {
+            $webhookUpdatedAt = $this->config->get('payment_razorpay_webhook_updated_at');
+
+            if($webhookUpdatedAt + 86400 < time())
+            {
+                $createWebhook = new CreateWebhook(
+                    $this->config->get('payment_razorpay_key_id'),
+                    $this->config->get('payment_razorpay_key_secret'),
+                    $this->config->get('payment_razorpay_webhook_secret'),
+                    self::WEBHOOK_URL,
+                    $this->config->get('payment_razorpay_subscription_status')
+                );
+
+                $webhookConfigData = $createWebhook->autoCreateWebhook();
+
+                $this->load->model('extension/payment/razorpay');
+                $this->model_extension_payment_razorpay->editSetting('payment_razorpay', $webhookConfigData);
+            }
+        }
+        catch(\Razorpay\Api\Errors\Error $e)
+        {
+            $this->log->write('Unable to update webhook status');
+            $this->log->write($e->getMessage());
+        }
 
         $data['key_id'] = $this->config->get('payment_razorpay_key_id');
         $data['currency_code'] = $order_info['currency_code'];

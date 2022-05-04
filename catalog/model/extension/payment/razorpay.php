@@ -30,8 +30,22 @@ class ModelExtensionPaymentRazorpay extends Model
         return $method_data;
     }
 
-    // Subscription
+    public function editSetting($code, $data, $store_id = 0)
+    {
+        foreach ($data as $key => $value)
+        {
+            $this->db->query("DELETE FROM `" . DB_PREFIX . "setting` WHERE store_id = '" . (int)$store_id . "' AND `code` = '" . $this->db->escape($code) . "' AND `key` = '" . $this->db->escape($key) . "'");
 
+            if (!is_array($value))
+            {
+                $this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '" . (int)$store_id . "', `code` = '" . $this->db->escape($code) . "', `key` = '" . $this->db->escape($key) . "', `value` = '" . $this->db->escape($value) . "'");
+            } else {
+                $this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '" . (int)$store_id . "', `code` = '" . $this->db->escape($code) . "', `key` = '" . $this->db->escape($key) . "', `value` = '" . $this->db->escape(json_encode($value, true)) . "', serialized = '1'");
+            }
+        }
+    }
+
+    // Subscription
     public function saveSubscriptionDetails($subscriptionData, $planData, $customerId, $order_id)
     {
         $query = "INSERT INTO " . DB_PREFIX . "razorpay_subscriptions SET plan_entity_id = '" . (int)$planData['entity_id'] . "', subscription_id = '" . $subscriptionData['id'] . "',";

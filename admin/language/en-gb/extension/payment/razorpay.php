@@ -38,6 +38,7 @@ $_['error_key_secret'] = 'Key Secret Required!';
 $_['error_webhook_secret'] = 'Webhook Secret Required!';
 
 //Subscription
+$_['enable_subscription_flag'] = 'Enable Subscription in Razorpay dashboard!';
 
 // Heading
 //$_['heading_title']                                     = 'Razorpay Subscription';
