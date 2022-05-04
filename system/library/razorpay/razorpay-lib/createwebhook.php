@@ -83,6 +83,16 @@ class CreateWebhook
 
             if($this->subscriptionStatus === '1')
             {
+                if($this->getMerchantFeatureFlagStatus('subscriptions') === false)
+                {
+                    $this->subscriptionStatus = '0';
+                    $this->log->write('Enable subscription in razorpay dashboard');
+
+                    return [
+                        'error' => 'error_enable_subscription'
+                    ];
+                }
+
                 $this->webhookEvents = array_merge(
                     $this->webhookEvents,
                     $this->featureEvents['subscription']
@@ -186,6 +196,24 @@ class CreateWebhook
             'payment_razorpay_webhook_secret'     => $this->webhookSecret,
             'payment_razorpay_webhook_updated_at' => time()
         ];
+    }
+
+    protected function getMerchantFeatureFlagStatus($flag)
+    {
+        $api = $this->getApiIntance();
+
+        $features = $api->request->request("GET", "accounts/me/features");
+
+        foreach ($features['assigned_features'] as $feature)
+        {
+            if($feature['name'] === $flag
+                and $feature['entity_type'] === 'merchant')
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     protected function getApiIntance()

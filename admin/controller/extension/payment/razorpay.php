@@ -31,13 +31,20 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
             $webhookConfigData = $createWebhook->autoCreateWebhook();
 
-            $configData = array_merge($this->request->post, $webhookConfigData);
+            if(array_key_exists('error', $webhookConfigData))
+            {
+                $this->error['warning'] = $this->language->get('enable_subscription_flag');
+            }
+            else
+            {
+                $configData = array_merge($this->request->post, $webhookConfigData);
 
-            $this->model_setting_setting->editSetting('payment_razorpay', $configData);
+                $this->model_setting_setting->editSetting('payment_razorpay', $configData);
 
-            $this->session->data['success'] = $this->language->get('text_success');
+                $this->session->data['success'] = $this->language->get('text_success');
 
-            $this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true));
+                $this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true));
+            }
         }
         $data['heading_title'] = $this->language->get('heading_title');
 
