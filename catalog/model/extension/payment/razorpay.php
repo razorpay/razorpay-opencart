@@ -2,12 +2,12 @@
 
 class ModelExtensionPaymentRazorpay extends Model
 {
-    const RECURRING_ACTIVE = 1;
-    const RECURRING_INACTIVE = 2;
-    const RECURRING_CANCELLED = 3;
-    const RECURRING_SUSPENDED = 4;
-    const RECURRING_EXPIRED = 5;
-    const RECURRING_PENDING = 6;
+    const RECURRING_ACTIVE      = 1;
+    const RECURRING_INACTIVE    = 2;
+    const RECURRING_CANCELLED   = 3;
+    const RECURRING_SUSPENDED   = 4;
+    const RECURRING_EXPIRED     = 5;
+    const RECURRING_PENDING     = 6;
 
     const PLAN_TYPE = [
         'day' => "daily",
@@ -39,7 +39,9 @@ class ModelExtensionPaymentRazorpay extends Model
             if (!is_array($value))
             {
                 $this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '" . (int)$store_id . "', `code` = '" . $this->db->escape($code) . "', `key` = '" . $this->db->escape($key) . "', `value` = '" . $this->db->escape($value) . "'");
-            } else {
+            }
+            else 
+            {
                 $this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '" . (int)$store_id . "', `code` = '" . $this->db->escape($code) . "', `key` = '" . $this->db->escape($key) . "', `value` = '" . $this->db->escape(json_encode($value, true)) . "', serialized = '1'");
             }
         }
@@ -192,7 +194,6 @@ class ModelExtensionPaymentRazorpay extends Model
     public function recurringPayments()
     {
         return (bool)$this->config->get('payment_razorpay_subscription_status');
-
     }
 
     public function createOCRecurring($recurringData)
@@ -216,7 +217,6 @@ class ModelExtensionPaymentRazorpay extends Model
         $query = $query ." WHERE order_id = '" . $orderId . "';" ;
 
         $this->db->query($query);
-
     }
 
     public function getOCRecurringStatus($orderId)
@@ -226,7 +226,8 @@ class ModelExtensionPaymentRazorpay extends Model
         return $this->db->query($query)->row;
     }
 
-    public function addOCRecurringTransaction($orderRecurringId, $subscriptionId, $amount, $status) {
+    public function addOCRecurringTransaction($orderRecurringId, $subscriptionId, $amount, $status) 
+    {
 
         $this->db->query("INSERT INTO `" . DB_PREFIX . "order_recurring_transaction` SET order_recurring_id='" . (int)$orderRecurringId . "', reference='" . $this->db->escape($subscriptionId) . "', type='" . $status . "', amount='" . (float)$amount . "', date_added=NOW()");
     }

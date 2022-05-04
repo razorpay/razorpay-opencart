@@ -50,7 +50,7 @@ class CreateWebhook
         $this->webhookUrl = $webhookUrl;
         $this->subscriptionStatus = $subscriptionStatus;
 
-        if(empty($webhookSecret) === true)
+        if (empty($webhookSecret) === true)
         {
             $this->webhookSecret = $this->createWebhookSecret();
         }
@@ -81,9 +81,9 @@ class CreateWebhook
         {
             $webhookPresent = $this->getExistingWebhook();
 
-            if($this->subscriptionStatus === '1')
+            if ($this->subscriptionStatus === '1')
             {
-                if($this->getMerchantFeatureFlagStatus('subscriptions') === false)
+                if ($this->getMerchantFeatureFlagStatus('subscriptions') === false)
                 {
                     $this->subscriptionStatus = '0';
                     $this->log->write('Enable subscription in razorpay dashboard');
@@ -99,7 +99,7 @@ class CreateWebhook
                 );
             }
 
-            if(empty($this->webhookId) === false)
+            if (empty($this->webhookId) === false)
             {
                 $webhook = $api->webhook->edit(
                     [
@@ -148,18 +148,18 @@ class CreateWebhook
         {
             $webhooks = $api->webhook->all();
 
-            if(($webhooks->count > 0) and
+            if (($webhooks->count > 0) and
                 (empty($this->webhookUrl) === false))
             {
                 foreach ($webhooks->items as $key => $webhook)
                 {
-                    if($webhook->url === $this->webhookUrl)
+                    if ($webhook->url === $this->webhookUrl)
                     {
                         $this->webhookId = $webhook->id;
 
                         foreach ($webhook->events as $event => $status)
                         {
-                            if(($status === true) and
+                            if (($status === true) and
                                 (in_array($event, $this->webhookSupportedEvents) === true))
                             {
                                 $this->webhookEvents[$event] = true;
