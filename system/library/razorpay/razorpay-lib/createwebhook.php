@@ -206,8 +206,8 @@ class CreateWebhook
 
         foreach ($features['assigned_features'] as $feature)
         {
-            if($feature['name'] === $flag
-                and $feature['entity_type'] === 'merchant')
+            if($feature['name'] === $flag and
+                $feature['entity_type'] === 'merchant')
             {
                 return true;
             }

@@ -41,13 +41,15 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
         try
         {
-            if ($this->cart->hasRecurringProducts() && $this->config->get('payment_razorpay_subscription_status')) {
+            if ($this->cart->hasRecurringProducts() && $this->config->get('payment_razorpay_subscription_status'))
+            {
                 $this->load->model('extension/payment/razorpay');
 
                 //validate for non-subscription product and if recurring is product for more than 1
                 $this->validate_non_recurring_products();
 
-                if ($this->cart->hasRecurringProducts() > 1) {
+                if ($this->cart->hasRecurringProducts() > 1)
+                {
                     $this->log->write("Cart has more than 1 recurring product");
                     echo "<div class='alert alert-danger alert-dismissible'>We do not support payment of two different subscription products at once. Please remove one of the products from your cart to proceed.</div>";
                     exit ;
@@ -94,7 +96,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
                     $this->log->write("RZP subscriptionID (:" . $subscription_order['id'] . ") created for Opencart OrderID (:" . $this->session->data['order_id'] . ")");
                 }
 
-            } else {
+            }
+            else
+            {
                 // Orders API with payment autocapture
                 $order_data = $this->get_order_creation_data($this->session->data['order_id']);
 
@@ -109,7 +113,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 }
             }
 
-        } catch (\Razorpay\Api\Errors\Error $e) {
+        }
+        catch (\Razorpay\Api\Errors\Error $e)
+        {
             $this->log->write($e->getMessage());
             $this->session->data['error'] = $e->getMessage();
             echo "<div class='alert alert-danger alert-dismissible'> Something went wrong. Unable to create Razorpay Order Id.</div>";
@@ -120,7 +126,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         {
             $webhookUpdatedAt = $this->config->get('payment_razorpay_webhook_updated_at');
 
-            if($webhookUpdatedAt + 86400 < time())
+            if ($webhookUpdatedAt + 86400 < time())
             {
                 $createWebhook = new CreateWebhook(
                     $this->config->get('payment_razorpay_key_id'),
@@ -161,9 +167,12 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['api_url']    = $this->api->getBaseUrl();
         $data['cancel_url'] =  $this->url->link('checkout/checkout', '', 'true');
 
-        if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/extension/payment/razorpay')) {
+        if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/extension/payment/razorpay'))
+        {
             return $this->load->view($this->config->get('config_template') . '/template/extension/payment/razorpay', $data);
-        } else {
+        }
+        else
+        {
             return $this->load->view('extension/payment/razorpay', $data);
         }
     }
@@ -184,13 +193,15 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
     public function validate_non_recurring_products()
     {
-        $nonRecurringProduct = array_filter($this->cart->getProducts(), function ($product) {
+        $nonRecurringProduct = array_filter($this->cart->getProducts(), function ($product)
+        {
             return array_filter($product, function ($value, $key) {
                 return $key == "recurring" && empty($value);
             }, ARRAY_FILTER_USE_BOTH);
         });
 
-        if (!empty($nonRecurringProduct)) {
+        if (!empty($nonRecurringProduct))
+        {
             $this->log->write("Cart has recurring product and non recurring product");
             echo "<div class='alert alert-danger alert-dismissible'>You have a one-time payment product and a subscription payment product in your cart. Please remove one of the products from the cart to proceed.</div>";
             exit;
@@ -220,11 +231,13 @@ class ControllerExtensionPaymentRazorpay extends Controller
             "source" => "opencart-subscription",
         ];
 
-        if ($planData['plan_trial']) {
+        if ($planData['plan_trial'])
+        {
             $subscriptionData["start_at"] = strtotime("+{$planData['plan_trial']} days");
         }
 
-        if ($planData['plan_addons']) {
+        if ($planData['plan_addons'])
+        {
             $item["item"] = [
                 "name" => "Addon amount",
                 "amount" => (int)(number_format($planData["plan_addons"] * 100, 0, ".", "")),
@@ -245,13 +258,15 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $this->load->model('extension/payment/razorpay');
 
 
-        if (isset($this->request->request['razorpay_payment_id']) === true) {
+        if (isset($this->request->request['razorpay_payment_id']) === true)
+        {
             $razorpay_payment_id = $this->request->request['razorpay_payment_id'];
             $razorpay_signature = $this->request->request['razorpay_signature'];
             $merchant_order_id = $this->session->data['order_id'];
             $isSubscriptionCallBack = false;
 
-            if (array_key_exists("razorpay_subscription_order_id_" . $this->session->data['order_id'], $this->session->data)) {
+            if (array_key_exists("razorpay_subscription_order_id_" . $this->session->data['order_id'], $this->session->data))
+            {
                 $razorpay_subscription_id = $this->session->data["razorpay_subscription_order_id_" . $this->session->data['order_id']];
                 $isSubscriptionCallBack = true;
 
@@ -260,7 +275,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
                     'razorpay_payment_id' => $razorpay_payment_id,
                     'razorpay_signature' => $razorpay_signature
                 );
-            } else {
+            }
+            else
+            {
                 $razorpay_order_id = $this->session->data["razorpay_order_id_" . $this->session->data['order_id']];
                 $attributes = array(
                     'razorpay_order_id' => $razorpay_order_id,
@@ -276,7 +293,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
             try
             {
                 $this->api->utility->verifyPaymentSignature($attributes);
-                if($isSubscriptionCallBack){
+                if($isSubscriptionCallBack)
+                {
                     $subscriptionData = $this->api->subscription->fetch($razorpay_subscription_id)->toArray();
 
                     $planData = $this->model_extension_payment_razorpay->fetchRZPPlanById($subscriptionData['plan_id']);
@@ -292,8 +310,11 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
                 $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id, true);
                 $this->response->redirect($this->url->link('checkout/success', '', true));
-            } catch (\Razorpay\Api\Errors\SignatureVerificationError $e) {
-                if($isSubscriptionCallBack){
+            }
+            catch (\Razorpay\Api\Errors\SignatureVerificationError $e)
+            {
+                if($isSubscriptionCallBack)
+                {
                     // Update oC recurring table for failed payment
                     $this->model_extension_payment_razorpay->updateOCRecurringStatus($this->session->data['order_id'], 4);
                 }
@@ -302,8 +323,11 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 $this->session->data['error'] = $e->getMessage() . ' Payment Failed! Check Razorpay dashboard for details of Payment Id:' . $razorpay_payment_id;
                 $this->response->redirect($this->url->link('checkout/checkout', '', true));
             }
-        } else {
-            if (isset($_POST['error']) === true) {
+        }
+        else
+        {
+            if (isset($_POST['error']) === true)
+            {
                 $error = $_POST['error'];
 
                 $message = 'An error occured. Description : ' . $error['description'] . '. Code : ' . $error['code'];
@@ -311,9 +335,12 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 if (isset($error['field']) === true) {
                     $message .= 'Field : ' . $error['field'];
                 }
-            } else {
+            }
+            else
+            {
                 $message = 'An error occured. Please contact administrator for assistance';
             }
+
             $this->session->data['error'] = $message;
             $this->response->redirect($this->url->link('checkout/checkout', '', true));
         }
@@ -325,25 +352,33 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $post = file_get_contents('php://input');
         $data = json_decode($post, true);
 
-        if (json_last_error() !== 0) {
+        if (json_last_error() !== 0)
+        {
             return;
         }
+
         $this->load->model('checkout/order');
         $enabled = $this->config->get('payment_razorpay_webhook_status');
 
         if (($enabled === '1') and
-            (empty($data['event']) === false)) {
+            (empty($data['event']) === false))
+        {
 
-            if (isset($_SERVER['HTTP_X_RAZORPAY_SIGNATURE']) === true) {
-                try {
+            if (isset($_SERVER['HTTP_X_RAZORPAY_SIGNATURE']) === true)
+            {
+                try
+                {
                     $this->validateSignature($post, $_SERVER['HTTP_X_RAZORPAY_SIGNATURE']);
-                } catch (\Razorpay\Api\Errors\SignatureVerificationError $e) {
+                }
+                catch (\Razorpay\Api\Errors\SignatureVerificationError $e)
+                {
                     $this->log->write($e->getMessage());
                     header('Status: 400 Signature Verification failed', true, 400);
                     exit;
                 }
 
-                switch ($data['event']) {
+                switch ($data['event'])
+                {
                     case self::PAYMENT_AUTHORIZED:
                         return $this->paymentAuthorized($data);
 
@@ -375,10 +410,12 @@ class ControllerExtensionPaymentRazorpay extends Controller
     protected function orderPaid(array $data)
     {
         // Do not process if order is subscription type
-        if (isset($post['payload']['payment']['entity']['invoice_id']) === true) {
+        if (isset($post['payload']['payment']['entity']['invoice_id']) === true)
+        {
             $rzpInvoiceId = $post['payload']['payment']['entity']['invoice_id'];
             $invoice = $this->api->invoice->fetch($rzpInvoiceId);
-            if(isset($invoice->subscription_id)){
+            if(isset($invoice->subscription_id))
+            {
                 return;
             }
         }
@@ -386,15 +423,17 @@ class ControllerExtensionPaymentRazorpay extends Controller
         // reference_no (opencart_order_id) should be passed in payload
         $merchant_order_id = $data['payload']['payment']['entity']['notes']['opencart_order_id'];
         $razorpay_payment_id = $data['payload']['payment']['entity']['id'];
-        if (isset($merchant_order_id) === true) {
+        if (isset($merchant_order_id) === true)
+        {
             $order_info = $this->model_checkout_order->getOrder($merchant_order_id);
 
             if ($order_info['payment_code'] === 'razorpay' and
-                !$order_info['order_status_id']) {
-
+                !$order_info['order_status_id'])
+            {
                 $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id);
             }
         }
+
         // Graceful exit since payment is now processed.
         $this->response->addHeader('HTTP/1.1 200 OK');
         $this->response->addHeader('Content-Type: application/json');
@@ -426,11 +465,13 @@ class ControllerExtensionPaymentRazorpay extends Controller
             $razorpay_payment_id = $data['payload']['payment']['entity']['id'];
 
             //update the order
-            if (isset($merchant_order_id) === true) {
+            if (isset($merchant_order_id) === true)
+            {
                 $order_info = $this->model_checkout_order->getOrder($merchant_order_id);
 
                 if ($order_info['payment_code'] === 'razorpay' and
-                    !$order_info['order_status_id']) {
+                    !$order_info['order_status_id'])
+                {
                     try {
                         $capture_amount = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
 
@@ -438,7 +479,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
                         $payment = $this->api->payment->fetch($razorpay_payment_id);
 
                         //capture only if payment status is 'authorized'
-                        if ($payment->status === 'authorized') {
+                        if ($payment->status === 'authorized')
+                        {
                             $payment->capture(array('amount' => $capture_amount,
                                 'currency' => $order_info['currency_code']
                             ));
@@ -446,7 +488,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
                         //update the order status in store
                         $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id);
-                    } catch (\Razorpay\Api\Errors\Error $e) {
+                    }
+                    catch (\Razorpay\Api\Errors\Error $e)
+                    {
                         $this->log->write($e->getMessage());
                         header('Status: 400 Payment Capture failed', true, 400);
                         exit;
@@ -497,6 +541,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
             $jsonResponse = json_decode($response->body, true);
 
             $preferences['image'] = $jsonResponse['options']['image'];
+
             if (empty($jsonResponse['options']['redirect']) === false) {
                 $preferences['is_hosted'] = $jsonResponse['options']['redirect'];
             }
@@ -529,10 +574,13 @@ class ControllerExtensionPaymentRazorpay extends Controller
             $customerResponse = $this->api->customer->create($customerData);
 
             return $customerResponse->id;
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             $this->log->write("Razopray exception Customer: {$e->getMessage()}");
             $this->session->data['error'] = $e->getMessage();
             echo "<div class='alert alert-danger alert-dismissible'> Something went wrong</div>";
+
             return;
         }
     }
@@ -542,7 +590,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
      */
     public function subscriptions()
     {
-        if (!$this->customer->isLogged()) {
+        if (!$this->customer->isLogged())
+        {
             $this->session->data['redirect'] = $this->url->link('extension/payment/razorpay/subscriptions', '', true);
 
             $this->response->redirect($this->url->link('account/login', '', true));
@@ -553,7 +602,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
         $url = '';
 
-        if (isset($this->request->get['page'])) {
+        if (isset($this->request->get['page']))
+        {
             $url .= '&page=' . $this->request->get['page'];
         }
 
@@ -574,9 +624,12 @@ class ControllerExtensionPaymentRazorpay extends Controller
             'href' => $this->url->link('extension/payment/razorpay/subscriptions', $url, true)
         );
 
-        if (isset($this->request->get['page'])) {
+        if (isset($this->request->get['page']))
+        {
             $page = (int)$this->request->get['page'];
-        } else {
+        }
+        else
+        {
             $page = 1;
         }
 
@@ -584,7 +637,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $recurring_total = $this->model_extension_payment_razorpay->getTotalOrderRecurring();
         $results = $this->model_extension_payment_razorpay->getSubscriptionByUserId(($page - 1) * 10, 10);
 
-        foreach ($results as $result) {
+        foreach ($results as $result)
+        {
             $data['subscriptions'][] = [
                 'id' => $result['entity_id'],
                 'subscription_id' => $result['subscription_id'],
@@ -626,38 +680,46 @@ class ControllerExtensionPaymentRazorpay extends Controller
      */
     public function info()
     {
-        if (!$this->customer->isLogged()) {
+        if (!$this->customer->isLogged())
+        {
             $this->session->data['redirect'] = $this->url->link('extension/payment/razorpay/subscriptions', '', true);
 
             $this->response->redirect($this->url->link('account/login', '', true));
         }
         $this->load->language('extension/payment/razorpay');
 
-        if (!empty($this->request->get['subscription_id'])) {
+        if (!empty($this->request->get['subscription_id']))
+        {
             $subscription_id = $this->request->get['subscription_id'];
-        } else {
+        }
+        else
+        {
             $subscription_id = 0;
         }
 
         $this->load->model('extension/payment/razorpay');
         $recurring_info = $this->model_extension_payment_razorpay->getSubscriptionDetails($subscription_id);
 
-        if(isset($this->session->data['error'])){
+        if(isset($this->session->data['error']))
+        {
             $data['error'] = $this->session->data['error'];
             unset($this->session->data['error']);
         }
 
-        if(isset($this->session->data['success'])){
+        if(isset($this->session->data['success']))
+        {
             $data['success'] = $this->session->data['success'];
             unset($this->session->data['success']);
         }
 
-        if (!empty($recurring_info)) {
+        if (!empty($recurring_info))
+        {
             $this->document->setTitle($this->language->get('text_heading_title_subscription'));
 
             $url = '';
 
-            if (isset($this->request->get['page'])) {
+            if (isset($this->request->get['page']))
+            {
                 $url .= '&page=' . $this->request->get['page'];
             }
 
@@ -687,9 +749,12 @@ class ControllerExtensionPaymentRazorpay extends Controller
             $subscriptionInvoice = $this->api->invoice->all(['subscription_id' => $subscription_id])->toArray();
             $data["items"] = $subscriptionInvoice["items"];
 
-            if ($recurring_info["status"] == "active") {
+            if ($recurring_info["status"] == "active")
+            {
                 $data['pauseurl'] = $this->url->link('extension/payment/razorpay/pause', 'subscription_id=' . $subscription_id, true);
-            } else if ($recurring_info["status"] == "paused") {
+            }
+            else if ($recurring_info["status"] == "paused")
+            {
                 $data['resumeurl'] = $this->url->link('extension/payment/razorpay/resume', 'subscription_id=' . $subscription_id, true);
             }
 
@@ -707,7 +772,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
             $data['header'] = $this->load->controller('common/header');
 
             return $this->response->setOutput($this->load->view('extension/payment/razorpay_subscription/razorpay_subscription_info', $data));
-        } else {
+        }
+        else
+        {
             $this->document->setTitle($this->language->get('text_heading_title_subscription'));
 
             $data['breadcrumbs'] = array();
@@ -750,19 +817,25 @@ class ControllerExtensionPaymentRazorpay extends Controller
      */
     public function resume()
     {
-        if (!$this->customer->isLogged()) {
+        if (!$this->customer->isLogged())
+        {
             $this->session->data['redirect'] = $this->url->link('extension/payment/razorpay/subscriptions', '', true);
 
             $this->response->redirect($this->url->link('account/login', '', true));
         }
         $this->load->language('extension/payment/razorpay');
 
-        if (!empty($this->request->get['subscription_id'])) {
+        if (!empty($this->request->get['subscription_id']))
+        {
             $subscription_id = $this->request->get['subscription_id'];
-        } else {
+        }
+        else
+        {
             $subscription_id = 0;
         }
-        try {
+
+        try
+        {
             $subscriptionData = $this->api->subscription->fetch($subscription_id)->resume(array('pause_at' => 'now'));
             $this->load->model('extension/payment/razorpay');
 
@@ -774,9 +847,12 @@ class ControllerExtensionPaymentRazorpay extends Controller
             $this->session->data['success'] = $this->language->get('subscription_resumed_message');
 
             return $this->response->redirect($this->url->link('extension/payment/razorpay/info', 'subscription_id=' . $subscription_id, true));
-        } catch (\Razorpay\Api\Errors\Error $e) {
+        }
+        catch (\Razorpay\Api\Errors\Error $e)
+        {
             $this->log->write($e->getMessage());
             $this->session->data['error'] = ucfirst($e->getMessage());
+
             return  $this->response->redirect($this->url->link('extension/payment/razorpay/info', 'subscription_id=' . $this->request->get['subscription_id'], true));
         }
     }
@@ -793,12 +869,15 @@ class ControllerExtensionPaymentRazorpay extends Controller
         }
         $this->load->language('extension/payment/razorpay');
 
-
-        if (!empty($this->request->get['subscription_id'])) {
+        if (!empty($this->request->get['subscription_id']))
+        {
             $subscription_id = $this->request->get['subscription_id'];
-        } else {
+        }
+        else
+            {
             $subscription_id = 0;
         }
+
         try {
             $subscriptionData = $this->api->subscription->fetch($subscription_id)->pause(array('pause_at' => 'now'));
             $this->load->model('extension/payment/razorpay');
@@ -812,8 +891,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
             return $this->response->redirect($this->url->link('extension/payment/razorpay/info', 'subscription_id=' . $subscription_id, true));
 
-        } catch (\Razorpay\Api\Errors\Error $e) {
-
+        }
+        catch (\Razorpay\Api\Errors\Error $e)
+        {
             $this->log->write($e->getMessage());
             $this->session->data['error'] = ucfirst($e->getMessage());
             return  $this->response->redirect($this->url->link('extension/payment/razorpay/info', 'subscription_id=' . $this->request->get['subscription_id'], true));
@@ -825,16 +905,20 @@ class ControllerExtensionPaymentRazorpay extends Controller
      */
     public function cancel()
     {
-        if (!$this->customer->isLogged()) {
+        if (!$this->customer->isLogged())
+        {
             $this->session->data['redirect'] = $this->url->link('extension/payment/razorpay/subscriptions', '', true);
 
             $this->response->redirect($this->url->link('account/login', '', true));
         }
         $this->load->language('extension/payment/razorpay');
 
-        if (!empty($this->request->get['subscription_id'])) {
+        if (!empty($this->request->get['subscription_id']))
+        {
             $subscription_id = $this->request->get['subscription_id'];
-        } else {
+        }
+        else
+        {
             $subscription_id = 0;
         }
         try{
@@ -849,9 +933,12 @@ class ControllerExtensionPaymentRazorpay extends Controller
             $this->session->data['success'] = $this->language->get('subscription_cancelled_message');
 
             return $this->response->redirect($this->url->link('extension/payment/razorpay/info', 'subscription_id=' . $subscription_id, true));
-        } catch(\Razorpay\Api\Errors\Error $e) {
+        }
+        catch(\Razorpay\Api\Errors\Error $e)
+        {
             $this->log->write($e->getMessage());
             $this->session->data['error'] = ucfirst($e->getMessage());
+
             return  $this->response->redirect($this->url->link('extension/payment/razorpay/info', 'subscription_id=' . $this->request->get['subscription_id'], true));
         }
     }
@@ -870,7 +957,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
             $planUpdateData['plan_id'] = $planData['plan_id'];
 
-            if($postData['qty']){
+            if($postData['qty'])
+            {
                 $planUpdateData['quantity'] = $postData['qty'];
             }
 
@@ -883,7 +971,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
             return $this->response->redirect($this->url->link('extension/payment/razorpay/info', 'subscription_id=' . $postData['subscriptionId'], true));
 
-        } catch(\Razorpay\Api\Errors\Error $e) {
+        }
+        catch(\Razorpay\Api\Errors\Error $e)
+        {
             $this->log->write($e->getMessage());
             $this->session->data['error'] = ucfirst($e->getMessage());
             return  $this->response->redirect($this->url->link('extension/payment/razorpay/info', 'subscription_id=' . $postData['subscriptionId'], true));
@@ -898,7 +988,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
     {
         $subscriptionId = $data['payload']['subscription']['entity']['id'];
 
-        if (empty($subscriptionId) === false) {
+        if (empty($subscriptionId) === false)
+        {
             $merchant_order_id = $data['payload']['subscription']['entity']['notes']['merchant_order_id'];
 
             if(isset($merchant_order_id) === true)
@@ -923,12 +1014,14 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 $this->load->model('extension/payment/razorpay');
                 $rzpSubscription = $this->model_extension_payment_razorpay->getSubscriptionById($subscriptionId);
 
-                if($rzpSubscription['status'] != $status){
+                if($rzpSubscription['status'] != $status)
+                {
 
                     $this->model_extension_payment_razorpay->updateSubscriptionStatus($subscriptionId, $status, "Webhook" );
                     $this->model_extension_payment_razorpay->updateOCRecurringStatus($merchant_order_id, $oc_status);
                     $this->log->write("Subscription ".$status." webhook event processed for Opencart OrderID (:" . $merchant_order_id . ")");
                 }
+
                 return;
             }
         }
@@ -949,13 +1042,15 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $this->load->model('extension/payment/razorpay');
 
         // Process only if its from opencart subscription source
-        if ($webhookSource == "opencart-subscription") {
-
+        if ($webhookSource == "opencart-subscription")
+        {
             $subscription = $this->api->subscription->fetch($subscriptionId)->toArray();
             $rzpSubscription = $this->model_extension_payment_razorpay->getSubscriptionById($subscriptionId);
 
-            if ($subscription['paid_count'] == 1) {
-                if (in_array($rzpSubscription['status'], ['created', 'authenticated']) && $rzpSubscription['paid_count'] == 0) {
+            if ($subscription['paid_count'] == 1)
+            {
+                if (in_array($rzpSubscription['status'], ['created', 'authenticated']) && $rzpSubscription['paid_count'] == 0)
+                {
 
                     $this->model_extension_payment_razorpay->updateSubscription($subscription, $subscriptionId);
                     $this->model_extension_payment_razorpay->updateOCRecurringStatus($merchant_order_id, 1);
@@ -963,7 +1058,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
                     $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), trim("Subscription charged Successfully. Razorpay Payment Id:" . $paymentId));
                 }
                 return;
-            } else {
+            }
+            else
+            {
                 $this->log->write("Subscription charged webhook event initiated for Opencart OrderID (:" . $merchant_order_id . ")");
 
                 // Creating OC Recurring Transaction
