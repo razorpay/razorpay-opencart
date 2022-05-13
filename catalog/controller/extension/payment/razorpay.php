@@ -103,7 +103,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 // Orders API with payment autocapture
                 $order_data = $this->get_order_creation_data($this->session->data['order_id']);
 
-                if(isset($this->session->data["razorpay_order_amount"]) === false)
+                if (isset($this->session->data["razorpay_order_amount"]) === false)
                 {
                     $this->session->data["razorpay_order_amount"] = 0;
                 }
