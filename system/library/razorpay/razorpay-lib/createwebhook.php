@@ -66,13 +66,6 @@ class CreateWebhook
     {
         $api = $this->getApiIntance();
 
-        if(empty($this->webhookUrl) === true)
-        {
-            $this->log->write('Webhook url is null.');
-
-            return $this->returnWebhookConfigData();
-        }
-
         $domain = parse_url($this->webhookUrl, PHP_URL_HOST);
         $domainIp = gethostbyname($domain);
 
