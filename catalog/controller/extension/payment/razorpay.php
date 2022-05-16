@@ -108,9 +108,10 @@ class ControllerExtensionPaymentRazorpay extends Controller
                     $this->session->data["razorpay_order_amount"] = 0;
                 }
 
-                if (isset($this->session->data["razorpay_order_id_" . $this->session->data['order_id']]) === false and
-                    ($this->session->data["razorpay_order_amount"] === 0 or
-                        $this->session->data["razorpay_order_amount"] !== $order_data["amount"]))
+                if ((isset($this->session->data["razorpay_order_id_" . $this->session->data['order_id']]) === false) or
+                    (isset($this->session->data["razorpay_order_id_" . $this->session->data['order_id']]) === true and
+                        ($this->session->data["razorpay_order_amount"] === 0 or
+                            $this->session->data["razorpay_order_amount"] !== $order_data["amount"])))
                 {
                     $razorpay_order = $this->api->order->create($order_data);
 
