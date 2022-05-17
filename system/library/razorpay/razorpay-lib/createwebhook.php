@@ -146,30 +146,36 @@ class CreateWebhook
 
         try
         {
-            $webhooks = $api->webhook->all();
+            $skip = 0;
+            $count = 10;
 
-            if (($webhooks->count > 0) and
-                (empty($this->webhookUrl) === false))
-            {
-                foreach ($webhooks->items as $key => $webhook)
+            do {
+                $webhooks = $api->request->request('GET', 'webhooks?count='.$count.'&skip='.$skip);
+                $skip += 10;
+
+                if ($webhooks['count'] > 0)
                 {
-                    if ($webhook->url === $this->webhookUrl)
+                    foreach ($webhooks['items'] as $key => $webhook)
                     {
-                        $this->webhookId = $webhook->id;
-
-                        foreach ($webhook->events as $event => $status)
+                        if ($webhook['url'] === $this->webhookUrl)
                         {
-                            if (($status === true) and
-                                (in_array($event, $this->webhookSupportedEvents) === true))
-                            {
-                                $this->webhookEvents[$event] = true;
-                            }
-                        }
+                            $this->webhookId = $webhook['id'];
 
-                        return ['id' => $webhook->id];
+                            foreach ($webhook['events'] as $event => $status)
+                            {
+                                if (($status === true) and
+                                    (in_array($event, $this->webhookSupportedEvents) === true))
+                                {
+                                    $this->webhookEvents[$event] = true;
+                                }
+                            }
+
+                            return ['id' => $webhook['id']];
+                        }
                     }
                 }
             }
+            while ( $webhooks['count'] >= 10);
         }
         catch(\Razorpay\Api\Errors\Error $e)
         {
@@ -202,7 +208,7 @@ class CreateWebhook
     {
         $api = $this->getApiIntance();
 
-        $features = $api->request->request("GET", "accounts/me/features");
+        $features = $api->request->request('GET', 'accounts/me/features');
 
         foreach ($features['assigned_features'] as $feature)
         {
