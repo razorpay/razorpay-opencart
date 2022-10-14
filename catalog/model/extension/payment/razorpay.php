@@ -125,21 +125,21 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function getSubscriptionDetails($subscriptionId)
     {
-        $query = $this->db->query("SELECT rs.*, pd.name AS productName, rpln.plan_name, rpln.plan_type, rpln.plan_id   FROM " . DB_PREFIX . "razorpay_subscriptions rs LEFT JOIN " . DB_PREFIX . "razorpay_plans rpln on rs.plan_entity_id = rpln.entity_id  LEFT JOIN " . DB_PREFIX . "product_description pd on pd.product_id = rs.product_id WHERE `subscription_id` = '" . $this->db->escape($subscriptionId). "'");
+        $query = $this->db->query("SELECT rs.*, pd.name AS productName, rpln.plan_name, rpln.plan_type, rpln.plan_id   FROM " . DB_PREFIX . "razorpay_subscriptions rs LEFT JOIN " . DB_PREFIX . "razorpay_plans rpln on rs.plan_entity_id = rpln.entity_id  LEFT JOIN " . DB_PREFIX . "product_description pd on pd.product_id = rs.product_id WHERE `subscription_id` = '" . $this->db->escape($subscriptionId) . "'");
 
         return $query->row;
     }
 
     public function getSubscriptionById($subscriptionId)
     {
-        $query = $this->db->query("SELECT *  FROM " . DB_PREFIX . "razorpay_subscriptions WHERE `subscription_id` = '" . $this->db->escape($subscriptionId). "'");
+        $query = $this->db->query("SELECT *  FROM " . DB_PREFIX . "razorpay_subscriptions WHERE `subscription_id` = '" . $this->db->escape($subscriptionId) . "'");
 
         return $query->row;
     }
 
     public function updateSubscriptionStatus($subscriptionId, $status, $user = null)
     {
-        $query = "UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = '".$this->db->escape($status) . "'";
+        $query = "UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = '" . $this->db->escape($status) . "'";
 
         if($user)
         {
@@ -152,7 +152,7 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function updateSubscriptionPlan($planData)
     {
-        $query = "UPDATE " . DB_PREFIX . "razorpay_subscriptions SET plan_entity_id = '".(int)$planData['plan_entity_id'] . "'";
+        $query = "UPDATE " . DB_PREFIX . "razorpay_subscriptions SET plan_entity_id = '" . (int)$planData['plan_entity_id'] . "'";
 
         if($planData["qty"])
         {
@@ -165,14 +165,14 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function getProductBasedPlans($productId)
     {
-        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "razorpay_plans WHERE plan_status = 1 AND opencart_product_id = '". (int)$productId ."'");
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "razorpay_plans WHERE plan_status = 1 AND opencart_product_id = '" . (int)$productId . "'");
 
         return $query->rows;
     }
 
     public function getPlanByRecurringIdAndFrequencyAndProductId($recurringId, $planType, $productId)
     {
-        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "razorpay_plans WHERE recurring_id = '".(int)$recurringId. "' AND plan_type = '".self::PLAN_TYPE[$planType]."' AND opencart_product_id = '".(int)$productId."'");
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "razorpay_plans WHERE recurring_id = '" . (int)$recurringId . "' AND plan_type = '".self::PLAN_TYPE[$planType]."' AND opencart_product_id = '" . (int)$productId . "'");
 
         return $query->row;
     }
@@ -186,7 +186,7 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function fetchRZPPlanById($planId)
     {
-        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "razorpay_plans WHERE `plan_status` = 1 AND `plan_id` = '".$this->db->escape($planId)."'");
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "razorpay_plans WHERE `plan_status` = 1 AND `plan_id` = '" . $this->db->escape($planId) . "'");
 
         return $query->row;
     }
@@ -213,7 +213,7 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function updateOCRecurringStatus( $orderId, $status)
     {
-        $query = "UPDATE " . DB_PREFIX . "order_recurring SET status = '".(int)$status. "' ";
+        $query = "UPDATE " . DB_PREFIX . "order_recurring SET status = '" . (int)$status. "' ";
         $query = $query ." WHERE order_id = '" . (int)$orderId . "';" ;
 
         $this->db->query($query);

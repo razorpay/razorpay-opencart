@@ -223,12 +223,12 @@ class ModelExtensionPaymentRazorpay extends Model
         $this->addRecurring($data);
 
         // update status
-        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_plans SET plan_status = '" . 1 . "'WHERE entity_id = '" .(int)$entity_id . "'");
+        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_plans SET plan_status = '" . 1 . "'WHERE entity_id = '" . (int)$entity_id . "'");
     }
 
     public function disablePlan($entity_id)
     {
-        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_plans SET plan_status = '" . 2 . "' WHERE entity_id = '" .(int)$entity_id . "'");
+        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_plans SET plan_status = '" . 2 . "' WHERE entity_id = '" . (int)$entity_id . "'");
 
         //delete from recurring table;
         $this->deleteRecurring($entity_id);
@@ -351,7 +351,7 @@ class ModelExtensionPaymentRazorpay extends Model
         $sql .=" LEFT JOIN " . DB_PREFIX . "razorpay_plans p ON (p.entity_id = s.plan_entity_id)";
         $sql .=" LEFT JOIN " . DB_PREFIX . "product_description op ON (op.product_id = p.opencart_product_id)";
         $sql .=" LEFT JOIN " . DB_PREFIX . "customer c ON (s.opencart_user_id = c.customer_id )";
-        $sql .= " WHERE s.entity_id= '" .(int)$entity_id . "'";
+        $sql .= " WHERE s.entity_id= '" . (int)$entity_id . "'";
         $query = $this->db->query($sql);
 
         return $query->row;
@@ -359,17 +359,17 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function resumeSubscription($entity_id,$updated_by)
     {
-        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = 'active',updated_by = '".$updated_by. "' WHERE entity_id = '" .(int)$entity_id . "'");
+        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = 'active',updated_by = '" . $updated_by . "' WHERE entity_id = '" . (int)$entity_id . "'");
     }
 
     public function pauseSubscription($entity_id,$updated_by)
     {
-        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = 'paused',updated_by = '".$updated_by. "' WHERE entity_id = '" .(int)$entity_id . "'");
+        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = 'paused',updated_by = '" . $updated_by . "' WHERE entity_id = '" . (int)$entity_id . "'");
     }
 
     public function cancelSubscription($entity_id,$updated_by)
     {
-        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = 'cancelled' ,updated_by = '".$updated_by. "' WHERE entity_id = '" .(int)$entity_id . "'");
+        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = 'cancelled' ,updated_by = '" . $updated_by . "' WHERE entity_id = '" . (int)$entity_id . "'");
     }
 
     public function getSingleSubscription($entity_id)
@@ -392,10 +392,10 @@ class ModelExtensionPaymentRazorpay extends Model
         $this->db->query("INSERT INTO `" . DB_PREFIX . "product_recurring` (`product_id`, `recurring_id`, `customer_group_id`) VALUES (" . (int)$data['product_id'] . ", " . (int)$recurring_id . ", '" . (int)$data['customer_group_id'] . "')");
 
         // update plan table with recurring id
-        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_plans SET recurring_id = '".(int)$recurring_id. "' WHERE entity_id = '" .(int)$data['plan_entity_id'] . "'");
+        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_plans SET recurring_id = '" . (int)$recurring_id . "' WHERE entity_id = '" . (int)$data['plan_entity_id'] . "'");
 
         //update plan price in product table
-        $this->db->query("UPDATE " . DB_PREFIX . "product SET price = '".(float)$data['price'] . "' WHERE product_id = '" . (int)$data['product_id'] . "'");
+        $this->db->query("UPDATE " . DB_PREFIX . "product SET price = '" . (float)$data['price'] . "' WHERE product_id = '" . (int)$data['product_id'] . "'");
 
         return $recurring_id;
     }
@@ -413,7 +413,7 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function updateOCRecurringStatus( $orderId, $status)
     {
-        $query = "UPDATE " . DB_PREFIX . "order_recurring SET status = '".(int)$status. "' ";
+        $query = "UPDATE " . DB_PREFIX . "order_recurring SET status = '" . (int)$status . "' ";
         $query = $query ." WHERE order_id = '" . (int)$orderId . "';" ;
 
         $this->db->query($query);
