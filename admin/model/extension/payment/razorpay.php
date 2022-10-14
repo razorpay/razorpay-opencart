@@ -172,7 +172,7 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function addPlan($data, $plan_id)
     {
-        $this->db->query("INSERT INTO " . DB_PREFIX . "razorpay_plans SET plan_name = '" . $this->db->escape($data['plan_name']) . "', plan_desc = '" . $this->db->escape($data['plan_desc']) . "', plan_id = '" . $this->db->escape($plan_id) . "',opencart_product_id = '" . $this->db->escape($data['product_id']) . "', plan_type = '" . $this->db->escape($data['plan_type']) . "', 	plan_frequency = '" . $this->db->escape($data['billing_frequency']) . "', 	plan_bill_cycle = '" . (int)$data['billing_cycle'] . "', plan_trial = '" . $this->db->escape($data['plan_trial']) . "', plan_bill_amount = '" . $this->db->escape($data['billing_amount']) . "',plan_addons = '" . $this->db->escape($data['plan_addons']) . "',plan_status = '" . (int)$data['plan_status'] . "', 	created_at = NOW()");
+        $this->db->query("INSERT INTO " . DB_PREFIX . "razorpay_plans SET plan_name = '" . $this->db->escape($data['plan_name']) . "', plan_desc = '" . $this->db->escape($data['plan_desc']) . "', plan_id = '" . $this->db->escape($plan_id) . "', opencart_product_id = '" . $this->db->escape($data['product_id']) . "', plan_type = '" . $this->db->escape($data['plan_type']) . "', plan_frequency = '" . $this->db->escape($data['billing_frequency']) . "', plan_bill_cycle = '" . (int)$data['billing_cycle'] . "', plan_trial = '" . $this->db->escape($data['plan_trial']) . "', plan_bill_amount = '" . $this->db->escape($data['billing_amount']) . "', plan_addons = '" . $this->db->escape($data['plan_addons']) . "', plan_status = '" . (int)$data['plan_status'] . "', created_at = NOW()");
 
         return $this->db->getLastId();
     }
@@ -359,17 +359,17 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function resumeSubscription($entity_id,$updated_by)
     {
-        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = 'active',updated_by = '" . $updated_by . "' WHERE entity_id = '" . (int)$entity_id . "'");
+        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = 'active', updated_by = '" . $updated_by . "' WHERE entity_id = '" . (int)$entity_id . "'");
     }
 
     public function pauseSubscription($entity_id,$updated_by)
     {
-        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = 'paused',updated_by = '" . $updated_by . "' WHERE entity_id = '" . (int)$entity_id . "'");
+        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = 'paused', updated_by = '" . $updated_by . "' WHERE entity_id = '" . (int)$entity_id . "'");
     }
 
     public function cancelSubscription($entity_id,$updated_by)
     {
-        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = 'cancelled' ,updated_by = '" . $updated_by . "' WHERE entity_id = '" . (int)$entity_id . "'");
+        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = 'cancelled', updated_by = '" . $updated_by . "' WHERE entity_id = '" . (int)$entity_id . "'");
     }
 
     public function getSingleSubscription($entity_id)

@@ -57,17 +57,17 @@ class ModelExtensionPaymentRazorpay extends Model
 
         if(isset($subscriptionData['start_at']))
         {
-            $query = $query . ",  start_at = '" . date("Y-m-d h:i:sa", $subscriptionData['start_at']  ). "'";
+            $query = $query . ", start_at = '" . date("Y-m-d h:i:sa", $subscriptionData['start_at']  ). "'";
         }
 
         if(isset($subscriptionData['created_at']))
         {
-            $query = $query . ",  subscription_created_at = '" . date("Y-m-d h:i:sa",$subscriptionData['created_at'] ) . "'";
+            $query = $query . ", subscription_created_at = '" . date("Y-m-d h:i:sa",$subscriptionData['created_at'] ) . "'";
         }
 
         if(isset($subscriptionData['charge_at']))
         {
-            $query = $query . ",  next_charge_at = '" . date("Y-m-d h:i:sa",$subscriptionData['charge_at'] ) . "'";
+            $query = $query . ", next_charge_at = '" . date("Y-m-d h:i:sa",$subscriptionData['charge_at'] ) . "'";
         }
 
         $this->db->query($query);
@@ -81,17 +81,17 @@ class ModelExtensionPaymentRazorpay extends Model
 
         if(isset($subscriptionData['start_at']))
         {
-            $query = $query . ",  start_at = '" . date("Y-m-d h:i:sa", $subscriptionData['start_at']  ). "'";
+            $query = $query . ", start_at = '" . date("Y-m-d h:i:sa", $subscriptionData['start_at']  ). "'";
         }
 
         if(isset($subscriptionData['charge_at']))
         {
-            $query = $query . ",  next_charge_at = '" . date("Y-m-d h:i:sa",$subscriptionData['charge_at'] ) . "'";
+            $query = $query . ", next_charge_at = '" . date("Y-m-d h:i:sa",$subscriptionData['charge_at'] ) . "'";
         }
 
         if(isset($subscriptionData['end_at']))
         {
-            $query = $query . ",  end_at = '" . date("Y-m-d h:i:sa",$subscriptionData['end_at'] ) . "'";
+            $query = $query . ", end_at = '" . date("Y-m-d h:i:sa",$subscriptionData['end_at'] ) . "'";
         }
 
         $query = $query ." WHERE subscription_id = '" . $subscriptionId . "'";
@@ -156,7 +156,7 @@ class ModelExtensionPaymentRazorpay extends Model
 
         if($planData["qty"])
         {
-            $query = $query .",qty = '" . (int)$planData["qty"] . "'" ;
+            $query = $query .", qty = '" . (int)$planData["qty"] . "'" ;
         }
         $query = $query ." WHERE subscription_id = '" . $this->db->escape($planData["subscriptionId"]) . "'";
 
