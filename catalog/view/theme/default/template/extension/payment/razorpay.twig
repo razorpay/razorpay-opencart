@@ -81,7 +81,8 @@
                 _: {
                     integration: 'opencart',
                     integration_version: '{{ version }}',
-                    integration_parent_version: '{{ oc_version }}'
+                    integration_parent_version: '{{ oc_version }}',
+                    integration_type: 'plugin'
                 },
                 callback_url: "{{ return_url }}",
                 handler: function (transaction) {
