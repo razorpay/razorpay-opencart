@@ -1,6 +1,14 @@
 <?php
+use DB\mPDO;
+
 class ModelExtensionPaymentRazorpay extends Model
 {
+    public function __construct($registry)
+    {
+        parent::__construct($registry);
+        $this->rzpPdo = new mPDO(DB_HOSTNAME,DB_USERNAME,DB_PASSWORD,DB_DATABASE);
+    }
+    
     public function createTables()
     {
         $this->db->query(
@@ -63,19 +71,19 @@ class ModelExtensionPaymentRazorpay extends Model
 
         if (!empty($data['filter_plan_id']))
         {
-            $sql .= " AND p.plan_id = '" . $this->db->escape($data['filter_plan_id']) . "'";
+            $sql .= " AND p.plan_id = :filter_plan_id";
         }
         if (!empty($data['filter_plan_status']))
         {
-            $sql .= " AND p.plan_status = '" . (int)$data['filter_plan_status'] . "'";
+            $sql .= " AND p.plan_status = :filter_plan_status";
         }
         if (!empty($data['filter_plan_name'])) {
-            $sql .= " AND p.plan_name LIKE '%" . $this->db->escape($data['filter_plan_name']) . "%'";
+            $sql .= " AND p.plan_name LIKE :filter_plan_name";
         }
 
         if (!empty($data['filter_date_created']))
         {
-            $sql .= " AND DATE(p.created_at) = DATE('" . $this->db->escape($data['filter_date_created']) . "')";
+            $sql .= " AND DATE(p.created_at) = :filter_date_created)";
         }
 
         $sort_data = array(
@@ -119,7 +127,26 @@ class ModelExtensionPaymentRazorpay extends Model
             $sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
         }
 
-        $query = $this->db->query($sql);
+        $this->rzpPdo->prepare($sql);
+
+        if (!empty($data['filter_plan_id']))
+        {
+            $this->rzpPdo->bindParam(':filter_plan_id', $this->db->escape($data['filter_plan_id']));
+        }
+        if (!empty($data['filter_plan_status']))
+        {
+            $this->rzpPdo->bindParam(':filter_plan_status', (int)$data['filter_plan_status']);
+        }
+        if (!empty($data['filter_plan_name']))
+        {
+            $this->rzpPdo->bindParam(':filter_plan_name', '%' . $this->db->escape($data['filter_plan_name']) . '%');
+        }
+
+        if (!empty($data['filter_date_created']))
+        {
+            $this->rzpPdo->bindParam(':filter_date_created', DATE($this->db->escape($data['filter_date_created'])));
+        }
+        $query = $this->rzpPdo->execute();
 
         return $query->rows;
     }
@@ -149,7 +176,7 @@ class ModelExtensionPaymentRazorpay extends Model
         elseif (isset($data['filter_plan_name']) and
             $data['filter_plan_name'] !== '')
         {
-            $sql .= " WHERE plan_name = '" . $this->db->escape($data['filter_plan_name']) . "'";
+            $sql .= " WHERE plan_name = :filter_plan_name";
         }
         else
         {
@@ -158,23 +185,52 @@ class ModelExtensionPaymentRazorpay extends Model
 
         if (!empty($data['filter_plan_status']))
         {
-            $sql .= " AND plan_status = '" . (int)$data['filter_plan_status'] . "'";
+            $sql .= " AND plan_status = :filter_plan_status";
         }
         if (!empty($data['filter_date_created']))
         {
-            $sql .= " AND DATE(p.created_at) = DATE('" . $this->db->escape($data['filter_date_created']) . "')";
+            $sql .= " AND DATE(p.created_at) = :filter_date_created";
         }
 
-        $query = $this->db->query($sql);
+        $this->rzpPdo->prepare($sql);
+
+        if (isset($data['filter_plan_name']) and
+            $data['filter_plan_name'] !== '')
+        {
+            $this->rzpPdo->bindParam(':filter_plan_name', $this->db->escape($data['filter_plan_name']));
+        }
+        if (!empty($data['filter_plan_status']))
+        {
+            $this->rzpPdo->bindParam(':filter_plan_status', (int)$data['filter_plan_status']);
+        }
+        if (!empty($data['filter_date_created']))
+        {
+            $this->rzpPdo->bindParam(':filter_date_created', DATE($this->db->escape($data['filter_date_created'])));
+        }
+        $query = $this->rzpPdo->execute();
 
         return $query->row['total'];
     }
 
     public function addPlan($data, $plan_id)
     {
-        $this->db->query("INSERT INTO " . DB_PREFIX . "razorpay_plans SET plan_name = '" . $this->db->escape($data['plan_name']) . "', plan_desc = '" . $this->db->escape($data['plan_desc']) . "', plan_id = '" . $this->db->escape($plan_id) . "', opencart_product_id = '" . $this->db->escape($data['product_id']) . "', plan_type = '" . $this->db->escape($data['plan_type']) . "', plan_frequency = '" . $this->db->escape($data['billing_frequency']) . "', plan_bill_cycle = '" . (int)$data['billing_cycle'] . "', plan_trial = '" . $this->db->escape($data['plan_trial']) . "', plan_bill_amount = '" . $this->db->escape($data['billing_amount']) . "', plan_addons = '" . $this->db->escape($data['plan_addons']) . "', plan_status = '" . (int)$data['plan_status'] . "', created_at = NOW()");
+        $this->rzpPdo->prepare("INSERT INTO " . DB_PREFIX . "razorpay_plans SET plan_name = :plan_name, plan_desc = :plan_desc, plan_id = :plan_id, opencart_product_id = :product_id, plan_type = :plan_type, plan_frequency = :billing_frequency, plan_bill_cycle = :billing_cycle, plan_trial = :plan_trial, plan_bill_amount = :billing_amount, plan_addons = :plan_addons, plan_status = :plan_status, created_at = NOW()");
 
-        return $this->db->getLastId();
+        $this->rzpPdo->bindParam(':plan_name', $this->db->escape($data['plan_name']));
+        $this->rzpPdo->bindParam(':plan_desc', $this->db->escape($data['plan_desc']));
+        $this->rzpPdo->bindParam(':plan_id', $this->db->escape($plan_id));
+        $this->rzpPdo->bindParam(':product_id', $this->db->escape($data['product_id']));
+        $this->rzpPdo->bindParam(':plan_type', $this->db->escape($data['plan_type']));
+        $this->rzpPdo->bindParam(':billing_frequency', $this->db->escape($data['billing_frequency']));
+        $this->rzpPdo->bindParam(':billing_cycle', (int)$data['billing_cycle']);
+        $this->rzpPdo->bindParam(':plan_trial', $this->db->escape($data['plan_trial']));
+        $this->rzpPdo->bindParam(':billing_amount', $this->db->escape($data['billing_amount']));
+        $this->rzpPdo->bindParam(':plan_addons', $this->db->escape($data['plan_addons']));
+        $this->rzpPdo->bindParam(':plan_status', (int)$data['plan_status']);
+
+        $this->rzpPdo->execute();
+
+        return $this->rzpPdo->getLastId();
     }
 
     public function enablePlan($entity_id)
@@ -182,8 +238,11 @@ class ModelExtensionPaymentRazorpay extends Model
         $this->load->model('localisation/language');
 
         //fetch and add in recurring table
-        $planData= $this->db->query("SELECT * FROM `" . DB_PREFIX . "razorpay_plans` WHERE entity_id='" . (int)$entity_id . "'")->row;
-
+        $this->rzpPdo->prepare("SELECT * FROM `" . DB_PREFIX . "razorpay_plans` WHERE entity_id= :entity_id");
+        $this->rzpPdo->bindParam(':entity_id', (int)$entity_id);
+        $query = $this->rzpPdo->execute();
+        $planData = $query->row;
+        
         $planType = $planData['plan_type'];
 
         if ($planType === "daily")
@@ -223,13 +282,17 @@ class ModelExtensionPaymentRazorpay extends Model
         $this->addRecurring($data);
 
         // update status
-        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_plans SET plan_status = '" . 1 . "'WHERE entity_id = '" . (int)$entity_id . "'");
+        $this->rzpPdo->prepare("UPDATE " . DB_PREFIX . "razorpay_plans SET plan_status = '" . 1 . "'WHERE entity_id = :entity_id");
+        $this->rzpPdo->bindParam(':entity_id', (int)$entity_id);
+        $this->rzpPdo->execute();
     }
 
     public function disablePlan($entity_id)
     {
-        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_plans SET plan_status = '" . 2 . "' WHERE entity_id = '" . (int)$entity_id . "'");
-
+        $this->rzpPdo->prepare("UPDATE " . DB_PREFIX . "razorpay_plans SET plan_status = '" . 2 . "' WHERE entity_id = :entity_id");
+        $this->rzpPdo->bindParam(':entity_id', (int)$entity_id);
+        $this->rzpPdo->execute();
+        
         //delete from recurring table;
         $this->deleteRecurring($entity_id);
     }
@@ -254,15 +317,15 @@ class ModelExtensionPaymentRazorpay extends Model
 
         if (!empty($data['filter_subscription_id']))
         {
-            $sql .= " AND s.subscription_id LIKE '%" . $this->db->escape($data['filter_subscription_id']) . "%'";
+            $sql .= " AND s.subscription_id LIKE :filter_subscription_id";
         }
         if (!empty($data['filter_plan_name']))
         {
-            $sql .= " AND p.plan_id LIKE '%" . $this->db->escape($data['filter_plan_name']) . "%'";
+            $sql .= " AND p.plan_id LIKE :filter_plan_name";
         }
         if (!empty($data['filter_subscription_status']))
         {
-            $sql .= " AND s.status LIKE '%" . $this->db->escape($data['filter_subscription_status']) . "%'";
+            $sql .= " AND s.status LIKE :filter_subscription_status";
         }
         if (!empty($data['filter_date_created']))
         {
@@ -295,8 +358,21 @@ class ModelExtensionPaymentRazorpay extends Model
             $sql .= " ASC";
         }
 
-        $query = $this->db->query($sql);
-
+        $this->rzpPdo->prepare($sql);
+        if (!empty($data['filter_subscription_id']))
+        {
+            $this->rzpPdo->bindParam(':filter_subscription_id','%'.$this->db->escape($data['filter_subscription_id']).'%');
+        }
+        if (!empty($data['filter_plan_name']))
+        {
+            $this->rzpPdo->bindParam(':filter_plan_name','%'.$this->db->escape($data['filter_plan_name']).'%');
+        }
+        if (!empty($data['filter_subscription_status']))
+        {
+            $this->rzpPdo->bindParam(':filter_subscription_status','%'.$this->db->escape($data['filter_subscription_status']).'%');
+        }
+        $query = $this->rzpPdo->execute();
+        
         return $query->rows;
     }
 
@@ -327,7 +403,7 @@ class ModelExtensionPaymentRazorpay extends Model
         elseif (isset($data['filter_plan_name']) and
             $data['filter_plan_name'] !== '')
         {
-            $sql .= " WHERE plan_id = '" . $this->db->escape($data['filter_plan_name']) . "'";
+            $sql .= " WHERE plan_id = :filter_plan_name";
         }
         else
         {
@@ -339,64 +415,113 @@ class ModelExtensionPaymentRazorpay extends Model
             $sql .= " AND DATE(s.created_at) = DATE('" . $this->db->escape($data['filter_date_created']) . "')";
         }
 
-        $query = $this->db->query($sql);
+        $this->rzpPdo->prepare($sql);
 
+        if (isset($data['filter_plan_name']) and
+            $data['filter_plan_name'] !== '')
+        {
+            $this->rzpPdo->bindParam(':filter_plan_name', $this->db->escape($data['filter_plan_name']));
+        }
+        $query = $this->rzpPdo->execute();
+        
         return $query->row['total'];
     }
 
     public function getSubscriptionInfo($entity_id)
     {
-
         $sql = "SELECT s.*,s.entity_id as sub_id,s.status as sub_status,s.created_at as sub_created,p.*,op.name,c.firstname,c.lastname FROM `" . DB_PREFIX . "razorpay_subscriptions` s";
         $sql .=" LEFT JOIN " . DB_PREFIX . "razorpay_plans p ON (p.entity_id = s.plan_entity_id)";
         $sql .=" LEFT JOIN " . DB_PREFIX . "product_description op ON (op.product_id = p.opencart_product_id)";
         $sql .=" LEFT JOIN " . DB_PREFIX . "customer c ON (s.opencart_user_id = c.customer_id )";
-        $sql .= " WHERE s.entity_id= '" . (int)$entity_id . "'";
-        $query = $this->db->query($sql);
+        $sql .= " WHERE s.entity_id= :entity_id";
+        
+        $this->rzpPdo->prepare($sql);
+        $this->rzpPdo->bindParam(':entity_id',(int)$entity_id);
+        $query = $this->rzpPdo->execute();
 
         return $query->row;
     }
 
     public function resumeSubscription($entity_id,$updated_by)
     {
-        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = 'active', updated_by = '" . $updated_by . "' WHERE entity_id = '" . (int)$entity_id . "'");
+        $this->rzpPdo->prepare("UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = 'active', updated_by = :updated_by WHERE entity_id = :entity_id");
+        $this->rzpPdo->bindParam(':updated_by', $updated_by);
+        $this->rzpPdo->bindParam(':entity_id', (int)$entity_id);
+        $this->rzpPdo->execute();
     }
 
     public function pauseSubscription($entity_id,$updated_by)
     {
-        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = 'paused', updated_by = '" . $updated_by . "' WHERE entity_id = '" . (int)$entity_id . "'");
+        $this->rzpPdo->prepare("UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = 'paused', updated_by = :updated_by WHERE entity_id = :entity_id");
+        $this->rzpPdo->bindParam(':updated_by', $updated_by);
+        $this->rzpPdo->bindParam(':entity_id', (int)$entity_id);
+        $this->rzpPdo->execute();
     }
 
     public function cancelSubscription($entity_id,$updated_by)
     {
-        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = 'cancelled', updated_by = '" . $updated_by . "' WHERE entity_id = '" . (int)$entity_id . "'");
+        $this->rzpPdo->prepare("UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = 'cancelled', updated_by = :updated_by WHERE entity_id = :entity_id");
+        $this->rzpPdo->bindParam(':updated_by', $updated_by);
+        $this->rzpPdo->bindParam(':entity_id', $entity_id);
+        $this->rzpPdo->execute();
     }
 
     public function getSingleSubscription($entity_id)
     {
-        return $this->db->query("SELECT * FROM `" . DB_PREFIX . "razorpay_subscriptions` WHERE entity_id='" . (int)$entity_id . "'")->row;
+        $this->rzpPdo->prepare("SELECT * FROM `" . DB_PREFIX . "razorpay_subscriptions` WHERE entity_id=:entity_id");
+        $this->rzpPdo->bindParam(':entity_id', $entity_id);
+        $query = $this->rzpPdo->execute();
+        
+        return $query->row;
     }
 
     public function addRecurring($data)
     {
-        $this->db->query("INSERT INTO `" . DB_PREFIX . "recurring` SET `status` = " . (int)$data['status'] . ", `price` = " . (float)$data['price'] . ", `frequency` = '" . $this->db->escape($data['frequency']) . "', `duration` = " . (int)$data['duration'] . ", `cycle` = " . (int)$data['cycle'] . ", `trial_status` = " . (int)$data['trial_status'] . ", `trial_price` = " . (float)$data['trial_price'] . ", `trial_frequency` = '" . $this->db->escape($data['trial_frequency']) . "', `trial_duration` = " . (int)$data['trial_duration'] . ", `trial_cycle` = '" . (int)$data['trial_cycle'] . "'");
-
-        $recurring_id = $this->db->getLastId();
+        $this->rzpPdo->prepare("INSERT INTO `" . DB_PREFIX . "recurring` SET `status` = :status, `price` = :price, `frequency` = :frequency, `duration` = :duration, `cycle` = :cycle, `trial_status` = :trial_status, `trial_price` = :trial_price, `trial_frequency` = :trial_frequency, `trial_duration` = :trial_duration, `trial_cycle` = :trial_cycle");
+        $this->rzpPdo->bindParam(':status', (int)$data['status']);
+        $this->rzpPdo->bindParam(':price', (float)$data['price']);
+        $this->rzpPdo->bindParam(':frequency', $this->db->escape($data['frequency']));
+        $this->rzpPdo->bindParam(':duration', (int)$data['duration']);
+        $this->rzpPdo->bindParam(':cycle', (int)$data['cycle']);
+        $this->rzpPdo->bindParam(':trial_status', (int)$data['trial_status']);
+        $this->rzpPdo->bindParam(':trial_price', (float)$data['trial_price']);
+        $this->rzpPdo->bindParam(':trial_frequency', $this->db->escape($data['trial_frequency']));
+        $this->rzpPdo->bindParam(':trial_duration', (int)$data['trial_duration']);
+        $this->rzpPdo->bindParam(':trial_cycle', (int)$data['trial_cycle']);
+        $this->rzpPdo->execute();
+        
+        $recurring_id = $this->rzpPdo->getLastId();
 
         foreach ($data['languages'] as $language_id => $recurring_description)
         {
-            $this->db->query("INSERT INTO `" . DB_PREFIX . "recurring_description` (`recurring_id`, `language_id`, `name`) VALUES (" . (int)$recurring_id . ", " . (int)$recurring_description['language_id']. ", '" . $this->db->escape($data['plan_name']) . "')");
+            $this->rzpPdo->prepare("INSERT INTO `" . DB_PREFIX . "recurring_description` SET `recurring_id` = :recurring_id, `language_id` = :language_id, `name` = :name");
+            $this->rzpPdo->bindParam(':recurring_id', (int)$recurring_id);
+            $this->rzpPdo->bindParam(':language_id', (int)$recurring_description['language_id']);
+            $this->rzpPdo->bindParam(':name', $this->db->escape($data['plan_name']));
+            $this->rzpPdo->execute();
         }
 
         //product recurring mapping
-        $this->db->query("INSERT INTO `" . DB_PREFIX . "product_recurring` (`product_id`, `recurring_id`, `customer_group_id`) VALUES (" . (int)$data['product_id'] . ", " . (int)$recurring_id . ", '" . (int)$data['customer_group_id'] . "')");
-
+        $this->rzpPdo->prepare("INSERT INTO `" . DB_PREFIX . "product_recurring` SET `product_id` = :product_id, `recurring_id` = :recurring_id, `customer_group_id` = :customer_group_id");
+        $this->rzpPdo->bindParam(':product_id', (int)$data['product_id']);
+        $this->rzpPdo->bindParam(':recurring_id', (int)$recurring_id);
+        $this->rzpPdo->bindParam(':customer_group_id', (int)$data['customer_group_id']);
+        $this->rzpPdo->execute();
+        
         // update plan table with recurring id
-        $this->db->query("UPDATE " . DB_PREFIX . "razorpay_plans SET recurring_id = '" . (int)$recurring_id . "' WHERE entity_id = '" . (int)$data['plan_entity_id'] . "'");
-
+        $update_plan = "UPDATE " . DB_PREFIX . "razorpay_plans SET recurring_id = :recurring_id WHERE entity_id = :entity_id";
+        $this->rzpPdo->prepare($update_plan);
+        $this->rzpPdo->bindParam(':recurring_id', (int)$recurring_id);
+        $this->rzpPdo->bindParam(':entity_id', (int)$data['plan_entity_id']);
+        $this->rzpPdo->execute();
+        
         //update plan price in product table
-        $this->db->query("UPDATE " . DB_PREFIX . "product SET price = '" . (float)$data['price'] . "' WHERE product_id = '" . (int)$data['product_id'] . "'");
-
+        $update_price = "UPDATE " . DB_PREFIX . "product SET price = :price WHERE product_id = :product_id";
+        $this->rzpPdo->prepare($update_price);
+        $this->rzpPdo->bindParam(':price', (float)$data['price']);
+        $this->rzpPdo->bindParam(':product_id', (int)$data['product_id']);
+        $this->rzpPdo->execute();
+        
         return $recurring_id;
     }
 
@@ -413,9 +538,12 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function updateOCRecurringStatus( $orderId, $status)
     {
-        $query = "UPDATE " . DB_PREFIX . "order_recurring SET status = '" . (int)$status . "' ";
-        $query = $query ." WHERE order_id = '" . (int)$orderId . "';" ;
+        $query = "UPDATE " . DB_PREFIX . "order_recurring SET status = :status";
+        $query = $query ." WHERE order_id = :order_id" ;
 
-        $this->db->query($query);
+        $this->rzpPdo->prepare($query);
+        $this->rzpPdo->bindParam(':status', (int)$status);
+        $this->rzpPdo->bindParam(':order_id', (int)$orderId);
+        $this->rzpPdo->execute();
     }
 }
