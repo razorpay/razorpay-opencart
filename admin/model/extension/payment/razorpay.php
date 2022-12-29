@@ -83,7 +83,7 @@ class ModelExtensionPaymentRazorpay extends Model
 
         if (!empty($data['filter_date_created']))
         {
-            $sql .= " AND DATE(p.created_at) = :filter_date_created)";
+            $sql .= " AND DATE(p.created_at) = :filter_date_created";
         }
 
         $sort_data = array(

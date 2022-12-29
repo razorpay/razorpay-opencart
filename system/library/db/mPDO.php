@@ -6,7 +6,7 @@ final class MPDO {
 
     public function __construct($hostname, $username, $password, $database, $port = '3306') {
         try {
-            $this->pdo = new \PDO("mysql:host=" . $hostname . ";port=" . $port . ";dbname=" . $database, $username, $password, array(\PDO::ATTR_PERSISTENT => true));
+            $this->pdo = new \PDO("mysql:host=" . $hostname . ";port=" . $port . ";dbname=" . $database, $username, $password, array(\PDO::ATTR_PERSISTENT => true, \PDO::ATTR_TIMEOUT => 10));
         } catch (\PDOException $e) {
             throw new \Exception('Failed to connect to database. Reason: \'' . $e->getMessage() . '\'');
         }
