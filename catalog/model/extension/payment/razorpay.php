@@ -20,7 +20,7 @@ class ModelExtensionPaymentRazorpay extends Model
     public function __construct($registry)
     {
         parent::__construct($registry);
-        $this->rzpPdo = new mPDO(DB_HOSTNAME,DB_USERNAME,DB_PASSWORD,DB_DATABASE);
+        $this->rzpPdo = new mPDO(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
     }
 
     public function getMethod($address, $total)
@@ -60,19 +60,19 @@ class ModelExtensionPaymentRazorpay extends Model
         $query = "INSERT INTO " . DB_PREFIX . "razorpay_subscriptions SET plan_entity_id = :entity_id, subscription_id = :subscription_id,";
         $query = $query . " product_id = :product_id, razorpay_customer_id = :customerId, qty = :quantity,";
         $query = $query . " status = :status, opencart_user_id = :opencart_user_id, total_count = :total_count,";
-        $query = $query . "  paid_count = :paid_count, remaining_count = :remaining_count, order_id = :order_id";
+        $query = $query . " paid_count = :paid_count, remaining_count = :remaining_count, order_id = :order_id";
 
-        if(isset($subscriptionData['start_at']))
+        if (isset($subscriptionData['start_at']))
         {
             $query = $query . ", start_at = :start_at";
         }
 
-        if(isset($subscriptionData['created_at']))
+        if (isset($subscriptionData['created_at']))
         {
             $query = $query . ", subscription_created_at = :subscription_created_at";
         }
 
-        if(isset($subscriptionData['charge_at']))
+        if (isset($subscriptionData['charge_at']))
         {
             $query = $query . ", next_charge_at = :next_charge_at";
         }
@@ -90,19 +90,19 @@ class ModelExtensionPaymentRazorpay extends Model
         $this->rzpPdo->bindParam(':remaining_count', (int)$subscriptionData['remaining_count']);
         $this->rzpPdo->bindParam(':order_id', (int)$order_id );
 
-        if(isset($subscriptionData['start_at']))
+        if (isset($subscriptionData['start_at']))
         {
             $this->rzpPdo->bindParam(':start_at', date("Y-m-d h:i:sa", $subscriptionData['start_at']));
         }
 
-        if(isset($subscriptionData['created_at']))
+        if (isset($subscriptionData['created_at']))
         {
-            $this->rzpPdo->bindParam(':subscription_created_at', date("Y-m-d h:i:sa",$subscriptionData['created_at']) );
+            $this->rzpPdo->bindParam(':subscription_created_at', date("Y-m-d h:i:sa", $subscriptionData['created_at']));
         }
 
-        if(isset($subscriptionData['charge_at']))
+        if (isset($subscriptionData['charge_at']))
         {
-            $this->rzpPdo->bindParam(':next_charge_at', date("Y-m-d h:i:sa",$subscriptionData['charge_at']) );
+            $this->rzpPdo->bindParam(':next_charge_at', date("Y-m-d h:i:sa", $subscriptionData['charge_at']));
         }
 
         $this->rzpPdo->execute();
@@ -137,19 +137,19 @@ class ModelExtensionPaymentRazorpay extends Model
         $this->rzpPdo->bindParam(':paid_count', (int)$subscriptionData['paid_count']);
         $this->rzpPdo->bindParam(':remaining_count', (int)$subscriptionData['remaining_count']);
 
-        if(isset($subscriptionData['start_at']))
+        if (isset($subscriptionData['start_at']))
         {
             $this->rzpPdo->bindParam(':start_at', date("Y-m-d h:i:sa", $subscriptionData['start_at']));
         }
 
-        if(isset($subscriptionData['charge_at']))
+        if (isset($subscriptionData['charge_at']))
         {
-            $this->rzpPdo->bindParam(':next_charge_at', date("Y-m-d h:i:sa",$subscriptionData['charge_at']));
+            $this->rzpPdo->bindParam(':next_charge_at', date("Y-m-d h:i:sa", $subscriptionData['charge_at']));
         }
 
-        if(isset($subscriptionData['end_at']))
+        if (isset($subscriptionData['end_at']))
         {
-            $this->rzpPdo->bindParam(':end_at', date("Y-m-d h:i:sa",$subscriptionData['end_at']));
+            $this->rzpPdo->bindParam(':end_at', date("Y-m-d h:i:sa", $subscriptionData['end_at']));
         }
 
         $this->rzpPdo->execute();
@@ -158,7 +158,7 @@ class ModelExtensionPaymentRazorpay extends Model
     public function getTotalOrderRecurring()
     {
         $this->rzpPdo->prepare("SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "razorpay_subscriptions` WHERE `opencart_user_id` = :opencart_user_id");
-        $this->rzpPdo->bindParam(':opencart_user_id',(int)$this->customer->getId());
+        $this->rzpPdo->bindParam(':opencart_user_id', (int)$this->customer->getId());
         $query = $this->rzpPdo->execute();
 
         return $query->row['total'];
@@ -177,7 +177,7 @@ class ModelExtensionPaymentRazorpay extends Model
         }
 
         $this->rzpPdo->prepare("SELECT rs.*, pd.name AS productName  FROM `" . DB_PREFIX . "razorpay_subscriptions` rs LEFT JOIN `" . DB_PREFIX . "product_description` pd on pd.product_id = rs.product_id WHERE rs.opencart_user_id = :opencart_user_id ORDER BY rs.entity_id DESC LIMIT ". (int)$start . "," . (int)$limit);
-        $this->rzpPdo->bindParam(':opencart_user_id',(int)$this->customer->getId());
+        $this->rzpPdo->bindParam(':opencart_user_id', (int)$this->customer->getId());
         $query = $this->rzpPdo->execute();
 
         return $query->rows;
@@ -185,8 +185,8 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function getSubscriptionDetails($subscriptionId)
     {
-        $this->rzpPdo->prepare("SELECT rs.*, pd.name AS productName, rpln.plan_name, rpln.plan_type, rpln.plan_id   FROM " . DB_PREFIX . "razorpay_subscriptions rs LEFT JOIN " . DB_PREFIX . "razorpay_plans rpln on rs.plan_entity_id = rpln.entity_id  LEFT JOIN " . DB_PREFIX . "product_description pd on pd.product_id = rs.product_id WHERE `subscription_id` = :subscriptionId");
-        $this->rzpPdo->bindParam(':subscriptionId',$this->db->escape($subscriptionId));
+        $this->rzpPdo->prepare("SELECT rs.*, pd.name AS productName, rpln.plan_name, rpln.plan_type, rpln.plan_id FROM " . DB_PREFIX . "razorpay_subscriptions rs LEFT JOIN " . DB_PREFIX . "razorpay_plans rpln on rs.plan_entity_id = rpln.entity_id  LEFT JOIN " . DB_PREFIX . "product_description pd on pd.product_id = rs.product_id WHERE `subscription_id` = :subscriptionId");
+        $this->rzpPdo->bindParam(':subscriptionId', $this->db->escape($subscriptionId));
         $query = $this->rzpPdo->execute();
 
         return $query->row;
@@ -207,14 +207,14 @@ class ModelExtensionPaymentRazorpay extends Model
 
         if($user)
         {
-            $query = $query .",updated_by = :updated_by " ;
+            $query = $query . ", updated_by = :updated_by " ;
         }
         $query = $query ." WHERE subscription_id = :subscriptionId ";
 
         $this->rzpPdo->prepare($query);
         $this->rzpPdo->bindParam(':status', $this->db->escape($status));
 
-        if($user)
+        if ($user)
         {
             $this->rzpPdo->bindParam(':updated_by', $this->db->escape($user));
         }
@@ -233,7 +233,7 @@ class ModelExtensionPaymentRazorpay extends Model
         $query = $query ." WHERE subscription_id = '" . $this->db->escape($planData["subscriptionId"]) . "'";
         $this->rzpPdo->prepare($query);
         $this->rzpPdo->bindParam(':plan_entity_id', (int)$planData['plan_entity_id']);
-        if($planData["qty"])
+        if ($planData["qty"])
         {
             $this->rzpPdo->bindParam(':qty', (int)$planData["qty"]);
         }
@@ -252,7 +252,9 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function getPlanByRecurringIdAndFrequencyAndProductId($recurringId, $planType, $productId)
     {
-        $this->rzpPdo->prepare("SELECT * FROM " . DB_PREFIX . "razorpay_plans WHERE recurring_id = :recurringId AND plan_type = '".self::PLAN_TYPE[$planType]."' AND opencart_product_id = :productId");
+        $this->rzpPdo->prepare("SELECT * FROM " . DB_PREFIX
+            . "razorpay_plans WHERE recurring_id = :recurringId AND plan_type = '"
+            . self::PLAN_TYPE[$planType] . "' AND opencart_product_id = :productId");
         $this->rzpPdo->bindParam(':recurringId', (int)$recurringId);
         $this->rzpPdo->bindParam(':productId', (int)$productId);
         $query = $this->rzpPdo->execute();
@@ -262,7 +264,8 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function fetchPlanByEntityId($planEntityId)
     {
-        $this->rzpPdo->prepare("SELECT * FROM " . DB_PREFIX . "razorpay_plans WHERE `plan_status` = 1 AND `entity_id` = :planEntityId");
+        $this->rzpPdo->prepare("SELECT * FROM " . DB_PREFIX
+            . "razorpay_plans WHERE `plan_status` = 1 AND `entity_id` = :planEntityId");
         $this->rzpPdo->bindParam(':planEntityId', (int)$planEntityId);
         $query = $this->rzpPdo->execute();
 

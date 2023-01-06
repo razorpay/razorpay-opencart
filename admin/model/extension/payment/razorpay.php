@@ -6,7 +6,7 @@ class ModelExtensionPaymentRazorpay extends Model
     public function __construct($registry)
     {
         parent::__construct($registry);
-        $this->rzpPdo = new mPDO(DB_HOSTNAME,DB_USERNAME,DB_PASSWORD,DB_DATABASE);
+        $this->rzpPdo = new mPDO(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
     }
     
     public function createTables()
@@ -129,20 +129,20 @@ class ModelExtensionPaymentRazorpay extends Model
 
         $this->rzpPdo->prepare($sql);
 
-        if (!empty($data['filter_plan_id']))
+        if (empty($data['filter_plan_id']) === false)
         {
             $this->rzpPdo->bindParam(':filter_plan_id', $this->db->escape($data['filter_plan_id']));
         }
-        if (!empty($data['filter_plan_status']))
+        if (empty($data['filter_plan_status']) === false)
         {
             $this->rzpPdo->bindParam(':filter_plan_status', (int)$data['filter_plan_status']);
         }
-        if (!empty($data['filter_plan_name']))
+        if (empty($data['filter_plan_name']) === false
         {
             $this->rzpPdo->bindParam(':filter_plan_name', '%' . $this->db->escape($data['filter_plan_name']) . '%');
         }
 
-        if (!empty($data['filter_date_created']))
+        if (empty($data['filter_date_created']) === false)
         {
             $this->rzpPdo->bindParam(':filter_date_created', DATE($this->db->escape($data['filter_date_created'])));
         }
@@ -199,11 +199,11 @@ class ModelExtensionPaymentRazorpay extends Model
         {
             $this->rzpPdo->bindParam(':filter_plan_name', $this->db->escape($data['filter_plan_name']));
         }
-        if (!empty($data['filter_plan_status']))
+        if (empty($data['filter_plan_status']) === false)
         {
             $this->rzpPdo->bindParam(':filter_plan_status', (int)$data['filter_plan_status']);
         }
-        if (!empty($data['filter_date_created']))
+        if (empty($data['filter_date_created']) === false)
         {
             $this->rzpPdo->bindParam(':filter_date_created', DATE($this->db->escape($data['filter_date_created'])));
         }
@@ -359,17 +359,17 @@ class ModelExtensionPaymentRazorpay extends Model
         }
 
         $this->rzpPdo->prepare($sql);
-        if (!empty($data['filter_subscription_id']))
+        if (empty($data['filter_subscription_id']) === false)
         {
-            $this->rzpPdo->bindParam(':filter_subscription_id','%'.$this->db->escape($data['filter_subscription_id']).'%');
+            $this->rzpPdo->bindParam(':filter_subscription_id', '%' . $this->db->escape($data['filter_subscription_id']) . '%');
         }
-        if (!empty($data['filter_plan_name']))
+        if (empty($data['filter_plan_name']) === false)
         {
-            $this->rzpPdo->bindParam(':filter_plan_name','%'.$this->db->escape($data['filter_plan_name']).'%');
+            $this->rzpPdo->bindParam(':filter_plan_name', '%' . $this->db->escape($data['filter_plan_name']) . '%');
         }
-        if (!empty($data['filter_subscription_status']))
+        if (empty($data['filter_subscription_status']) === false)
         {
-            $this->rzpPdo->bindParam(':filter_subscription_status','%'.$this->db->escape($data['filter_subscription_status']).'%');
+            $this->rzpPdo->bindParam(':filter_subscription_status', '%' . $this->db->escape($data['filter_subscription_status']) . '%');
         }
         $query = $this->rzpPdo->execute();
         
@@ -433,10 +433,10 @@ class ModelExtensionPaymentRazorpay extends Model
         $sql .=" LEFT JOIN " . DB_PREFIX . "razorpay_plans p ON (p.entity_id = s.plan_entity_id)";
         $sql .=" LEFT JOIN " . DB_PREFIX . "product_description op ON (op.product_id = p.opencart_product_id)";
         $sql .=" LEFT JOIN " . DB_PREFIX . "customer c ON (s.opencart_user_id = c.customer_id )";
-        $sql .= " WHERE s.entity_id= :entity_id";
+        $sql .= " WHERE s.entity_id = :entity_id";
         
         $this->rzpPdo->prepare($sql);
-        $this->rzpPdo->bindParam(':entity_id',(int)$entity_id);
+        $this->rzpPdo->bindParam(':entity_id', (int)$entity_id);
         $query = $this->rzpPdo->execute();
 
         return $query->row;
