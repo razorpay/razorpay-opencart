@@ -705,7 +705,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         {
             $status = $this->request->post['status'];
 
-            if ($status === 1)
+            if ($status === '1')
             {
                 foreach ($this->request->post['selected'] as $entity_id)
                 {
@@ -715,7 +715,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
                 $this->session->data['success'] = $this->language->get('text_enable_success');
             }
-            else if ($status === 2)
+            else if ($status === '2')
             {
                 foreach ($this->request->post['selected'] as $entity_id)
                 {
