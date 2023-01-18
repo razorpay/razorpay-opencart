@@ -41,15 +41,29 @@ class ModelExtensionPaymentRazorpay extends Model
     {
         foreach ($data as $key => $value)
         {
-            $this->db->query("DELETE FROM `" . DB_PREFIX . "setting` WHERE store_id = '" . (int)$store_id . "' AND `code` = '" . $this->db->escape($code) . "' AND `key` = '" . $this->db->escape($key) . "'");
+            $this->rzpPdo->prepare("DELETE FROM `" . DB_PREFIX . "setting` WHERE store_id = :store_id AND `code` = :code AND `key` = :key");
+            $this->rzpPdo->bindParam(':store_id', (int)$store_id);
+            $this->rzpPdo->bindParam(':code', $this->db->escape($code));
+            $this->rzpPdo->bindParam(':key', $this->db->escape($key));
+            $this->rzpPdo->execute();
 
             if (!is_array($value))
             {
-                $this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '" . (int)$store_id . "', `code` = '" . $this->db->escape($code) . "', `key` = '" . $this->db->escape($key) . "', `value` = '" . $this->db->escape($value) . "'");
+                $this->rzpPdo->prepare("INSERT INTO " . DB_PREFIX . "setting SET store_id = :store_id, `code` = :code, `key` = :key, `value` = :value");
+                $this->rzpPdo->bindParam(':store_id', (int)$store_id);
+                $this->rzpPdo->bindParam(':code', $this->db->escape($code));
+                $this->rzpPdo->bindParam(':key', $this->db->escape($key));
+                $this->rzpPdo->bindParam(':value', $this->db->escape($value));
+                $this->rzpPdo->execute();
             }
             else
             {
-                $this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '" . (int)$store_id . "', `code` = '" . $this->db->escape($code) . "', `key` = '" . $this->db->escape($key) . "', `value` = '" . $this->db->escape(json_encode($value, true)) . "', serialized = '1'");
+                $this->rzpPdo->prepare("INSERT INTO " . DB_PREFIX . "setting SET store_id = :store_id, `code` = :code, `key` = :key, `value` = :value, serialized = '1'");
+                $this->rzpPdo->bindParam(':store_id', (int)$store_id);
+                $this->rzpPdo->bindParam(':code', $this->db->escape($code));
+                $this->rzpPdo->bindParam(':key', $this->db->escape($key));
+                $this->rzpPdo->bindParam(':value', $this->db->escape(json_encode($value, true)));
+                $this->rzpPdo->execute();
             }
         }
     }

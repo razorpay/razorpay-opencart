@@ -299,11 +299,23 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function deleteRecurring($entity_id)
     {
-        $planData= $this->db->query("SELECT * FROM `" . DB_PREFIX . "razorpay_plans` WHERE entity_id='" . (int)$entity_id . "'")->row;
+        $this->rzpPdo->prepare("SELECT * FROM `" . DB_PREFIX . "razorpay_plans` WHERE entity_id = :entity_id");
+        $this->rzpPdo->bindParam(':entity_id', (int)$entity_id);
+        $query = $this->rzpPdo->execute();
+        $planData = $query->row;
         $recurring_id = $planData['recurring_id'];
-        $this->db->query("Delete FROM `" . DB_PREFIX . "product_recurring` WHERE recurring_id='" . (int)$recurring_id . "'")->row;
-        $this->db->query("Delete FROM `" . DB_PREFIX . "recurring` WHERE recurring_id='" . (int)$recurring_id . "'")->row;
-        $this->db->query("Delete FROM `" . DB_PREFIX . "recurring_description` WHERE recurring_id='" . (int)$recurring_id . "'")->row;
+
+        $this->rzpPdo->prepare("Delete FROM `" . DB_PREFIX . "product_recurring` WHERE recurring_id = :recurring_id");
+        $this->rzpPdo->bindParam(':recurring_id', (int)$recurring_id);
+        $this->rzpPdo->execute();
+
+        $this->rzpPdo->prepare("Delete FROM `" . DB_PREFIX . "recurring` WHERE recurring_id = :recurring_id");
+        $this->rzpPdo->bindParam(':recurring_id', (int)$recurring_id);
+        $this->rzpPdo->execute();
+
+        $this->rzpPdo->prepare("Delete FROM `" . DB_PREFIX . "recurring_description` WHERE recurring_id = :recurring_id");
+        $this->rzpPdo->bindParam(':recurring_id', (int)$recurring_id);
+        $this->rzpPdo->execute();
     }
 
     public function getSubscription($data = array())
