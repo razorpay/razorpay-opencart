@@ -137,7 +137,7 @@ class ModelExtensionPaymentRazorpay extends Model
         {
             $this->rzpPdo->bindParam(':filter_plan_status', (int)$data['filter_plan_status']);
         }
-        if (empty($data['filter_plan_name']) === false
+        if (empty($data['filter_plan_name']) === false)
         {
             $this->rzpPdo->bindParam(':filter_plan_name', '%' . $this->db->escape($data['filter_plan_name']) . '%');
         }
