@@ -55,12 +55,15 @@ class ModelExtensionPaymentRazorpay extends Model
             PRIMARY KEY (`entity_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
         );
-
     }
+
     public function dropTables()
     {
-        $this->db->query("DROP TABLE IF EXISTS `".DB_PREFIX."razorpay_plans`");
-        $this->db->query("DROP TABLE IF EXISTS `".DB_PREFIX."razorpay_subscriptions`");
+        $this->rzpPdo->prepare("DROP TABLE IF EXISTS `" . DB_PREFIX . "razorpay_plans`");
+        $this->rzpPdo->execute();
+
+        $this->rzpPdo->prepare("DROP TABLE IF EXISTS `" . DB_PREFIX . "razorpay_subscriptions`");
+        $this->rzpPdo->execute();
     }
 
     public function getPlans($data = array())
@@ -137,7 +140,7 @@ class ModelExtensionPaymentRazorpay extends Model
         {
             $this->rzpPdo->bindParam(':filter_plan_status', (int)$data['filter_plan_status']);
         }
-        if (empty($data['filter_plan_name']) === false
+        if (empty($data['filter_plan_name']) === false)
         {
             $this->rzpPdo->bindParam(':filter_plan_name', '%' . $this->db->escape($data['filter_plan_name']) . '%');
         }
@@ -299,11 +302,23 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function deleteRecurring($entity_id)
     {
-        $planData= $this->db->query("SELECT * FROM `" . DB_PREFIX . "razorpay_plans` WHERE entity_id='" . (int)$entity_id . "'")->row;
+        $this->rzpPdo->prepare("SELECT * FROM `" . DB_PREFIX . "razorpay_plans` WHERE entity_id = :entity_id");
+        $this->rzpPdo->bindParam(':entity_id', (int)$entity_id);
+        $query = $this->rzpPdo->execute();
+        $planData = $query->row;
         $recurring_id = $planData['recurring_id'];
-        $this->db->query("Delete FROM `" . DB_PREFIX . "product_recurring` WHERE recurring_id='" . (int)$recurring_id . "'")->row;
-        $this->db->query("Delete FROM `" . DB_PREFIX . "recurring` WHERE recurring_id='" . (int)$recurring_id . "'")->row;
-        $this->db->query("Delete FROM `" . DB_PREFIX . "recurring_description` WHERE recurring_id='" . (int)$recurring_id . "'")->row;
+
+        $this->rzpPdo->prepare("Delete FROM `" . DB_PREFIX . "product_recurring` WHERE recurring_id = :recurring_id");
+        $this->rzpPdo->bindParam(':recurring_id', (int)$recurring_id);
+        $this->rzpPdo->execute();
+
+        $this->rzpPdo->prepare("Delete FROM `" . DB_PREFIX . "recurring` WHERE recurring_id = :recurring_id");
+        $this->rzpPdo->bindParam(':recurring_id', (int)$recurring_id);
+        $this->rzpPdo->execute();
+
+        $this->rzpPdo->prepare("Delete FROM `" . DB_PREFIX . "recurring_description` WHERE recurring_id = :recurring_id");
+        $this->rzpPdo->bindParam(':recurring_id', (int)$recurring_id);
+        $this->rzpPdo->execute();
     }
 
     public function getSubscription($data = array())
@@ -527,13 +542,22 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function addLayout()
     {
-        $this->db->query("INSERT INTO " . DB_PREFIX . "layout SET name = 'razorpay' ");
+        $this->rzpPdo->prepare("INSERT INTO " . DB_PREFIX . "layout SET name = :name");
+        $this->rzpPdo->bindParam(':name', 'razorpay');
+        $this->rzpPdo->execute();
 
         $layout_id = $this->db->getLastId();
 
-        $this->db->query("INSERT INTO " . DB_PREFIX . "layout_route SET layout_id = '" . (int)$layout_id . "', store_id = 0, route = 'extension/payment/razorpay/subscriptions'");
+        $this->rzpPdo->prepare("INSERT INTO " . DB_PREFIX . "layout_route SET layout_id = :layout_id, store_id = 0, route = :route");
+        $this->rzpPdo->bindParam(':layout_id', (int)$layout_id);
+        $this->rzpPdo->bindParam(':route', 'extension/payment/razorpay/subscriptions');
+        $this->rzpPdo->execute();
 
-        $this->db->query("INSERT INTO " . DB_PREFIX . "layout_module SET layout_id = '" . (int)$layout_id . "', code = 'category', position = 'column_right', sort_order = 0 ");
+        $this->rzpPdo->prepare("INSERT INTO " . DB_PREFIX . "layout_module SET layout_id = :layout_id, code = :code, position = :position, sort_order = 0 ");
+        $this->rzpPdo->bindParam(':layout_id', (int)$layout_id);
+        $this->rzpPdo->bindParam(':code', 'category');
+        $this->rzpPdo->bindParam(':position', 'column_right');
+        $this->rzpPdo->execute();
     }
 
     public function updateOCRecurringStatus( $orderId, $status)
