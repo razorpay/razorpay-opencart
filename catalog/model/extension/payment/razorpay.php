@@ -1,6 +1,11 @@
 <?php
 use DB\mPDO;
 
+if(class_exists('mPDO')  === false)
+{
+    require_once __DIR__ . "/../../../../system/library/db/mPDO.php";
+}
+
 class ModelExtensionPaymentRazorpay extends Model
 {
     const RECURRING_ACTIVE      = 1;
