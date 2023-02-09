@@ -213,7 +213,7 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function getSubscriptionById($subscriptionId)
     {
-        $this->rzpPdo->prepare("SELECT *  FROM " . DB_PREFIX . "razorpay_subscriptions WHERE `subscription_id` = :subscriptionId) ");
+        $this->rzpPdo->prepare("SELECT *  FROM " . DB_PREFIX . "razorpay_subscriptions WHERE `subscription_id` = :subscriptionId");
         $this->rzpPdo->bindParam(':subscriptionId', $this->db->escape($subscriptionId));
         $query = $this->rzpPdo->execute();
 
@@ -237,7 +237,7 @@ class ModelExtensionPaymentRazorpay extends Model
         {
             $this->rzpPdo->bindParam(':updated_by', $this->db->escape($user));
         }
-        $this->rzpPdo->bindParam(':subscription_id', $this->db->escape($subscriptionId));
+        $this->rzpPdo->bindParam(':subscriptionId', $this->db->escape($subscriptionId));
         $this->rzpPdo->execute();
     }
 
