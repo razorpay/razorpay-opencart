@@ -2,7 +2,7 @@
 <modification>
 	<name>Razorpay Payment Extension</name>
 	<code>razorpay_payment_extension</code>
-	<version>5.0.2</version>
+	<version>5.1.0</version>
 	<author>Razorpay Team</author>
 	<link>https://github.com/razorpay/razorpay-opencart</link>
     <description>Razorpay Subscription Module menu</description>
