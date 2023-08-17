@@ -2,7 +2,8 @@
 namespace Opencart\Catalog\Controller\Extension\OcPaymentExample\Payment;
 class CreditCard extends \Opencart\System\Engine\Controller {
 	public function index(): string {
-		$this->load->language('extension/oc_payment_example/payment/credit_card');
+		// echo(json_encode($this->load->language('extension/oc_payment_example/payment/razorpay')));
+		$this->load->language('extension/oc_payment_example/payment/razorpay');
 
 		if (isset($this->session->data['payment_method'])) {
 			$data['logged'] = $this->customer->isLogged();
@@ -34,7 +35,8 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 	}
 
 	public function confirm(): void {
-		$this->load->language('extension/oc_payment_example/payment/credit_card');
+		// echo(json_encode($this->load->language('extension/oc_payment_example/payment/razorpay')));
+		$this->load->language('extension/oc_payment_example/payment/razorpay');
 
 		$json = [];
 
@@ -133,7 +135,8 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 	}
 
 	public function stored(): void {
-		$this->load->language('extension/oc_payment_example/payment/credit_card');
+		// echo(json_encode($this->load->language('extension/oc_payment_example/payment/razorpay')));
+		$this->load->language('extension/oc_payment_example/payment/razorpay');
 
 		$json = [];
 
@@ -216,7 +219,8 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 	}
 
 	public function delete(): void {
-		$this->load->language('extension/oc_payment_example/payment/credit_card');
+		// echo(json_encode($this->load->language('extension/oc_payment_example/payment/razorpay')));
+		$this->load->language('extension/oc_payment_example/payment/razorpay');
 
 		$json = [];
 
