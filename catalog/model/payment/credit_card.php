@@ -2,7 +2,8 @@
 namespace Opencart\Catalog\Model\Extension\OcPaymentExample\Payment;
 class CreditCard extends \Opencart\System\Engine\Model {
 	public function getMethods(array $address): array {
-		$this->load->language('extension/oc_payment_example/payment/credit_card');
+		// echo(json_encode($this->load->language('extension/oc_payment_example/payment/razorpay')));
+		$this->load->language('extension/oc_payment_example/payment/razorpay');
 
 		if (!$this->config->get('config_checkout_payment_address')) {
 			$status = true;

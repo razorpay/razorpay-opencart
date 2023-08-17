@@ -1,6 +1,6 @@
 <?php
 // Heading
-$_['heading_title']         = 'Credit Card';
+$_['heading_title']         = 'Razorpay';
 
 // Text
 $_['text_description']      = 'This payment method is a dummy one and will not store credit card information nor should it be used on a live site. This extension is here for developers that need to create a payment gateway integration.';

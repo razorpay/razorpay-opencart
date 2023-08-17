@@ -1,6 +1,6 @@
 <?php
 // Heading
-$_['heading_title']      = 'Credit Card Payment';
+$_['heading_title']      = 'Razorpay Payment';
 
 // Text
 $_['text_title']         = 'Please enter your card details below';
