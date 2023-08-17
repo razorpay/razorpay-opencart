@@ -2,8 +2,13 @@
 namespace Opencart\Admin\Controller\Extension\OcPaymentExample\Payment;
 class CreditCard extends \Opencart\System\Engine\Controller {
 	public function index(): void {
-		$this->load->language('extension/oc_payment_example/payment/credit_card');
-
+		// echo(json_encode($this->load->language('extension/oc_payment_example/payment/razorpay')));
+		try {
+			$this->load->language('extension/oc_payment_example/payment/razorpay');
+		}
+		catch (\Exception $e) {
+			echo($e->getMessage());
+		}
 		$this->document->setTitle($this->language->get('heading_title'));
 
 		$data['breadcrumbs'] = [];
@@ -55,7 +60,8 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 	}
 
 	public function save(): void {
-		$this->load->language('extension/oc_payment_example/payment/credit_card');
+		// echo(json_encode($this->load->language('extension/oc_payment_example/payment/razorpay')));
+		$this->load->language('extension/oc_payment_example/payment/razorpay');
 
 		$json = [];
 
@@ -92,7 +98,8 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 	}
 
 	public function report(): void {
-		$this->load->language('extension/oc_payment_example/payment/credit_card');
+		// echo(json_encode($this->load->language('extension/oc_payment_example/payment/razorpay')));
+		$this->load->language('extension/oc_payment_example/payment/razorpay');
 
 		$this->response->setOutput($this->getReport());
 	}
