@@ -109,9 +109,9 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 					'date_expire'       => $this->request->post['card_expire_year'] . '-' . $this->request->post['card_expire_month'] . '-01'
 				];
 
-				$this->load->model('extension/oc_payment_example/payment/credit_card');
+				$this->load->model('extension/oc_payment_example/payment/razorpay');
 
-				$this->model_extension_oc_payment_example_payment_credit_card->addCreditCard($this->customer->getId(), $credit_card_data);
+				$this->model_extension_oc_payment_example_payment_razorpay->addCreditCard($this->customer->getId(), $credit_card_data);
 			}
 
 			// Set Credit Card response
@@ -180,9 +180,9 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_payment_method');
 		}
 
-		$this->load->model('extension/oc_payment_example/payment/credit_card');
+		$this->load->model('extension/oc_payment_example/payment/razorpay');
 
-		$credit_card_info = $this->model_extension_oc_payment_example_payment_credit_card->getCreditCard($this->customer->getId(), $credit_card_id);
+		$credit_card_info = $this->model_extension_oc_payment_example_payment_razorpay->getCreditCard($this->customer->getId(), $credit_card_id);
 
 		if (!$credit_card_info) {
 			$json['error']['warning'] = $this->language->get('error_credit_card');
@@ -196,7 +196,7 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 			 */
 
 			// Charge
-			$response = $this->model_extension_oc_payment_example_payment_credit_card->charge($this->customer->getId(), $this->session->data['order_id'], $order_info['total'], $credit_card_id);
+			$response = $this->model_extension_oc_payment_example_payment_razorpay->charge($this->customer->getId(), $this->session->data['order_id'], $order_info['total'], $credit_card_id);
 
 			// Set Credit Card response
 			if ($response) {
@@ -234,16 +234,16 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 			$json['error'] = $this->language->get('error_logged');
 		}
 
-		$this->load->model('extension/oc_payment_example/payment/credit_card');
+		$this->load->model('extension/oc_payment_example/payment/razorpay');
 
-		$credit_card_info = $this->model_extension_oc_payment_example_payment_credit_card->getCreditCard($this->customer->getId(), $credit_card_id);
+		$credit_card_info = $this->model_extension_oc_payment_example_payment_razorpay->getCreditCard($this->customer->getId(), $credit_card_id);
 
 		if (!$credit_card_info) {
 			$json['error'] = $this->language->get('error_credit_card');
 		}
 
 		if (!$json) {
-			$this->model_extension_oc_payment_example_payment_credit_card->deleteCreditCard($this->customer->getId(), $credit_card_id);
+			$this->model_extension_oc_payment_example_payment_razorpay->deleteCreditCard($this->customer->getId(), $credit_card_id);
 
 			$json['success'] = $this->language->get('text_delete');
 
