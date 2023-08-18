@@ -1,6 +1,6 @@
 <?php
 namespace Opencart\Admin\Model\Extension\OcPaymentExample\Payment;
-class CreditCard extends \Opencart\System\Engine\Model {
+class Razorpay extends \Opencart\System\Engine\Model {
 	public function install(): void {
 		$this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "credit_card` (
 			`credit_card_id` int(11) NOT NULL AUTO_INCREMENT,

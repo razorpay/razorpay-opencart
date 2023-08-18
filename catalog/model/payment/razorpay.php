@@ -1,6 +1,6 @@
 <?php
 namespace Opencart\Catalog\Model\Extension\OcPaymentExample\Payment;
-class CreditCard extends \Opencart\System\Engine\Model {
+class Razorpay extends \Opencart\System\Engine\Model {
 	public function getMethods(array $address): array {
 		// echo(json_encode($this->load->language('extension/oc_payment_example/payment/razorpay')));
 		$this->load->language('extension/oc_payment_example/payment/razorpay');
