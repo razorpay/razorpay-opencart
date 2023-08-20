@@ -1,6 +1,8 @@
 <?php
 namespace Opencart\Admin\Controller\Extension\OcPaymentExample\Payment;
 class CreditCard extends \Opencart\System\Engine\Controller {
+	const WEBHOOK_URL    = HTTP_CATALOG . 'index.php?route=extension/payment/razorpay/webhook';
+	
 	private $error = [];
 
 	public function index(): void {
