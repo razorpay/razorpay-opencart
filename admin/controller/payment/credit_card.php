@@ -1,6 +1,8 @@
 <?php
 namespace Opencart\Admin\Controller\Extension\OcPaymentExample\Payment;
 class CreditCard extends \Opencart\System\Engine\Controller {
+	private $error = [];
+
 	public function index(): void {
 		// try {
 		// 	$this->language->load('extension/oc_payment_example/payment/razorpay');
@@ -295,7 +297,7 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 
 		$json = [];
 
-		if (!$this->user->hasPermission('modify', 'extension/oc_payment_example/payment/credit_card')) {
+		if (!$this->user->hasPermission('modify', 'extension/oc_payment_example/payment/razorpay')) {
 			$json['error'] = $this->language->get('error_permission');
 		}
 
@@ -312,10 +314,22 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 	}
 
 	public function install(): void {
-		$this->load->model('extension/oc_payment_example/payment/razorpay');
-        
-        $this->model_oc_payment_example_payment_razorpay->createTables();
-        $this->model_oc_payment_example_payment_razorpay->addLayout();
+		try {
+			// if ($this->user->hasPermission('modify', 'extension/payment')) {
+			// 	$this->load->model('extension/oc_payment_example/payment/credit_card');
+
+			// 	$this->model_extension_oc_payment_example_payment_credit_card->install();
+			// }
+			$this->load->model('extension/oc_payment_example/payment/razorpay');
+
+			$this->model_extension_oc_payment_example_payment_razorpay->install();
+			// $this->model_extension_oc_payment_example_payment_razorpay->createTables();
+			// $this->model_extension_oc_payment_example_payment_razorpay->addLayout();
+		}
+		catch(\Exception $e) {
+			echo(json_encode($e->getMessage()));
+			echo(json_encode($e->getTrace()));
+		}
 		// if ($this->user->hasPermission('modify', 'extension/payment')) {
 		// 	$this->load->model('extension/oc_payment_example/payment/credit_card');
 
@@ -324,9 +338,15 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 	}
 
 	public function uninstall(): void {
-		$this->load->model('extension/oc_payment_example/payment/razorpay');
-
-        $this->model_oc_payment_example_payment_razorpay->dropTables();
+		try{ 
+			$this->load->model('extension/oc_payment_example/payment/razorpay');
+			$this->model_extension_oc_payment_example_payment_razorpay->uninstall();
+    	    // $this->model_extension_oc_payment_example_payment_razorpay->dropTables();
+		}
+		catch(\Exception $e) {
+			echo(json_encode($e->getMessage()));
+			echo(json_encode($e->getTrace()));
+		}
 		// if ($this->user->hasPermission('modify', 'extension/payment')) {
 		// 	$this->load->model('extension/oc_payment_example/payment/credit_card');
 
