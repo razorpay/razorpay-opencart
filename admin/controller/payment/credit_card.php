@@ -117,10 +117,10 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 				'href' => $this->url->link('extension/oc_payment_example/payment/razorpay', 'user_token='.$this->session->data['user_token'], 'SSL'),
 				'separator' => ' :: ',
 			);
+			// echo('before save');
+			$data['save'] = $this->url->link('extension/oc_payment_example/payment/razorpay.save', 'user_token=' . $this->session->data['user_token'], 'SSL');
 
-			$data['action'] = $this->url->link('extension/oc_payment_example/payment/razorpay', 'user_token=' . $this->session->data['user_token'], true);
-
-			$data['cancel'] = $this->url->link('extension/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true);
+			$data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', 'SSL');
 
 			if (isset($this->request->post['payment_razorpay_key_id']))
 			{
