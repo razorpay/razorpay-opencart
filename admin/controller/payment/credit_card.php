@@ -114,11 +114,11 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 
 			$data['breadcrumbs'][] = array(
 				'text' => $this->language->get('heading_title'),
-				'href' => $this->url->link('extension/oc_payment_example/payment/razorpay', 'user_token='.$this->session->data['user_token'], 'SSL'),
+				'href' => $this->url->link('extension/oc_payment_example/payment/credit_card', 'user_token='.$this->session->data['user_token'], 'SSL'),
 				'separator' => ' :: ',
 			);
 			// echo('before save');
-			$data['save'] = $this->url->link('extension/oc_payment_example/payment/razorpay.save', 'user_token=' . $this->session->data['user_token'], 'SSL');
+			$data['save'] = $this->url->link('extension/oc_payment_example/payment/credit_card.save', 'user_token=' . $this->session->data['user_token']);
 
 			$data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', 'SSL');
 
@@ -302,7 +302,7 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 		$this->load->language('extension/oc_payment_example/payment/razorpay');
 
 		$json = [];
-
+		echo('In save');
 		if (!$this->user->hasPermission('modify', 'extension/oc_payment_example/payment/razorpay')) {
 			$json['error'] = $this->language->get('error_permission');
 		}
