@@ -1,5 +1,6 @@
 <?php
-namespace DB;
+namespace Opencart\Admin\Controller\Extension\OcPaymentExample\Payment;
+
 final class MPDO
 {
     private $pdo = null;

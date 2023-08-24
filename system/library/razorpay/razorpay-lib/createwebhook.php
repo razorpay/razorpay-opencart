@@ -1,6 +1,7 @@
 <?php
+namespace Opencart\Admin\Controller\Extension\OcPaymentExample\Payment;
 
-require_once __DIR__.'/../razorpay-sdk/Razorpay.php';
+require_once __DIR__.'../../razorpay-sdk/Razorpay.php';
 require_once __DIR__.'/../../log.php';
 use Razorpay\Api\Api;
 use Razorpay\Api\Errors;
