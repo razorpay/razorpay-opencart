@@ -2,7 +2,8 @@
 namespace Opencart\Admin\Controller\Extension\OcPaymentExample\Payment;
 
 require_once __DIR__.'../../razorpay-sdk/Razorpay.php';
-require_once __DIR__.'/../../log.php';
+require_once __DIR__.'../../../../../../../system/library/log.php';
+use Opencart\System\Library\Log;
 use Razorpay\Api\Api;
 use Razorpay\Api\Errors;
 
