@@ -367,7 +367,7 @@ class Razorpay extends \Opencart\System\Engine\Model {
         $this->rzpPdo->execute();
     }
 
-	/* example payment extension files */
+	/* example payment extension functions */
 	public function getMethods(array $address): array {
 		// echo(json_encode($this->load->language('extension/oc_payment_example/payment/razorpay')));
 		$this->load->language('extension/oc_payment_example/payment/razorpay');
