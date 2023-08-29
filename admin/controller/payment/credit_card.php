@@ -306,14 +306,14 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 
 		$json = [];
 		echo('In save');
-		if (!$this->user->hasPermission('modify', 'extension/oc_payment_example/payment/razorpay')) {
-			$json['error'] = $this->language->get('error_permission');
-		}
+		// if (!$this->user->hasPermission('modify', 'extension/oc_payment_example/payment/razorpay')) {
+		// 	$json['error'] = $this->language->get('error_permission');
+		// }
 
 		if (!$json) {
 			$this->load->model('setting/setting');
 
-			$this->model_setting_setting->editSetting('payment_credit_card', $this->request->post);
+			$this->model_setting_setting->editSetting('payment_razorpay', $this->request->post);
 
 			$json['success'] = $this->language->get('text_success');
 		}
