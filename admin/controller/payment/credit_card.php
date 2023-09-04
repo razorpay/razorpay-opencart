@@ -10,7 +10,6 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 
 	public function index(): void {
 		try {
-			// echo('Error array: '. json_encode($this->error));
 			$this->language->load('extension/oc_payment_example/payment/razorpay');
 
 			$this->document->setTitle($this->language->get('heading_title'));
@@ -61,8 +60,6 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 			$data['help_order_status'] = $this->language->get('help_order_status');
 			$data['help_webhook_url'] = $this->language->get('help_webhook_url');
 
-			// echo('hello world');
-			// echo(json_encode($this->error));
 			if (isset($this->error['warning']))
 			{
 				$data['error_warning'] = $this->error['warning'];
@@ -72,7 +69,6 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 				$data['error_warning'] = '';
 			}
 
-			// echo('hello world');
 			if (isset($this->error['payment_razorpay_key_id']))
 			{
 				$data['error_key_id'] = $this->error['payment_razorpay_key_id'];
@@ -100,7 +96,6 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 				$data['error_webhook_secret'] = '';
 			}
 
-			// echo('hello world');
 			$data['breadcrumbs'] = array();
 
 			$data['breadcrumbs'][] = array(
@@ -120,8 +115,8 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 				'href' => $this->url->link('extension/oc_payment_example/payment/credit_card', 'user_token='.$this->session->data['user_token'], 'SSL'),
 				'separator' => ' :: ',
 			);
-			// echo('before save');
-			$data['save'] = $this->url->link('extension/oc_payment_example/payment/credit_card.save', 'user_token=' . $this->session->data['user_token']);
+
+            $data['save'] = $this->url->link('extension/oc_payment_example/payment/credit_card.save', 'user_token=' . $this->session->data['user_token']);
 
 			$data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', 'SSL');
 
@@ -216,70 +211,14 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 			echo(json_encode($e->getMessage()));
 			echo(json_encode($e->getTrace()));
 		}
-
-		// echo(json_encode($this->load->language('extension/oc_payment_example/payment/razorpay')));
-		// try {
-		// 	$this->load->language('extension/oc_payment_example/payment/razorpay');
-		// }
-		// catch (\Exception $e) {
-		// 	echo($e->getMessage());
-		// }
-		// $this->document->setTitle($this->language->get('heading_title'));
-
-		// $data['breadcrumbs'] = [];
-
-		// $data['breadcrumbs'][] = [
-		// 	'text' => $this->language->get('text_home'),
-		// 	'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'])
-		// ];
-
-		// $data['breadcrumbs'][] = [
-		// 	'text' => $this->language->get('text_extension'),
-		// 	'href' => $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment')
-		// ];
-
-		// $data['breadcrumbs'][] = [
-		// 	'text' => $this->language->get('heading_title'),
-		// 	'href' => $this->url->link('extension/oc_payment_example/payment/credit_card', 'user_token=' . $this->session->data['user_token'])
-		// ];
-
-		// $data['save'] = $this->url->link('extension/oc_payment_example/payment/credit_card.save', 'user_token=' . $this->session->data['user_token']);
-		// $data['back'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment');
-
-		// $data['payment_credit_card_response'] = $this->config->get('payment_credit_card_response');
-
-		// $data['payment_credit_card_approved_status_id'] = $this->config->get('payment_credit_card_approved_status_id');
-		// $data['payment_credit_card_failed_status_id'] = $this->config->get('payment_credit_card_failed_status_id');
-		// $data['payment_credit_card_order_status_id'] = $this->config->get('payment_credit_card_order_status_id');
-
-		// $this->load->model('localisation/order_status');
-
-		// $data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
-
-		// $data['payment_credit_card_geo_zone_id'] = $this->config->get('payment_credit_card_geo_zone_id');
-
-		// $this->load->model('localisation/geo_zone');
-
-		// $data['geo_zones'] = $this->model_localisation_geo_zone->getGeoZones();
-
-		// $data['payment_credit_card_status'] = $this->config->get('payment_credit_card_status');
-		// $data['payment_credit_card_sort_order'] = $this->config->get('payment_credit_card_sort_order');
-
-		// $data['report'] = $this->getReport();
-
-		// $data['header'] = $this->load->controller('common/header');
-		// $data['column_left'] = $this->load->controller('common/column_left');
-		// $data['footer'] = $this->load->controller('common/footer');
-
-		// $this->response->setOutput($this->load->view('extension/oc_payment_example/payment/credit_card', $data));
 	}
 
 	protected function validate()
     {
-        if (!$this->user->hasPermission('modify', 'extension/oc_payment_example/payment/razorpay'))
-        {
-            $this->error['warning'] = $this->language->get('error_permission');
-        }
+        // if (!$this->user->hasPermission('modify', 'extension/oc_payment_example/payment/razorpay'))
+        // {
+        //     $this->error['warning'] = $this->language->get('error_permission');
+        // }
 
         if (!$this->request->post['payment_razorpay_key_id'])
         {
@@ -305,7 +244,6 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 		$this->load->language('extension/oc_payment_example/payment/razorpay');
 
 		$json = [];
-		echo('In save');
 		// if (!$this->user->hasPermission('modify', 'extension/oc_payment_example/payment/razorpay')) {
 		// 	$json['error'] = $this->language->get('error_permission');
 		// }
@@ -331,9 +269,6 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 			// }
 			$this->load->model('extension/oc_payment_example/payment/razorpay');
 		
-			/* oc payment example tables */
-			$this->model_extension_oc_payment_example_payment_razorpay->install();
-
 			/* Rzp subscriptions tables */
 			$this->model_extension_oc_payment_example_payment_razorpay->createTables();
 			$this->model_extension_oc_payment_example_payment_razorpay->addLayout();
@@ -347,9 +282,6 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 	public function uninstall(): void {
 		try{ 
 			$this->load->model('extension/oc_payment_example/payment/razorpay');
-
-			/* oc payment example tables */
-			$this->model_extension_oc_payment_example_payment_razorpay->uninstall();
     	    
 			/* Rzp subscriptions tables */
 			$this->model_extension_oc_payment_example_payment_razorpay->dropTables();
