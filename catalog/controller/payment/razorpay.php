@@ -1,9 +1,9 @@
 <?php
-namespace Opencart\Catalog\Controller\Extension\OcPaymentExample\Payment;
-class CreditCard extends \Opencart\System\Engine\Controller {
+namespace Opencart\Catalog\Controller\Extension\Razorpay\Payment;
+class Razorpay extends \Opencart\System\Engine\Controller {
 	public function index(): string {
-		// echo(json_encode($this->load->language('extension/oc_payment_example/payment/razorpay')));
-		$this->load->language('extension/oc_payment_example/payment/razorpay');
+		// echo(json_encode($this->load->language('extension/razorpay/payment/razorpay')));
+		$this->load->language('extension/razorpay/payment/razorpay');
 
 		if (isset($this->session->data['payment_method'])) {
 			$data['logged'] = $this->customer->isLogged();
@@ -24,10 +24,10 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 			$data['language'] = $this->config->get('config_language');
 
 			// Card storage
-			if ($this->session->data['payment_method']['code'] == 'credit_card.credit_card') {
-				return $this->load->view('extension/oc_payment_example/payment/credit_card', $data);
+			if ($this->session->data['payment_method']['code'] == 'razorpay.razorpay') {
+				return $this->load->view('extension/razorpay/payment/razorpay', $data);
 			} else {
-				return $this->load->view('extension/oc_payment_example/payment/stored', $data);
+				return $this->load->view('extension/razorpay/payment/stored', $data);
 			}
 		}
 
@@ -35,8 +35,8 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 	}
 
 	public function confirm(): void {
-		// echo(json_encode($this->load->language('extension/oc_payment_example/payment/razorpay')));
-		$this->load->language('extension/oc_payment_example/payment/razorpay');
+		// echo(json_encode($this->load->language('extension/razorpay/payment/razorpay')));
+		$this->load->language('extension/razorpay/payment/razorpay');
 
 		$json = [];
 
@@ -69,7 +69,7 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_order');
 		}
 
-		if (!$this->config->get('payment_credit_card_status') || !isset($this->session->data['payment_method']) || $this->session->data['payment_method']['code'] != 'credit_card.credit_card') {
+		if (!$this->config->get('payment_razorpay_status') || !isset($this->session->data['payment_method']) || $this->session->data['payment_method']['code'] != 'razorpay.razorpay') {
 			$json['error']['warning'] = $this->language->get('error_payment_method');
 		}
 
@@ -96,11 +96,11 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 			*
 			*/
 
-			$response = $this->config->get('payment_credit_card_response');
+			$response = $this->config->get('payment_razorpay_response');
 
 			// Card storage
 			if ($this->customer->isLogged() && ($this->request->post['store'] || $this->cart->hasSubscription())) {
-				$credit_card_data = [
+				$razorpay_data = [
 					'card_name'         => $this->request->post['card_name'],
 					'card_number'       => '**** **** **** ' . substr($this->request->post['card_number'], -4),
 					'card_expire_month' => $this->request->post['card_expire_month'],
@@ -109,22 +109,22 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 					'date_expire'       => $this->request->post['card_expire_year'] . '-' . $this->request->post['card_expire_month'] . '-01'
 				];
 
-				$this->load->model('extension/oc_payment_example/payment/razorpay');
+				$this->load->model('extension/razorpay/payment/razorpay');
 
-				$this->model_extension_oc_payment_example_payment_razorpay->addCreditCard($this->customer->getId(), $credit_card_data);
+				$this->model_extension_razorpay_payment_razorpay->addCreditCard($this->customer->getId(), $razorpay_data);
 			}
 
 			// Set Credit Card response
 			if ($response) {
 				$this->load->model('checkout/order');
 
-				$this->model_checkout_order->addHistory($this->session->data['order_id'], $this->config->get('payment_credit_card_approved_status_id'), '', true);
+				$this->model_checkout_order->addHistory($this->session->data['order_id'], $this->config->get('payment_razorpay_approved_status_id'), '', true);
 
 				$json['redirect'] = $this->url->link('checkout/success', 'language=' . $this->config->get('config_language'), true);
 			} else {
 				$this->load->model('checkout/order');
 
-				$this->model_checkout_order->addHistory($this->session->data['order_id'], $this->config->get('payment_credit_card_failed_status_id'), '', true);
+				$this->model_checkout_order->addHistory($this->session->data['order_id'], $this->config->get('payment_razorpay_failed_status_id'), '', true);
 
 				$json['redirect'] = $this->url->link('checkout/failure', 'language=' . $this->config->get('config_language'), true);
 			}
@@ -135,8 +135,8 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 	}
 
 	public function stored(): void {
-		// echo(json_encode($this->load->language('extension/oc_payment_example/payment/razorpay')));
-		$this->load->language('extension/oc_payment_example/payment/razorpay');
+		// echo(json_encode($this->load->language('extension/razorpay/payment/razorpay')));
+		$this->load->language('extension/razorpay/payment/razorpay');
 
 		$json = [];
 
@@ -159,9 +159,9 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 		}
 
 		if (isset($payment[1])) {
-			$credit_card_id = $payment[1];
+			$razorpay_id = $payment[1];
 		} else {
-			$credit_card_id = 0;
+			$razorpay_id = 0;
 		}
 
 		$this->load->model('checkout/order');
@@ -176,16 +176,16 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 			$json['error']['warning'] = $this->language->get('error_login');
 		}
 
-		if (!$this->config->get('payment_credit_card_status') || $payment_method != 'credit_card') {
+		if (!$this->config->get('payment_razorpay_status') || $payment_method != 'razorpay') {
 			$json['error']['warning'] = $this->language->get('error_payment_method');
 		}
 
-		$this->load->model('extension/oc_payment_example/payment/razorpay');
+		$this->load->model('extension/razorpay/payment/razorpay');
 
-		$credit_card_info = $this->model_extension_oc_payment_example_payment_razorpay->getCreditCard($this->customer->getId(), $credit_card_id);
+		$razorpay_info = $this->model_extension_razorpay_payment_razorpay->getCreditCard($this->customer->getId(), $razorpay_id);
 
-		if (!$credit_card_info) {
-			$json['error']['warning'] = $this->language->get('error_credit_card');
+		if (!$razorpay_info) {
+			$json['error']['warning'] = $this->language->get('error_razorpay');
 		}
 
 		if (!$json) {
@@ -196,19 +196,19 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 			 */
 
 			// Charge
-			$response = $this->model_extension_oc_payment_example_payment_razorpay->charge($this->customer->getId(), $this->session->data['order_id'], $order_info['total'], $credit_card_id);
+			$response = $this->model_extension_razorpay_payment_razorpay->charge($this->customer->getId(), $this->session->data['order_id'], $order_info['total'], $razorpay_id);
 
 			// Set Credit Card response
 			if ($response) {
 				$this->load->model('checkout/order');
 
-				$this->model_checkout_order->addHistory($this->session->data['order_id'], $this->config->get('payment_credit_card_approved_status_id'), '', true);
+				$this->model_checkout_order->addHistory($this->session->data['order_id'], $this->config->get('payment_razorpay_approved_status_id'), '', true);
 
 				$json['redirect'] = $this->url->link('checkout/success', 'language=' . $this->config->get('config_language'), true);
 			} else {
 				$this->load->model('checkout/order');
 
-				$this->model_checkout_order->addHistory($this->session->data['order_id'], $this->config->get('payment_credit_card_failed_status_id'), '', true);
+				$this->model_checkout_order->addHistory($this->session->data['order_id'], $this->config->get('payment_razorpay_failed_status_id'), '', true);
 
 				$json['redirect'] = $this->url->link('checkout/failure', 'language=' . $this->config->get('config_language'), true);
 			}
@@ -219,31 +219,31 @@ class CreditCard extends \Opencart\System\Engine\Controller {
 	}
 
 	public function delete(): void {
-		// echo(json_encode($this->load->language('extension/oc_payment_example/payment/razorpay')));
-		$this->load->language('extension/oc_payment_example/payment/razorpay');
+		// echo(json_encode($this->load->language('extension/razorpay/payment/razorpay')));
+		$this->load->language('extension/razorpay/payment/razorpay');
 
 		$json = [];
 
-		if (isset($this->request->get['credit_card_id'])) {
-			$credit_card_id = (int)$this->request->get['credit_card_id'];
+		if (isset($this->request->get['razorpay_id'])) {
+			$razorpay_id = (int)$this->request->get['razorpay_id'];
 		} else {
-			$credit_card_id = 0;
+			$razorpay_id = 0;
 		}
 
 		if (!$this->customer->isLogged()) {
 			$json['error'] = $this->language->get('error_logged');
 		}
 
-		$this->load->model('extension/oc_payment_example/payment/razorpay');
+		$this->load->model('extension/razorpay/payment/razorpay');
 
-		$credit_card_info = $this->model_extension_oc_payment_example_payment_razorpay->getCreditCard($this->customer->getId(), $credit_card_id);
+		$razorpay_info = $this->model_extension_razorpay_payment_razorpay->getCreditCard($this->customer->getId(), $razorpay_id);
 
-		if (!$credit_card_info) {
-			$json['error'] = $this->language->get('error_credit_card');
+		if (!$razorpay_info) {
+			$json['error'] = $this->language->get('error_razorpay');
 		}
 
 		if (!$json) {
-			$this->model_extension_oc_payment_example_payment_razorpay->deleteCreditCard($this->customer->getId(), $credit_card_id);
+			$this->model_extension_razorpay_payment_razorpay->deleteCreditCard($this->customer->getId(), $razorpay_id);
 
 			$json['success'] = $this->language->get('text_delete');
 
