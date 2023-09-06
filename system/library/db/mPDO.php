@@ -1,5 +1,5 @@
 <?php
-namespace Opencart\Admin\Controller\Extension\OcPaymentExample\Payment;
+namespace Opencart\Admin\Controller\Extension\Razorpay\Payment;
 
 final class MPDO
 {

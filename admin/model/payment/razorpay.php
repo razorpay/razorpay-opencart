@@ -1,7 +1,7 @@
 <?php
-namespace Opencart\Admin\Model\Extension\OcPaymentExample\Payment;
+namespace Opencart\Admin\Model\Extension\Razorpay\Payment;
 
-use Opencart\Admin\Controller\Extension\OcPaymentExample\Payment\MPDO;
+use Opencart\Admin\Controller\Extension\Razorpay\Payment\MPDO;
 
 if(class_exists('mPDO')  === false)
 {
