@@ -29,17 +29,28 @@ class Razorpay extends \Opencart\System\Engine\Model {
         $this->rzpPdo = new mPDO(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
     }
 
-	public function getMethod($address, $total)
+	public function getMethods($address)
     {
-        $this->language->load('extension/payment/razorpay');
+        $this->language->load('extension/razorpay/payment/razorpay');
+
+        $option_data['razorpay'] = [
+            'code' => 'razorpay.razorpay',
+            'name' => $this->language->get('text_title')
+        ];
 
         $method_data = array(
-            'code' => 'razorpay',
-            'title' => $this->language->get('text_title'),
-            'terms' => '',
-            'sort_order' => $this->config->get('payment_razorpay_sort_order'),
+            'code'          => 'razorpay',
+            'option'        => $option_data,
+            'name'          => $this->language->get('heading_title'),
+            'sort_order'    => $this->config->get('payment_razorpay_sort_order'),
         );
 
+        // $method_data = [
+            // 			'code'       => 'credit_card',
+            // 			'name'       => $this->language->get('heading_title'),
+            // 			'option'     => $option_data,
+            // 			'sort_order' => $this->config->get('payment_credit_card_sort_order')
+            // 		];
         return $method_data;
     }
 
@@ -368,9 +379,9 @@ class Razorpay extends \Opencart\System\Engine\Model {
     }
 
 	/* example payment extension functions */
-	public function getMethods(array $address): array {
-		// echo(json_encode($this->load->language('extension/oc_payment_example/payment/razorpay')));
-		$this->load->language('extension/oc_payment_example/payment/razorpay');
+	public function getMethod(array $address): array {
+		// echo(json_encode($this->load->language('extension/razorpay/payment/razorpay')));
+		$this->load->language('extension/razorpay/payment/razorpay');
 
 		if (!$this->config->get('config_checkout_payment_address')) {
 			$status = true;
