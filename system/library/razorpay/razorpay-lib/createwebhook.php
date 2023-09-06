@@ -1,5 +1,5 @@
 <?php
-namespace Opencart\Admin\Controller\Extension\OcPaymentExample\Payment;
+namespace Opencart\Admin\Controller\Extension\Razorpay\Payment;
 
 require_once __DIR__.'../../razorpay-sdk/Razorpay.php';
 require_once __DIR__.'../../../../../../../system/library/log.php';

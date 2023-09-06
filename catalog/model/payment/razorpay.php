@@ -1,13 +1,5 @@
 <?php
-namespace Opencart\Catalog\Model\Extension\OcPaymentExample\Payment;
-
-use Opencart\Admin\Controller\Extension\OcPaymentExample\Payment\MPDO;
-
-if(class_exists('mPDO')  === false)
-{
-    require_once __DIR__ . "../../../../system/library/db/mPDO.php";
-}
-
+namespace Opencart\Catalog\Model\Extension\Razorpay\Payment;
 class Razorpay extends \Opencart\System\Engine\Model {
 	const RECURRING_ACTIVE      = 1;
     const RECURRING_INACTIVE    = 2;
