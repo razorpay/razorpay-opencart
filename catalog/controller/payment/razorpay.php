@@ -11,7 +11,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     const PAYMENT_AUTHORIZED        = 'payment.authorized';
     const PAYMENT_FAILED            = 'payment.failed';
     const ORDER_PAID                = 'order.paid';
-    const WEBHOOK_URL               = HTTP_SERVER . 'index.php?route=extension/oc_payment_example/payment/webhook';
+    const WEBHOOK_URL               = HTTP_SERVER . 'index.php?route=extension/razorpay/payment/webhook';
     const SUBSCRIPTION_PAUSED       = 'subscription.paused';
     const SUBSCRIPTION_RESUMED      = 'subscription.resumed';
     const SUBSCRIPTION_CANCELLED    = 'subscription.cancelled';
@@ -41,7 +41,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             if ($this->cart->hasRecurringProducts() and 
             $this->config->get('payment_razorpay_subscription_status'))
             {
-                $this->load->model('extension/oc_payment_example/payment/razorpay');
+                $this->load->model('extension/razorpay/payment/razorpay');
 
                 //validate for non-subscription product and if recurring is product for more than 1
                 $this->validate_non_recurring_products();
@@ -60,7 +60,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                     $subscription_order = $this->api->subscription->create($subscriptionData['subscriptionData'])->toArray();
 
                     // Save subscription details to DB
-                    $this->model_extension_oc_payment_example_payment_razorpay->saveSubscriptionDetails($subscription_order, $subscriptionData["planData"], $subscriptionData['subscriptionData']['customer_id'], $this->session->data['order_id']);
+                    $this->model_extension_razorpay_payment_razorpay->saveSubscriptionDetails($subscription_order, $subscriptionData["planData"], $subscriptionData['subscriptionData']['customer_id'], $this->session->data['order_id']);
 
                     $this->session->data["razorpay_subscription_order_id_" . $this->session->data['order_id']] = $subscription_order['id'];
                     $data['razorpay_order_id'] = $this->session->data["razorpay_subscription_order_id_" . $this->session->data['order_id']];
@@ -88,7 +88,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                         "reference" => "Subscription Id ". $subscription_order['id']
                     ];
 
-                    $this->model_extension_oc_payment_example_payment_razorpay->createOCRecurring($recurringData);
+                    $this->model_extension_razorpay_payment_razorpay->createOCRecurring($recurringData);
 
 
                     $this->log->write("RZP subscriptionID (:" . $subscription_order['id'] . ") created for Opencart OrderID (:" . $this->session->data['order_id'] . ")");
@@ -145,8 +145,8 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
                 $webhookConfigData = $createWebhook->autoCreateWebhook();
 
-                $this->load->model('extension/oc_payment_example/payment/razorpay');
-                $this->model_extension_oc_payment_example_payment_razorpay->editSetting('payment_razorpay', $webhookConfigData);
+                $this->load->model('extension/razorpay/payment/razorpay');
+                $this->model_extension_razorpay_payment_razorpay->editSetting('payment_razorpay', $webhookConfigData);
             }
         }
         catch(\Razorpay\Api\Errors\Error $e)
@@ -164,7 +164,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $data['phone'] = $order_info['telephone'];
         $data['name'] = $this->config->get('config_name');
         $data['lang'] = $this->session->data['language'];
-        $data['return_url'] = $this->url->link('extension/oc_payment_example/payment/callback', '', 'true');
+        $data['return_url'] = $this->url->link('extension/razorpay/payment/callback', '', 'true');
         $data['version'] = $this->version;
         $data['oc_version'] = VERSION;
 
@@ -174,16 +174,16 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $data['api_url']    = $this->api->getBaseUrl();
         $data['cancel_url'] =  $this->url->link('checkout/checkout', '', 'true');
 
-        if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/extension/oc_payment_example/payment'))
+        if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/extension/razorpay/payment'))
         {
-            return $this->load->view($this->config->get('config_template') . '/template/extension/oc_payment_example/payment', $data);
+            return $this->load->view($this->config->get('config_template') . '/template/extension/razorpay/payment', $data);
         }
         else
         {
-            return $this->load->view('extension/oc_payment_example/payment', $data);
+            return $this->load->view('extension/razorpay/payment', $data);
         }
-		// // echo(json_encode($this->load->language('extension/oc_payment_example/payment/razorpay')));
-		// $this->load->language('extension/oc_payment_example/payment/razorpay');
+		// // echo(json_encode($this->load->language('extension/razorpay/payment/razorpay')));
+		// $this->load->language('extension/razorpay/payment/razorpay');
 
 		// if (isset($this->session->data['payment_method'])) {
 		// 	$data['logged'] = $this->customer->isLogged();
@@ -205,9 +205,9 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
 		// 	// Card storage
 		// 	if ($this->session->data['payment_method']['code'] == 'credit_card.credit_card') {
-		// 		return $this->load->view('extension/oc_payment_example/payment/credit_card', $data);
+		// 		return $this->load->view('extension/razorpay/payment/credit_card', $data);
 		// 	} else {
-		// 		return $this->load->view('extension/oc_payment_example/payment/stored', $data);
+		// 		return $this->load->view('extension/razorpay/payment/stored', $data);
 		// 	}
 		// }
 
@@ -247,13 +247,13 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
     private function get_subscription_order_creation_data($order_id)
     {
-        $this->load->model('extension/oc_payment_example/payment/razorpay');
+        $this->load->model('extension/razorpay/payment/razorpay');
 
         $order = $this->model_checkout_order->getOrder($order_id);
         $recurringPlanData = $this->cart->getProducts()[0]["recurring"];
         $productId = $this->cart->getProducts()[0]['product_id'];
 
-        $planData = $this->model_extension_oc_payment_example_payment_razorpay->getPlanByRecurringIdAndFrequencyAndProductId($recurringPlanData['recurring_id'], $recurringPlanData['frequency'], $productId);
+        $planData = $this->model_extension_razorpay_payment_razorpay->getPlanByRecurringIdAndFrequencyAndProductId($recurringPlanData['recurring_id'], $recurringPlanData['frequency'], $productId);
 
         $subscriptionData = [
             "customer_id" => $this->getRazorpayCustomerData($order),
@@ -290,7 +290,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     public function callback()
     {
         $this->load->model('checkout/order');
-        $this->load->model('extension/oc_payment_example/payment/razorpay');
+        $this->load->model('extension/razorpay/payment/razorpay');
 
         if (isset($this->request->request['razorpay_payment_id']) === true)
         {
@@ -331,15 +331,15 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                 {
                     $subscriptionData = $this->api->subscription->fetch($razorpay_subscription_id)->toArray();
 
-                    $planData = $this->model_extension_oc_payment_example_payment_razorpay->fetchRZPPlanById($subscriptionData['plan_id']);
-                    $this->model_extension_oc_payment_example_payment_razorpay->updateSubscription($subscriptionData, $razorpay_subscription_id);
+                    $planData = $this->model_extension_razorpay_payment_razorpay->fetchRZPPlanById($subscriptionData['plan_id']);
+                    $this->model_extension_razorpay_payment_razorpay->updateSubscription($subscriptionData, $razorpay_subscription_id);
 
                     // Update oC recurring table and OC recurring transaction
-                    $this->model_extension_oc_payment_example_payment_razorpay->updateOCRecurringStatus($this->session->data['order_id'], 1);
+                    $this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($this->session->data['order_id'], 1);
 
                     // Creating OC Recurring Transaction
-                    $ocRecurringData = $this->model_extension_oc_payment_example_payment_razorpay->getOCRecurringStatus($this->session->data['order_id']);
-                    $this->model_extension_oc_payment_example_payment_razorpay->addOCRecurringTransaction($ocRecurringData['order_recurring_id'], $razorpay_subscription_id, $planData['plan_bill_amount'], "success");
+                    $ocRecurringData = $this->model_extension_razorpay_payment_razorpay->getOCRecurringStatus($this->session->data['order_id']);
+                    $this->model_extension_razorpay_payment_razorpay->addOCRecurringTransaction($ocRecurringData['order_recurring_id'], $razorpay_subscription_id, $planData['plan_bill_amount'], "success");
                 }
 
                 $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id, true);
@@ -350,7 +350,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                 if ($isSubscriptionCallBack)
                 {
                     // Update oC recurring table for failed payment
-                    $this->model_extension_oc_payment_example_payment_razorpay->updateOCRecurringStatus($this->session->data['order_id'], 4);
+                    $this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($this->session->data['order_id'], 4);
                 }
                 $this->model_checkout_order->addOrderHistory($merchant_order_id, 10, $e->getMessage() . ' Payment Failed! Check Razorpay dashboard for details of Payment Id:' . $razorpay_payment_id);
 
@@ -628,12 +628,12 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     {
         if (!$this->customer->isLogged())
         {
-            $this->session->data['redirect'] = $this->url->link('extension/oc_payment_example/payment/razorpay/subscriptions', '', true);
+            $this->session->data['redirect'] = $this->url->link('extension/razorpay/payment/razorpay/subscriptions', '', true);
 
             $this->response->redirect($this->url->link('account/login', '', true));
         }
 
-        $this->load->language('extension/oc_payment_example/payment/razorpay');
+        $this->load->language('extension/razorpay/payment/razorpay');
         $this->document->setTitle($this->language->get('heading_title'));
 
         $url = '';
@@ -657,7 +657,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
         $data['breadcrumbs'][] = array(
             'text' => $this->language->get('heading_title'),
-            'href' => $this->url->link('extension/oc_payment_example/payment/razorpay/subscriptions', $url, true)
+            'href' => $this->url->link('extension/razorpay/payment/razorpay/subscriptions', $url, true)
         );
 
         if (isset($this->request->get['page']))
@@ -669,9 +669,9 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             $page = 1;
         }
 
-        $this->load->model('extension/oc_payment_example/payment/razorpay');
-        $recurring_total = $this->model_extension_oc_payment_example_payment_razorpay->getTotalOrderRecurring();
-        $results = $this->model_extension_oc_payment_example_payment_razorpay->getSubscriptionByUserId(($page - 1) * 10, 10);
+        $this->load->model('extension/razorpay/payment/razorpay');
+        $recurring_total = $this->model_extension_razorpay_payment_razorpay->getTotalOrderRecurring();
+        $results = $this->model_extension_razorpay_payment_razorpay->getSubscriptionByUserId(($page - 1) * 10, 10);
 
         foreach ($results as $result)
         {
@@ -687,7 +687,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                 'end_at' => isset($result['start_at']) ? date($this->language->get('date_format_short'), strtotime($result['end_at'])) : "",
                 'subscription_created_at' => isset($result['subscription_created_at']) ? date($this->language->get('date_format_short'), strtotime($result['subscription_created_at'])) : "",
                 'next_charge_at' => isset($result['next_charge_at']) ? date($this->language->get('date_format_short'), strtotime($result['next_charge_at'])) : "",
-                'view' => $this->url->link('extension/oc_payment_example/payment/razorpay/info', "subscription_id={$result['subscription_id']}", true),
+                'view' => $this->url->link('extension/razorpay/payment/razorpay/info', "subscription_id={$result['subscription_id']}", true),
             ];
         }
 
@@ -696,7 +696,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $pagination->page = $page;
         $pagination->limit = 10;
         $pagination->text = $this->language->get('text_pagination');
-        $pagination->url = $this->url->link('extension/oc_payment_example/payment/razorpay/subscriptions', 'page={page}', true);
+        $pagination->url = $this->url->link('extension/razorpay/payment/razorpay/subscriptions', 'page={page}', true);
         $data['pagination'] = $pagination->render();
 
         $data['continue'] = $this->url->link('account/account', '', true);
@@ -707,7 +707,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $data['footer'] = $this->load->controller('common/footer');
         $data['header'] = $this->load->controller('common/header');
 
-        return $this->response->setOutput($this->load->view('extension/oc_payment_example/payment/razorpay_subscription/razorpay_subscription', $data));
+        return $this->response->setOutput($this->load->view('extension/razorpay/payment/razorpay_subscription/razorpay_subscription', $data));
     }
 
     /**
@@ -718,11 +718,11 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     {
         if (!$this->customer->isLogged())
         {
-            $this->session->data['redirect'] = $this->url->link('extension/oc_payment_example/payment/razorpay/subscriptions', '', true);
+            $this->session->data['redirect'] = $this->url->link('extension/razorpay/payment/razorpay/subscriptions', '', true);
 
             $this->response->redirect($this->url->link('account/login', '', true));
         }
-        $this->load->language('extension/oc_payment_example/payment/razorpay');
+        $this->load->language('extension/razorpay/payment/razorpay');
 
         if (!empty($this->request->get['subscription_id']))
         {
@@ -733,8 +733,8 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             $subscription_id = 0;
         }
 
-        $this->load->model('extension/oc_payment_example/payment/razorpay');
-        $recurring_info = $this->model_extension_oc_payment_example_payment_razorpay->getSubscriptionDetails($subscription_id);
+        $this->load->model('extension/razorpay/payment/razorpay');
+        $recurring_info = $this->model_extension_razorpay_payment_razorpay->getSubscriptionDetails($subscription_id);
 
         if(isset($this->session->data['error']))
         {
@@ -773,12 +773,12 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
             $data['breadcrumbs'][] = array(
                 'text' => $this->language->get('heading_title'),
-                'href' => $this->url->link('extension/oc_payment_example/payment/razorpay/subscriptions', $url, true),
+                'href' => $this->url->link('extension/razorpay/payment/razorpay/subscriptions', $url, true),
             );
 
             $data['breadcrumbs'][] = array(
                 'text' => $this->language->get('text_heading_title_subscription'),
-                'href' => $this->url->link('extension/oc_payment_example/payment/razorpay/info', 'subscription_id=' . $subscription_id . $url, true),
+                'href' => $this->url->link('extension/razorpay/payment/razorpay/info', 'subscription_id=' . $subscription_id . $url, true),
             );
             $data['subscription_details'] = $recurring_info;
 
@@ -787,17 +787,17 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
             if ($recurring_info["status"] == "active")
             {
-                $data['pauseurl'] = $this->url->link('extension/oc_payment_example/payment/razorpay/pause', 'subscription_id=' . $subscription_id, true);
+                $data['pauseurl'] = $this->url->link('extension/razorpay/payment/razorpay/pause', 'subscription_id=' . $subscription_id, true);
             }
             else if ($recurring_info["status"] == "paused")
             {
-                $data['resumeurl'] = $this->url->link('extension/oc_payment_example/payment/razorpay/resume', 'subscription_id=' . $subscription_id, true);
+                $data['resumeurl'] = $this->url->link('extension/razorpay/payment/razorpay/resume', 'subscription_id=' . $subscription_id, true);
             }
 
-            $data['cancelurl'] = $this->url->link('extension/oc_payment_example/payment/razorpay/cancel', 'subscription_id=' . $subscription_id, true);
+            $data['cancelurl'] = $this->url->link('extension/razorpay/payment/razorpay/cancel', 'subscription_id=' . $subscription_id, true);
 
-            $data["plan_data"] = $this->model_extension_oc_payment_example_payment_razorpay->getProductBasedPlans($recurring_info["product_id"]);
-            $data["updateUrl"] = $this->url->link('extension/oc_payment_example/payment/razorpay/update');
+            $data["plan_data"] = $this->model_extension_razorpay_payment_razorpay->getProductBasedPlans($recurring_info["product_id"]);
+            $data["updateUrl"] = $this->url->link('extension/razorpay/payment/razorpay/update');
 
 
             $data['column_left'] = $this->load->controller('common/column_left');
@@ -807,7 +807,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             $data['footer'] = $this->load->controller('common/footer');
             $data['header'] = $this->load->controller('common/header');
 
-            return $this->response->setOutput($this->load->view('extension/oc_payment_example/payment/razorpay_subscription/razorpay_subscription_info', $data));
+            return $this->response->setOutput($this->load->view('extension/razorpay/payment/razorpay_subscription/razorpay_subscription_info', $data));
         }
         else
         {
@@ -827,15 +827,15 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
             $data['breadcrumbs'][] = array(
                 'text' => $this->language->get('heading_title'),
-                'href' => $this->url->link('extension/oc_payment_example/payment/razorpay/subscriptions', '', true)
+                'href' => $this->url->link('extension/razorpay/payment/razorpay/subscriptions', '', true)
             );
 
             $data['breadcrumbs'][] = array(
                 'text' => $this->language->get('text_heading_title_subscription'),
-                'href' => $this->url->link('extension/oc_payment_example/payment/razorpay/subscriptions/info', 'subscription_id=' . $subscription_id, true)
+                'href' => $this->url->link('extension/razorpay/payment/razorpay/subscriptions/info', 'subscription_id=' . $subscription_id, true)
             );
 
-            $data['continue'] = $this->url->link('extension/oc_payment_example/payment/razorpay/subscriptions', '', true);
+            $data['continue'] = $this->url->link('extension/razorpay/payment/razorpay/subscriptions', '', true);
 
             $data['column_left'] = $this->load->controller('common/column_left');
             $data['column_right'] = $this->load->controller('common/column_right');
@@ -855,11 +855,11 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     {
         if (!$this->customer->isLogged())
         {
-            $this->session->data['redirect'] = $this->url->link('extension/oc_payment_example/payment/razorpay/subscriptions', '', true);
+            $this->session->data['redirect'] = $this->url->link('extension/razorpay/payment/razorpay/subscriptions', '', true);
 
             $this->response->redirect($this->url->link('account/login', '', true));
         }
-        $this->load->language('extension/oc_payment_example/payment/razorpay');
+        $this->load->language('extension/razorpay/payment/razorpay');
 
         if (!empty($this->request->get['subscription_id']))
         {
@@ -873,23 +873,23 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         try
         {
             $subscriptionData = $this->api->subscription->fetch($subscription_id)->resume(array('pause_at' => 'now'));
-            $this->load->model('extension/oc_payment_example/payment/razorpay');
+            $this->load->model('extension/razorpay/payment/razorpay');
 
-            $this->model_extension_oc_payment_example_payment_razorpay->updateSubscriptionStatus($this->request->get['subscription_id'], $subscriptionData->status);
+            $this->model_extension_razorpay_payment_razorpay->updateSubscriptionStatus($this->request->get['subscription_id'], $subscriptionData->status);
 
-            $subscriptionData = $this->model_extension_oc_payment_example_payment_razorpay->getSubscriptionById($subscription_id);
-            $this->model_extension_oc_payment_example_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 1);
+            $subscriptionData = $this->model_extension_razorpay_payment_razorpay->getSubscriptionById($subscription_id);
+            $this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 1);
 
             $this->session->data['success'] = $this->language->get('subscription_resumed_message');
 
-            return $this->response->redirect($this->url->link('extension/oc_payment_example/payment/razorpay/info', 'subscription_id=' . $subscription_id, true));
+            return $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay/info', 'subscription_id=' . $subscription_id, true));
         }
         catch (\Razorpay\Api\Errors\Error $e)
         {
             $this->log->write($e->getMessage());
             $this->session->data['error'] = ucfirst($e->getMessage());
 
-            return  $this->response->redirect($this->url->link('extension/oc_payment_example/payment/razorpay/info', 'subscription_id=' . $this->request->get['subscription_id'], true));
+            return  $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay/info', 'subscription_id=' . $this->request->get['subscription_id'], true));
         }
     }
 
@@ -900,11 +900,11 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     {
         if (!$this->customer->isLogged())
         {
-            $this->session->data['redirect'] = $this->url->link('extension/oc_payment_example/payment/razorpay/subscriptions', '', true);
+            $this->session->data['redirect'] = $this->url->link('extension/razorpay/payment/razorpay/subscriptions', '', true);
 
             $this->response->redirect($this->url->link('account/login', '', true));
         }
-        $this->load->language('extension/oc_payment_example/payment/razorpay');
+        $this->load->language('extension/razorpay/payment/razorpay');
 
         if (!empty($this->request->get['subscription_id']))
         {
@@ -918,23 +918,23 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         try 
         {
             $subscriptionData = $this->api->subscription->fetch($subscription_id)->pause(array('pause_at' => 'now'));
-            $this->load->model('extension/oc_payment_example/payment/razorpay');
+            $this->load->model('extension/razorpay/payment/razorpay');
 
-            $this->model_extension_oc_payment_example_payment_razorpay->updateSubscriptionStatus($subscription_id, $subscriptionData->status);
+            $this->model_extension_razorpay_payment_razorpay->updateSubscriptionStatus($subscription_id, $subscriptionData->status);
 
-            $subscriptionData = $this->model_extension_oc_payment_example_payment_razorpay->getSubscriptionById($subscription_id);
-            $this->model_extension_oc_payment_example_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 2);
+            $subscriptionData = $this->model_extension_razorpay_payment_razorpay->getSubscriptionById($subscription_id);
+            $this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 2);
 
             $this->session->data['success'] = $this->language->get('subscription_paused_message');
 
-            return $this->response->redirect($this->url->link('extension/oc_payment_example/payment/razorpay/info', 'subscription_id=' . $subscription_id, true));
+            return $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay/info', 'subscription_id=' . $subscription_id, true));
 
         }
         catch (\Razorpay\Api\Errors\Error $e)
         {
             $this->log->write($e->getMessage());
             $this->session->data['error'] = ucfirst($e->getMessage());
-            return  $this->response->redirect($this->url->link('extension/oc_payment_example/payment/razorpay/info', 'subscription_id=' . $this->request->get['subscription_id'], true));
+            return  $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay/info', 'subscription_id=' . $this->request->get['subscription_id'], true));
         }
     }
 
@@ -945,11 +945,11 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     {
         if (!$this->customer->isLogged())
         {
-            $this->session->data['redirect'] = $this->url->link('extension/oc_payment_example/payment/razorpay/subscriptions', '', true);
+            $this->session->data['redirect'] = $this->url->link('extension/razorpay/payment/razorpay/subscriptions', '', true);
 
             $this->response->redirect($this->url->link('account/login', '', true));
         }
-        $this->load->language('extension/oc_payment_example/payment/razorpay');
+        $this->load->language('extension/razorpay/payment/razorpay');
 
         if (!empty($this->request->get['subscription_id']))
         {
@@ -962,23 +962,23 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         try
         {
             $subscriptionData = $this->api->subscription->fetch($subscription_id)->cancel(array('cancel_at_cycle_end'=>0));
-            $this->load->model('extension/oc_payment_example/payment/razorpay');
+            $this->load->model('extension/razorpay/payment/razorpay');
 
-            $this->model_extension_oc_payment_example_payment_razorpay->updateSubscriptionStatus($subscription_id,$subscriptionData->status, "user" );
+            $this->model_extension_razorpay_payment_razorpay->updateSubscriptionStatus($subscription_id,$subscriptionData->status, "user" );
 
-            $subscriptionData = $this->model_extension_oc_payment_example_payment_razorpay->getSubscriptionById($subscription_id);
-            $this->model_extension_oc_payment_example_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 3);
+            $subscriptionData = $this->model_extension_razorpay_payment_razorpay->getSubscriptionById($subscription_id);
+            $this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 3);
 
             $this->session->data['success'] = $this->language->get('subscription_cancelled_message');
 
-            return $this->response->redirect($this->url->link('extension/oc_payment_example/payment/razorpay/info', 'subscription_id=' . $subscription_id, true));
+            return $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay/info', 'subscription_id=' . $subscription_id, true));
         }
         catch(\Razorpay\Api\Errors\Error $e)
         {
             $this->log->write($e->getMessage());
             $this->session->data['error'] = ucfirst($e->getMessage());
 
-            return  $this->response->redirect($this->url->link('extension/oc_payment_example/payment/razorpay/info', 'subscription_id=' . $this->request->get['subscription_id'], true));
+            return  $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay/info', 'subscription_id=' . $this->request->get['subscription_id'], true));
         }
     }
 
@@ -991,9 +991,9 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         {
             $postData = $this->request->post;
 
-            $this->load->language('extension/oc_payment_example/payment/razorpay');
-            $this->load->model('extension/oc_payment_example/payment/razorpay');
-            $planData = $this->model_extension_oc_payment_example_payment_razorpay->fetchPlanByEntityId($postData["plan_entity_id"]);
+            $this->load->language('extension/razorpay/payment/razorpay');
+            $this->load->model('extension/razorpay/payment/razorpay');
+            $planData = $this->model_extension_razorpay_payment_razorpay->fetchPlanByEntityId($postData["plan_entity_id"]);
 
             $planUpdateData['plan_id'] = $planData['plan_id'];
 
@@ -1005,18 +1005,18 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             $this->api->subscription->fetch($postData["subscriptionId"])->update($planUpdateData)->toArray();
 
             //Update plan in razorpay subscription table
-            $this->model_extension_oc_payment_example_payment_razorpay->updateSubscriptionPlan($postData);
+            $this->model_extension_razorpay_payment_razorpay->updateSubscriptionPlan($postData);
 
             $this->session->data['success'] = $this->language->get('subscription_updated_message');
 
-            return $this->response->redirect($this->url->link('extension/oc_payment_example/payment/razorpay/info', 'subscription_id=' . $postData['subscriptionId'], true));
+            return $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay/info', 'subscription_id=' . $postData['subscriptionId'], true));
 
         }
         catch(\Razorpay\Api\Errors\Error $e)
         {
             $this->log->write($e->getMessage());
             $this->session->data['error'] = ucfirst($e->getMessage());
-            return  $this->response->redirect($this->url->link('extension/oc_payment_example/payment/razorpay/info', 'subscription_id=' . $postData['subscriptionId'], true));
+            return  $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay/info', 'subscription_id=' . $postData['subscriptionId'], true));
         }
     }
 
@@ -1052,13 +1052,13 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                         break;
                 }
 
-                $this->load->model('extension/oc_payment_example/payment/razorpay');
-                $rzpSubscription = $this->model_extension_oc_payment_example_payment_razorpay->getSubscriptionById($subscriptionId);
+                $this->load->model('extension/razorpay/payment/razorpay');
+                $rzpSubscription = $this->model_extension_razorpay_payment_razorpay->getSubscriptionById($subscriptionId);
 
                 if($rzpSubscription['status'] != $status)
                 {
-                    $this->model_extension_oc_payment_example_payment_razorpay->updateSubscriptionStatus($subscriptionId, $status, "Webhook" );
-                    $this->model_extension_oc_payment_example_payment_razorpay->updateOCRecurringStatus($merchant_order_id, $oc_status);
+                    $this->model_extension_razorpay_payment_razorpay->updateSubscriptionStatus($subscriptionId, $status, "Webhook" );
+                    $this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($merchant_order_id, $oc_status);
                     $this->log->write("Subscription ".$status." webhook event processed for Opencart OrderID (:" . $merchant_order_id . ")");
                 }
 
@@ -1079,21 +1079,21 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $webhookSource = $data['payload']['subscription']['entity']['source'];
         $amount = number_format($data['payload']['payment']['entity']['amount'] / 100, 4, ".", "");
 
-        $this->load->model('extension/oc_payment_example/payment/razorpay');
+        $this->load->model('extension/razorpay/payment/razorpay');
 
         // Process only if its from opencart subscription source
         if ($webhookSource == "opencart-subscription")
         {
             $subscription = $this->api->subscription->fetch($subscriptionId)->toArray();
-            $rzpSubscription = $this->model_extension_oc_payment_example_payment_razorpay->getSubscriptionById($subscriptionId);
+            $rzpSubscription = $this->model_extension_razorpay_payment_razorpay->getSubscriptionById($subscriptionId);
 
             if ($subscription['paid_count'] == 1)
             {
                 if (in_array($rzpSubscription['status'], ['created', 'authenticated']) and
                  $rzpSubscription['paid_count'] == 0)
                 {
-                    $this->model_extension_oc_payment_example_payment_razorpay->updateSubscription($subscription, $subscriptionId);
-                    $this->model_extension_oc_payment_example_payment_razorpay->updateOCRecurringStatus($merchant_order_id, 1);
+                    $this->model_extension_razorpay_payment_razorpay->updateSubscription($subscription, $subscriptionId);
+                    $this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($merchant_order_id, 1);
 
                     $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), trim("Subscription charged Successfully. Razorpay Payment Id:" . $paymentId));
                 }
@@ -1105,12 +1105,12 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                 $this->log->write("Subscription charged webhook event initiated for Opencart OrderID (:" . $merchant_order_id . ")");
 
                 // Creating OC Recurring Transaction
-                $ocRecurringData = $this->model_extension_oc_payment_example_payment_razorpay->getOCRecurringStatus($merchant_order_id);
-                $this->model_extension_oc_payment_example_payment_razorpay->addOCRecurringTransaction($ocRecurringData['order_recurring_id'], $subscriptionId, $amount, "success");
+                $ocRecurringData = $this->model_extension_razorpay_payment_razorpay->getOCRecurringStatus($merchant_order_id);
+                $this->model_extension_razorpay_payment_razorpay->addOCRecurringTransaction($ocRecurringData['order_recurring_id'], $subscriptionId, $amount, "success");
 
                 // Update RZP Subscription and OC subscription
-                $this->model_extension_oc_payment_example_payment_razorpay->updateSubscription($subscription, $subscriptionId);
-                $this->model_extension_oc_payment_example_payment_razorpay->updateOCRecurringStatus($merchant_order_id, 1);
+                $this->model_extension_razorpay_payment_razorpay->updateSubscription($subscription, $subscriptionId);
+                $this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($merchant_order_id, 1);
 
                 $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), trim("Subscription charged Successfully. Razorpay Payment Id:" . $paymentId));
                 $this->log->write("Subscription charged webhook event finished for Opencart OrderID (:" . $merchant_order_id . ")");
