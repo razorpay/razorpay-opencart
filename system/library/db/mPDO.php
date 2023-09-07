@@ -1,5 +1,6 @@
 <?php
-namespace DB;
+namespace Opencart\Admin\Controller\Extension\Razorpay\Payment;
+
 final class MPDO
 {
     private $pdo = null;
@@ -61,7 +62,7 @@ final class MPDO
                 $result->num_rows = $this->statement->rowCount();
             }
         }
-        catch(PDOException $e)
+        catch(\PDOException $e)
         {
             trigger_error('Error: ' . $e->getMessage() . ' Error Code : ' . $e->getCode());
         }
@@ -103,7 +104,7 @@ final class MPDO
                 $result->num_rows = $this->statement->rowCount();
             }
         }
-        catch (PDOException $e)
+        catch (\PDOException $e)
         {
             trigger_error('Error: ' . $e->getMessage() . ' Error Code : ' . $e->getCode() . ' <br />' . $sql);
             exit();
