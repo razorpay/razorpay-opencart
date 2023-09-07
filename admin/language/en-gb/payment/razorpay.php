@@ -41,7 +41,7 @@ $_['error_webhook_secret'] = 'Webhook Secret Required!';
 $_['enable_subscription_flag'] = 'Enable Subscription in Razorpay dashboard!';
 
 // Heading
-//$_['heading_title']                                     = 'Razorpay Subscription';
+$_['heading_title']                                     = 'Razorpay Subscription';
 $_['heading_title_transaction']                         = 'View Transaction #%s';
 
 // Plan Column

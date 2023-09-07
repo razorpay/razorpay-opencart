@@ -32,6 +32,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
 
     public function index()
     {
+        echo('In index');
         $data['button_confirm'] = $this->language->get('button_confirm');
         $data['is_recurring'] = "false";
 
@@ -599,6 +600,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
      */
     public function subscriptions()
     {
+        echo('In subscriptions');
         if (!$this->customer->isLogged())
         {
             $this->session->data['redirect'] = $this->url->link('extension/payment/razorpay/subscriptions', '', true);
@@ -689,6 +691,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
      */
     public function info()
     {
+        echo('In info');
         if (!$this->customer->isLogged())
         {
             $this->session->data['redirect'] = $this->url->link('extension/payment/razorpay/subscriptions', '', true);
@@ -826,6 +829,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
      */
     public function resume()
     {
+        echo('In resume');
         if (!$this->customer->isLogged())
         {
             $this->session->data['redirect'] = $this->url->link('extension/payment/razorpay/subscriptions', '', true);
@@ -871,6 +875,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
      */
     public function pause()
     {
+        echo('In pause');
         if (!$this->customer->isLogged())
         {
             $this->session->data['redirect'] = $this->url->link('extension/payment/razorpay/subscriptions', '', true);
@@ -916,6 +921,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
      */
     public function cancel()
     {
+        echo('In cancel');
         if (!$this->customer->isLogged())
         {
             $this->session->data['redirect'] = $this->url->link('extension/payment/razorpay/subscriptions', '', true);
@@ -960,6 +966,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
      */
     public function update()
     {
+        echo('In update');
         try
         {
             $postData = $this->request->post;
@@ -999,6 +1006,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
      */
     protected function updateOcSubscriptionStatus($data)
     {
+        echo('In subscriptions');
         $subscriptionId = $data['payload']['subscription']['entity']['id'];
 
         if (empty($subscriptionId) === false)
