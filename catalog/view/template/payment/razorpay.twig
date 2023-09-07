@@ -1,0 +1,127 @@
+{% if is_hosted %}
+
+    <form action="{{ api_url }}checkout/embedded" method="post" name="embedded_checkout_form">
+        <input type="hidden" name="key_id" value="{{ key_id }}">
+        <input type="hidden" name="is_recurring" id="isRecurring" value="{{ is_recurring }}">
+        {% if is_recurring %}
+            <input type="hidden" name="subscription_id" value="{{ razorpay_order_id }}">
+        {% else %}
+            <input type="hidden" name="order_id" value="{{ razorpay_order_id }}">
+        {% endif %}
+        <input type="hidden" name="image" value="{{ image }}">
+        <input type="hidden" name="name" value="{{ name }}">
+        <input type="hidden" name="description" value="Order # {{ merchant_order_id }}">
+
+        <input type="hidden" name="prefill[name]" value="{{ card_holder_name }}">
+        <input type="hidden" name="prefill[contact]" value="{{ phone }}">
+        <input type="hidden" name="prefill[email]" value="{{ email }}">
+
+        <input type="hidden" name="notes[opencart_order_id]" value="{{ merchant_order_id }}">
+
+        {% if is_recurring %}
+            <input type="hidden" name="_[integration]" value="opencart-subscription">
+        {% else %}
+            <input type="hidden" name="_[integration]" value="opencart">
+        {% endif %}
+        <input type="hidden" name="_[integration_version]" value="{{ version }}">
+        <input type="hidden" name="_[integration_parent_version]" value="{{ oc_version }}">
+
+        <input type="hidden" name="callback_url" value="{{ return_url }}">
+        <input type="hidden" name="cancel_url" value="{{ cancel_url }}">
+        <div class="buttons">
+            <div class="pull-right">
+                <input type="submit" value="{{ button_confirm }}" class="btn btn-primary"/>
+            </div>
+        </div>
+    </form>
+
+{% else %}
+
+        <script data-cfasync='false' type='text/javascript' src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script data-cfasync='false' type='text/javascript'>
+
+        if ({{ is_recurring }}) {
+            var razorpay_options = {
+                key: "{{ key_id }}",
+                subscription_id: "{{ razorpay_order_id }}",
+                name: "{{ name }}",
+                description: "Order # {{ merchant_order_id }}",
+                notes: {
+                    opencart_order_id: "{{ merchant_order_id }}"
+                },
+                _: {
+                    integration: 'opencart-subscription',
+                    integration_version: '{{ version }}',
+                    integration_parent_version: '{{ oc_version }}'
+                },
+                callback_url: "{{ return_url }}",
+                handler: function (transaction) {
+                    document.getElementById('razorpay_payment_id').value = transaction.razorpay_payment_id;
+                    document.getElementById('razorpay_signature').value = transaction.razorpay_signature;
+                    document.getElementById('razorpay-form').submit();
+                }
+            };
+        } else {
+            var razorpay_options = {
+                key: "{{ key_id }}",
+                amount: "{{ total }}",
+                name: "{{ name }}",
+                description: "Order # {{ merchant_order_id }}",
+                netbanking: true,
+                order_id: "{{ razorpay_order_id }}",
+                currency: "{{ currency_code }}",
+                prefill: {
+                    name: "{{ card_holder_name }}",
+                    email: "{{ email }}",
+                    contact: "{{ phone }}"
+                },
+                notes: {
+                    opencart_order_id: "{{ merchant_order_id }}"
+                },
+                _: {
+                    integration: 'opencart',
+                    integration_version: '{{ version }}',
+                    integration_parent_version: '{{ oc_version }}',
+                    integration_type: 'plugin'
+                },
+                callback_url: "{{ return_url }}",
+                handler: function (transaction) {
+                    document.getElementById('razorpay_payment_id').value = transaction.razorpay_payment_id;
+                    document.getElementById('razorpay_signature').value = transaction.razorpay_signature;
+                    document.getElementById('razorpay-form').submit();
+                }
+            };
+        }
+
+        var razorpay_submit_btn, razorpay_instance;
+
+        function razorpaySubmit(el) {
+            if (typeof Razorpay == 'undefined') {
+                setTimeout(razorpaySubmit, 200);
+                if (!razorpay_submit_btn && el) {
+                    razorpay_submit_btn = el;
+                    el.disabled = true;
+                    el.value = 'Please wait...';
+                }
+            } else {
+                razorpay_instance = new Razorpay(razorpay_options);
+                if (razorpay_submit_btn) {
+                    razorpay_submit_btn.disabled = false;
+                    razorpay_submit_btn.value = "{{ button_confirm }}";
+                }
+                razorpay_instance.open();
+            }
+        }
+
+    </script>
+    <form name="razorpay-form" id="razorpay-form" action="{{ return_url }}" method="POST">
+        <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id"/>
+        <input type="hidden" name="razorpay_signature" id="razorpay_signature"/>
+    </form>
+    <div class="buttons">
+        <div class="pull-right">
+            <input type="submit" onclick="razorpaySubmit(this);" value="{{ button_confirm }}" class="btn btn-primary"/>
+        </div>
+    </div>
+
+{% endif %}
