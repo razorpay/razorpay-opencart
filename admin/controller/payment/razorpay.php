@@ -1,8 +1,8 @@
 <?php
 namespace Opencart\Admin\Controller\Extension\Razorpay\Payment;
 
-require_once __DIR__.'/../../../../system/library/razorpay/razorpay-sdk/Razorpay.php';
-require_once __DIR__.'/../../../../system/library/razorpay/razorpay-lib/createwebhook.php';
+require_once __DIR__.'../../../../system/library/razorpay/razorpay-sdk/Razorpay.php';
+require_once __DIR__.'../../../../system/library/razorpay/razorpay-lib/createwebhook.php';
 use Razorpay\Api\Api;
 use Razorpay\Api\Errors;
 
@@ -220,10 +220,10 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
 	protected function validate()
     {
-        // if (!$this->user->hasPermission('modify', 'extension/razorpay/payment/razorpay'))
-        // {
-        //     $this->error['warning'] = $this->language->get('error_permission');
-        // }
+        if (!$this->user->hasPermission('modify', 'extension/razorpay/payment/razorpay'))
+        {
+            $this->error['warning'] = $this->language->get('error_permission');
+        }
 
         if (!$this->request->post['payment_razorpay_key_id'])
         {
@@ -249,9 +249,9 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 		$this->load->language('extension/razorpay/payment/razorpay');
 
 		$json = [];
-		// if (!$this->user->hasPermission('modify', 'extension/razorpay/payment/razorpay')) {
-		// 	$json['error'] = $this->language->get('error_permission');
-		// }
+		if (!$this->user->hasPermission('modify', 'extension/razorpay/payment/razorpay')) {
+			$json['error'] = $this->language->get('error_permission');
+		}
 
 		if (!$json) {
 			$this->load->model('setting/setting');
@@ -267,11 +267,11 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
 	public function install(): void {
 		try {
-			// if ($this->user->hasPermission('modify', 'extension/payment')) {
-			// 	$this->load->model('extension/razorpay/payment/credit_card');
+			if ($this->user->hasPermission('modify', 'extension/payment')) {
+				$this->load->model('extension/razorpay/payment/credit_card');
 	
-			// 	$this->model_extension_razorpay_payment_credit_card->install();
-			// }
+				$this->model_extension_razorpay_payment_credit_card->install();
+			}
 			$this->load->model('extension/razorpay/payment/razorpay');
 		
 			/* Rzp subscriptions tables */
