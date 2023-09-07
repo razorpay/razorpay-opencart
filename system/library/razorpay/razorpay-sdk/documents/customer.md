@@ -2,7 +2,7 @@
 
 ### Create customer
 ```php
-$api->customer->create(array('name' => 'Razorpay User', 'email' => 'customer@razorpay.com','contact'=>'9123456780','notes'=> array('notes_key_1'=> 'Tea, Earl Grey, Hot','notes_key_2'=> 'Tea, Earl Grey… decaf'));
+$api->customer->create(array('name' => 'Razorpay User', 'email' => 'customer@razorpay.com','contact'=>'9123456780','notes'=> array('notes_key_1'=> 'Tea, Earl Grey, Hot','notes_key_2'=> 'Tea, Earl Grey… decaf')));
 ```
 
 **Parameters:**
@@ -37,7 +37,7 @@ $api->customer->create(array('name' => 'Razorpay User', 'email' => 'customer@raz
 
 ### Edit customer
 ```php
-$api->customer->fetch($customerId)->edit(array('name' => 'Razorpay User', 'email' => 'customer@razorpay.com','notes'=> array('notes_key_1'=> 'Tea, Earl Grey, Hot','notes_key_2'=> 'Tea, Earl Grey… decaf')));
+$api->customer->fetch($customerId)->edit(array('name' => 'Razorpay User', 'email' => 'customer@razorpay.com', 'contact' => '9999999999'));
 ```
 
 **Parameters:**
@@ -69,7 +69,7 @@ $api->customer->fetch($customerId)->edit(array('name' => 'Razorpay User', 'email
 
 ### Fetch all customer
 ```php
-$api->customer->all($options)
+$api->customer->all($options);
 ```
 
 **Parameters:**
@@ -106,7 +106,7 @@ $api->customer->all($options)
 
 ### Fetch a customer
 ```php
-$api->customer->fetch($customerId)
+$api->customer->fetch($customerId);
 ```
 
 **Parameters:**

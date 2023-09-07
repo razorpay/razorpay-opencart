@@ -59,7 +59,7 @@ $('#form-credit-card').on('submit', function(e) {
     var element = this;
 
     $.ajax({
-        url: 'index.php?route=extension/oc_payment_example/payment/credit_card.confirm&language={{ language }}',
+        url: 'index.php?route=extension/razorpay/payment/credit_card.confirm&language={{ language }}',
         type: 'post',
         data: $('#form-credit-card').serialize(),
         dataType: 'json',
