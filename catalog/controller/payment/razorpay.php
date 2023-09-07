@@ -1,8 +1,11 @@
 <?php
 namespace Opencart\Catalog\Controller\Extension\Razorpay\Payment;
 
+use Opencart\Admin\Controller\Extension\Razorpay\Payment\CreateWebhook;
+
 require_once __DIR__.'../../../../system/library/razorpay/razorpay-sdk/Razorpay.php';
 require_once __DIR__.'../../../../system/library/razorpay/razorpay-lib/createwebhook.php';
+
 use Razorpay\Api\Api;
 class Razorpay extends \Opencart\System\Engine\Controller {
 	/**
@@ -38,8 +41,9 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
         try
         {
-            if ($this->cart->hasRecurringProducts() and 
-            $this->config->get('payment_razorpay_subscription_status'))
+			//echo();
+            if ($this->cart->hasSubscription() and 
+            	$this->config->get('payment_razorpay_subscription_status'))
             {
                 $this->load->model('extension/razorpay/payment/razorpay');
 
@@ -131,9 +135,10 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
         try
         {
-            $webhookUpdatedAt = $this->config->get('payment_razorpay_webhook_updated_at');
+            $webhookUpdatedAt = ($this->config->get('payment_razorpay_webhook_updated_at') >= 0 ? 
+									$this->config->get('payment_razorpay_webhook_updated_at') : null);
 
-            if ($webhookUpdatedAt + 86400 < time())
+            if ($webhookUpdatedAt != null && $webhookUpdatedAt + 86400 < time())
             {
                 $createWebhook = new CreateWebhook(
                     $this->config->get('payment_razorpay_key_id'),
@@ -163,7 +168,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $data['email'] = $order_info['email'];
         $data['phone'] = $order_info['telephone'];
         $data['name'] = $this->config->get('config_name');
-        $data['lang'] = $this->session->data['language'];
+        $data['lang'] = $this->config->get('language_code'); // $this->session->data['language'];
         $data['return_url'] = $this->url->link('extension/razorpay/payment/callback', '', 'true');
         $data['version'] = $this->version;
         $data['oc_version'] = VERSION;
@@ -174,15 +179,15 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $data['api_url']    = $this->api->getBaseUrl();
         $data['cancel_url'] =  $this->url->link('checkout/checkout', '', 'true');
 
-        if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/extension/razorpay/payment'))
-        {
-            return $this->load->view($this->config->get('config_template') . '/template/extension/razorpay/payment', $data);
-        }
-        else
-        {
-            return $this->load->view('extension/razorpay/payment', $data);
-        }
-		// // echo(json_encode($this->load->language('extension/razorpay/payment/razorpay')));
+        return $this->load->view('extension/razorpay/payment/razorpay', $data);
+        // if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/extension/razorpay/payment'))
+        // {
+        //     return $this->load->view($this->config->get('config_template') . '/template/extension/razorpay/payment', $data);
+        // }
+        // else
+        // {
+        // }
+		// echo(json_encode($this->load->language('extension/razorpay/payment/razorpay')));
 		// $this->load->language('extension/razorpay/payment/razorpay');
 
 		// if (isset($this->session->data['payment_method'])) {
@@ -193,7 +198,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
 		// 	foreach (range(1, 12) as $month) {
 		// 		$data['months'][] = date('m', mktime(0, 0, 0, $month, 1));
-		// 	}
+		// }
 
 		// 	$data['years'] = [];
 
@@ -561,12 +566,12 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     {
         try
         {
-            $response = Requests::get($this->api->getBaseUrl() . 'preferences?key_id=' . $this->api->getKey());
+            $response = \Requests::get($this->api->getBaseUrl() . '/preferences?key_id=' . $this->api->getKey());
         }
-        catch (Exception $e)
+        catch (\Exception $e)
         {
             $this->log->write($e->getMessage());
-            throw new Exception($e->getMessage(), $e->getHttpCode());
+            throw new \Exception($e->getMessage());
         }
 
         $preferences['is_hosted'] = false;
