@@ -169,7 +169,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $data['phone'] = $order_info['telephone'];
         $data['name'] = $this->config->get('config_name');
         $data['lang'] = $this->config->get('language_code'); // $this->session->data['language'];
-        $data['return_url'] = $this->url->link('extension/razorpay/payment/callback', '', 'true');
+        $data['return_url'] = $this->url->link('extension/razorpay/payment/razorpay.callback', '', 'true');
         $data['version'] = $this->version;
         $data['oc_version'] = VERSION;
 
@@ -296,7 +296,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     {
         $this->load->model('checkout/order');
         $this->load->model('extension/razorpay/payment/razorpay');
-
+        echo('In callback'. PHP_EOL);
         if (isset($this->request->request['razorpay_payment_id']) === true)
         {
             $razorpay_payment_id = $this->request->request['razorpay_payment_id'];
@@ -317,6 +317,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             }
             else
             {
+                echo('In callback else'. PHP_EOL);
                 $razorpay_order_id = $this->session->data["razorpay_order_id_" . $this->session->data['order_id']];
                 $attributes = array(
                     'razorpay_order_id' => $razorpay_order_id,
@@ -332,6 +333,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             try
             {
                 $this->api->utility->verifyPaymentSignature($attributes);
+                echo('In callback verfiy signature'. PHP_EOL);
                 if ($isSubscriptionCallBack)
                 {
                     $subscriptionData = $this->api->subscription->fetch($razorpay_subscription_id)->toArray();
@@ -348,7 +350,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                 }
 
                 $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id, true);
-                $this->response->redirect($this->url->link('checkout/success', '', true));
+                $this->response->redirect($this->url->link('checkout/success', 'language=' . $this->config->get('config_language'), true));
             }
             catch (\Razorpay\Api\Errors\SignatureVerificationError $e)
             {
@@ -360,11 +362,12 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                 $this->model_checkout_order->addOrderHistory($merchant_order_id, 10, $e->getMessage() . ' Payment Failed! Check Razorpay dashboard for details of Payment Id:' . $razorpay_payment_id);
 
                 $this->session->data['error'] = $e->getMessage() . ' Payment Failed! Check Razorpay dashboard for details of Payment Id:' . $razorpay_payment_id;
-                $this->response->redirect($this->url->link('checkout/checkout', '', true));
+                $this->response->redirect($this->url->link('checkout/failure','language=' . $this->config->get('config_language'), true));
             }
         }
         else
         {
+            echo('In callback main else'. PHP_EOL);
             if (isset($_POST['error']) === true)
             {
                 $error = $_POST['error'];
@@ -379,9 +382,9 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             {
                 $message = 'An error occured. Please contact administrator for assistance';
             }
-
+            echo('In callback return'. PHP_EOL);
             $this->session->data['error'] = $message;
-            $this->response->redirect($this->url->link('checkout/checkout', '', true));
+            $this->response->redirect($this->url->link('checkout/failure', 'language=' . $this->config->get('config_language'), true));
         }
     }
 
