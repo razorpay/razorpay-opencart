@@ -336,7 +336,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             try
             {
                 $this->api->utility->verifyPaymentSignature($attributes);
-                echo('In callback verfiy signature'. PHP_EOL);
+                // echo('In callback verfiy signature'. PHP_EOL);
                 if ($isSubscriptionCallBack)
                 {
                     $subscriptionData = $this->api->subscription->fetch($razorpay_subscription_id)->toArray();
@@ -362,7 +362,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                     // Update oC recurring table for failed payment
                     $this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($this->session->data['order_id'], 4);
                 }
-                $this->model_checkout_order->addOrderHistory($merchant_order_id, 10, $e->getMessage() . ' Payment Failed! Check Razorpay dashboard for details of Payment Id:' . $razorpay_payment_id);
+                $this->model_checkout_order->addHistory($merchant_order_id, 10, $e->getMessage() . ' Payment Failed! Check Razorpay dashboard for details of Payment Id:' . $razorpay_payment_id);
 
                 $this->session->data['error'] = $e->getMessage() . ' Payment Failed! Check Razorpay dashboard for details of Payment Id:' . $razorpay_payment_id;
                 $this->response->redirect($this->url->link('checkout/failure','language=' . $this->config->get('config_language'), true));
@@ -474,7 +474,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             if ($order_info['payment_code'] === 'razorpay' and
                 !$order_info['order_status_id'])
             {
-                $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id);
+                $this->model_checkout_order->addHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id);
             }
         }
 
@@ -533,7 +533,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                         }
 
                         //update the order status in store
-                        $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id);
+                        $this->model_checkout_order->addHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id);
                     }
                     catch (\Razorpay\Api\Errors\Error $e)
                     {
@@ -1105,7 +1105,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                     $this->model_extension_razorpay_payment_razorpay->updateSubscription($subscription, $subscriptionId);
                     $this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($merchant_order_id, 1);
 
-                    $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), trim("Subscription charged Successfully. Razorpay Payment Id:" . $paymentId));
+                    $this->model_checkout_order->addHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), trim("Subscription charged Successfully. Razorpay Payment Id:" . $paymentId));
                 }
 
                 return;
@@ -1122,7 +1122,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                 $this->model_extension_razorpay_payment_razorpay->updateSubscription($subscription, $subscriptionId);
                 $this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($merchant_order_id, 1);
 
-                $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), trim("Subscription charged Successfully. Razorpay Payment Id:" . $paymentId));
+                $this->model_checkout_order->addHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), trim("Subscription charged Successfully. Razorpay Payment Id:" . $paymentId));
                 $this->log->write("Subscription charged webhook event finished for Opencart OrderID (:" . $merchant_order_id . ")");
                 
                 return;
