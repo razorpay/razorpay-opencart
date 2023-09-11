@@ -491,7 +491,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
                     $payment = $this->api->payment->fetch($razorpay_payment_id);
 
                     //capture only if payment status is 'authorized'
-                    if ($payment->status === 'authorized')
+                    if ($payment->status === 'authorized'
+                        and $this->config->get('payment_razorpay_payment_action') === 'capture')
                     {
                         $payment->capture(
                             array(
