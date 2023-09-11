@@ -1,5 +1,13 @@
 <?php
 namespace Opencart\Catalog\Model\Extension\Razorpay\Payment;
+
+use Opencart\Admin\Controller\Extension\Razorpay\Payment\MPDO;
+
+if(class_exists('mPDO')  === false)
+{
+    require_once __DIR__ . "../../../../system/library/db/mPDO.php";
+}
+
 class Razorpay extends \Opencart\System\Engine\Model {
 	const RECURRING_ACTIVE      = 1;
     const RECURRING_INACTIVE    = 2;
@@ -15,7 +23,7 @@ class Razorpay extends \Opencart\System\Engine\Model {
         'year' => "yearly"
     ];
 
-	public function __construct($registry)
+	public function __construct(\Opencart\System\Engine\Registry $registry)
     {
         parent::__construct($registry);
         $this->rzpPdo = new mPDO(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
