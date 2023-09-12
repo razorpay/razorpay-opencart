@@ -380,7 +380,6 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 catch (\Razorpay\Api\Errors\SignatureVerificationError $e)
                 {
                     $this->log->write($e->getMessage());
-                    header('Status: 400 Signature Verification failed', true, 400);
                     return;
                 }
 
@@ -416,6 +415,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
      */
     protected function orderPaid(array $data)
     {
+        $payment_created_time = $data['payload']['payment']['entity']['created_at'];
+
         if(time() < ($payment_created_time + 15))
         {
             header('Status: 409 Webhook conflicts due to early execution.', true, 409);
