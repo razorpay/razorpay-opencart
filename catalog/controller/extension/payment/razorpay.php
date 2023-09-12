@@ -18,6 +18,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
     const SUBSCRIPTION_RESUMED      = 'subscription.resumed';
     const SUBSCRIPTION_CANCELLED    = 'subscription.cancelled';
     const SUBSCRIPTION_CHARGED      = 'subscription.charged';
+    const PA_WEBHOOK_WAIT_TIME      = 17;
+    const OP_WEBHOOK_WAIT_TIME      = 20;
+    const HTTP_CONFLICT_STATUS      = 409
 
     // Set RZP plugin version
     private $version = '5.1.0';
@@ -421,9 +424,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
     {
         $payment_created_time = $data['payload']['payment']['entity']['created_at'];
 
-        if(time() < ($payment_created_time + 20))
+        if(time() < ($payment_created_time + self::OP_WEBHOOK_WAIT_TIME))
         {
-            header('Status: 409 Webhook conflicts due to early execution.', true, 409);
+            header('Status: 409 Webhook conflicts due to early execution.', true, self::HTTP_CONFLICT_STATUS);
             return;
         }
 
@@ -471,9 +474,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
         //verify if we need to consume it as late authorized
         $payment_created_time = $data['payload']['payment']['entity']['created_at'];
 
-        if(time() < ($payment_created_time + 17))
+        if(time() < ($payment_created_time + self::PA_WEBHOOK_WAIT_TIME))
         {
-            header('Status: 409 Webhook conflicts due to early execution.', true, 409);
+            header('Status: 409 Webhook conflicts due to early execution.', true, self::HTTP_CONFLICT_STATUS);
             return;
         }
 
