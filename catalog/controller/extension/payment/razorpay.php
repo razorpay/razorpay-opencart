@@ -417,7 +417,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
     {
         $payment_created_time = $data['payload']['payment']['entity']['created_at'];
 
-        if(time() < ($payment_created_time + 15))
+        if(time() < ($payment_created_time + 20))
         {
             header('Status: 409 Webhook conflicts due to early execution.', true, 409);
             return;
@@ -467,7 +467,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         //verify if we need to consume it as late authorized
         $payment_created_time = $data['payload']['payment']['entity']['created_at'];
 
-        if(time() < ($payment_created_time + 12))
+        if(time() < ($payment_created_time + 17))
         {
             header('Status: 409 Webhook conflicts due to early execution.', true, 409);
             return;
