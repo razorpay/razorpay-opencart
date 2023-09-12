@@ -1,10 +1,11 @@
 <?php
+/* Razorpay extension constants */
 // Text
+$_['heading_title'] = 'Pay by Razorpay'; // Subscriptions
 $_['text_title'] = 'Pay by Razorpay <br> <a href="https://www.razorpay.com" target="_blank"><img src="https://cdn.razorpay.com/static/assets/logo/payment_method.svg" alt="Razorpay" title="Razorpay" style="border: 1px solid #EEEEEE;margin-top: 5px" /></a>';
 
 // Subscription
 $_['text_account'] = 'Account';
-$_['heading_title'] = 'Subscriptions';
 $_['column_order_subscription_id'] = "Subscription Id";
 $_['column_product'] = "Product ";
 $_['column_status'] = "Status";
@@ -29,6 +30,7 @@ $_['text_plan_details'] = 'Plan details';
 $_['text_plan_name'] = 'Plan Name:';
 $_['text_plan_id'] = 'Plan Id:';
 $_['text_plan_type'] = 'Plan Type:';
+$_['button_confirm'] = 'Confirm Order';
 $_['button_cancel'] = 'Cancel';
 $_['subscription_pause'] = 'Pause';
 $_['subscription_resume'] = 'Resume';
