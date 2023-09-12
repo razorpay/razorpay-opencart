@@ -20,7 +20,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
     const SUBSCRIPTION_CHARGED      = 'subscription.charged';
     const PA_WEBHOOK_WAIT_TIME      = 17;
     const OP_WEBHOOK_WAIT_TIME      = 20;
-    const HTTP_CONFLICT_STATUS      = 409
+    const HTTP_CONFLICT_STATUS      = 409;
 
     // Set RZP plugin version
     private $version = '5.1.0';
