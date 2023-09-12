@@ -179,15 +179,6 @@ class ControllerExtensionPaymentRazorpay extends Controller
         {
             $data['razorpay_payment_action'] = $this->config->get('payment_razorpay_payment_action');
         }
-
-        if (isset($this->request->post['payment_razorpay_max_capture_delay']))
-        {
-            $data['razorpay_max_capture_delay'] = $this->request->post['payment_razorpay_max_capture_delay'];
-        }
-        else
-        {
-            $data['razorpay_max_capture_delay'] = $this->config->get('payment_razorpay_max_capture_delay');
-        }
       
         //Subscription Status
         if (isset($this->request->post['payment_razorpay_subscription_status']))

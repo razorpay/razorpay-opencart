@@ -18,6 +18,9 @@ class ControllerExtensionPaymentRazorpay extends Controller
     const SUBSCRIPTION_RESUMED      = 'subscription.resumed';
     const SUBSCRIPTION_CANCELLED    = 'subscription.cancelled';
     const SUBSCRIPTION_CHARGED      = 'subscription.charged';
+    const PA_WEBHOOK_WAIT_TIME      = 17;
+    const OP_WEBHOOK_WAIT_TIME      = 20;
+    const HTTP_CONFLICT_STATUS      = 409;
 
     // Set RZP plugin version
     private $version = '5.1.0';
@@ -315,7 +318,11 @@ class ControllerExtensionPaymentRazorpay extends Controller
                     $this->model_extension_payment_razorpay->addOCRecurringTransaction($ocRecurringData['order_recurring_id'], $razorpay_subscription_id, $planData['plan_bill_amount'], "success");
                 }
 
-                $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id, true);
+                if ($order_info['payment_code'] === 'razorpay' and
+                    $order_info['order_status_id'] === '0')
+                {
+                    $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id, true);
+                }
                 $this->response->redirect($this->url->link('checkout/success', '', true));
             }
             catch (\Razorpay\Api\Errors\SignatureVerificationError $e)
@@ -380,8 +387,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 catch (\Razorpay\Api\Errors\SignatureVerificationError $e)
                 {
                     $this->log->write($e->getMessage());
-                    header('Status: 400 Signature Verification failed', true, 400);
-                    exit;
+                    return;
                 }
 
                 switch ($data['event'])
@@ -416,6 +422,14 @@ class ControllerExtensionPaymentRazorpay extends Controller
      */
     protected function orderPaid(array $data)
     {
+        $payment_created_time = $data['payload']['payment']['entity']['created_at'];
+
+        if(time() < ($payment_created_time + self::OP_WEBHOOK_WAIT_TIME))
+        {
+            header('Status: 409 Webhook conflicts due to early execution.', true, self::HTTP_CONFLICT_STATUS);
+            return;
+        }
+
         // Do not process if order is subscription type
         if (isset($post['payload']['payment']['entity']['invoice_id']) === true)
         {
@@ -435,15 +449,11 @@ class ControllerExtensionPaymentRazorpay extends Controller
         {
             $order_info = $this->model_checkout_order->getOrder($merchant_order_id);
             if ($order_info['payment_code'] === 'razorpay' and
-                !$order_info['order_status_id'])
+                $order_info['order_status_id'] === '0')
             {
                 $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id);
             }
         }
-
-        // Graceful exit since payment is now processed.
-        $this->response->addHeader('HTTP/1.1 200 OK');
-        $this->response->addHeader('Content-Type: application/json');
     }
 
     /**
@@ -462,56 +472,53 @@ class ControllerExtensionPaymentRazorpay extends Controller
     protected function paymentAuthorized(array $data)
     {
         //verify if we need to consume it as late authorized
-        $max_capture_delay = $this->config->get('payment_razorpay_max_capture_delay') * 60;
         $payment_created_time = $data['payload']['payment']['entity']['created_at'];
 
-        if((time() - $payment_created_time) < $max_capture_delay)
+        if(time() < ($payment_created_time + self::PA_WEBHOOK_WAIT_TIME))
         {
-            // reference_no (opencart_order_id) should be passed in payload
-            $merchant_order_id = $data['payload']['payment']['entity']['notes']['opencart_order_id'];
-            $razorpay_payment_id = $data['payload']['payment']['entity']['id'];
+            header('Status: 409 Webhook conflicts due to early execution.', true, self::HTTP_CONFLICT_STATUS);
+            return;
+        }
 
-            //update the order
-            if (isset($merchant_order_id) === true)
+        // reference_no (opencart_order_id) should be passed in payload
+        $merchant_order_id = $data['payload']['payment']['entity']['notes']['opencart_order_id'];
+        $razorpay_payment_id = $data['payload']['payment']['entity']['id'];
+
+        //update the order
+        if (isset($merchant_order_id) === true)
+        {
+            $order_info = $this->model_checkout_order->getOrder($merchant_order_id);
+
+            if ($order_info['payment_code'] === 'razorpay' and
+                $order_info['order_status_id'] === '0')
             {
-                $order_info = $this->model_checkout_order->getOrder($merchant_order_id);
+                try {
+                    $capture_amount = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
 
-                if ($order_info['payment_code'] === 'razorpay' and
-                    !$order_info['order_status_id'])
-                {
-                    try {
-                        $capture_amount = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
+                    //fetch the payment
+                    $payment = $this->api->payment->fetch($razorpay_payment_id);
 
-                        //fetch the payment
-                        $payment = $this->api->payment->fetch($razorpay_payment_id);
-
-                        //capture only if payment status is 'authorized'
-                        if ($payment->status === 'authorized')
-                        {
-                            $payment->capture(
-                                array(
-                                    'amount' => $capture_amount,
-                                    'currency' => $order_info['currency_code']
-                            ));
-                        }
-
-                        //update the order status in store
-                        $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id);
-                    }
-                    catch (\Razorpay\Api\Errors\Error $e)
+                    //capture only if payment status is 'authorized'
+                    if ($payment->status === 'authorized'
+                        and $this->config->get('payment_razorpay_payment_action') === 'capture')
                     {
-                        $this->log->write($e->getMessage());
-                        header('Status: 400 Payment Capture failed', true, 400);
-                        exit;
+                        $payment->capture(
+                            array(
+                                'amount' => $capture_amount,
+                                'currency' => $order_info['currency_code']
+                            ));
                     }
 
+                    //update the order status in store
+                    $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id);
+                }
+                catch (\Razorpay\Api\Errors\Error $e)
+                {
+                    $this->log->write($e->getMessage());
+                    return;
                 }
             }
         }
-        // Graceful exit since payment is now processed.
-        $this->response->addHeader('HTTP/1.1 200 OK');
-        $this->response->addHeader('Content-Type: application/json');
-        exit;
     }
 
 
