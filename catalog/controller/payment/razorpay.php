@@ -21,7 +21,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     const SUBSCRIPTION_CHARGED      = 'subscription.charged';
 
     // Set RZP plugin version
-    private $version = '5.1.0';
+    private $version = '5.1.0'; //change this 
 
     private $api;
 
@@ -39,6 +39,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
+        $data['button_confirm'] = $this->language->get('button_confirm');
         try
         {
 			//echo();
@@ -101,6 +102,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             }
             else
             {
+                $data['is_recurring'] = "false";
                 // Orders API with payment autocapture
                 $order_data = $this->get_order_creation_data($this->session->data['order_id']);
                 // echo($this->session->data["razorpay_order_amount"] .' | ');
@@ -571,7 +573,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     {
         try
         {
-            $response = \Requests::get($this->api->getBaseUrl() . '/preferences?key_id=' . $this->api->getKey());
+            $response = \Requests::get($this->api->getBaseUrl() . '/v1/preferences?key_id=' . $this->api->getKey());
         }
         catch (\Exception $e)
         {
@@ -588,7 +590,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             $preferences['image'] = $jsonResponse['options']['image'];
 
             if (empty($jsonResponse['options']['redirect']) === false) {
-                $preferences['is_hosted'] = $jsonResponse['options']['redirect'];
+                $preferences['is_hosted'] = $jsonResponse['options']['redirects'];
             }
         }
 

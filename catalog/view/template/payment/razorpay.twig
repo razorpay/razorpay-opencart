@@ -34,10 +34,8 @@
             </div>
         </div>
     </form>
-
 {% else %}
-
-        <script data-cfasync='false' type='text/javascript' src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script data-cfasync='false' type='text/javascript' src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script data-cfasync='false' type='text/javascript'>
 
         if ({{ is_recurring }}) {
@@ -115,13 +113,12 @@
 
     </script>
     <form name="razorpay-form" id="razorpay-form" action="{{ return_url }}" method="POST">
-        <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id"/>
-        <input type="hidden" name="razorpay_signature" id="razorpay_signature"/>
+            <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id"/>
+            <input type="hidden" name="razorpay_signature" id="razorpay_signature"/>
     </form>
-    <div class="buttons">
-        <div class="pull-right">
-            <input type="submit" onclick="razorpaySubmit(this);" value="{{ button_confirm }}" class="btn btn-primary"/>
+        <div class="checkout-payment">
+            <div class="text-end">
+                <button type="button" onclick="razorpaySubmit(this);" id="button-confirm" class="btn btn-primary">{{ button_confirm }}</button>
+            </div>
         </div>
-    </div>
-
 {% endif %}

@@ -30,6 +30,7 @@ $_['text_plan_details'] = 'Plan details';
 $_['text_plan_name'] = 'Plan Name:';
 $_['text_plan_id'] = 'Plan Id:';
 $_['text_plan_type'] = 'Plan Type:';
+$_['button_confirm'] = 'Confirm Order';
 $_['button_cancel'] = 'Cancel';
 $_['subscription_pause'] = 'Pause';
 $_['subscription_resume'] = 'Resume';
