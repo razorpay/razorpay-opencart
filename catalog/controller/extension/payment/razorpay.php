@@ -508,7 +508,6 @@ class ControllerExtensionPaymentRazorpay extends Controller
                 catch (\Razorpay\Api\Errors\Error $e)
                 {
                     $this->log->write($e->getMessage());
-                    header('Status: 400 Payment Capture failed', true, 400);
                     return;
                 }
             }
