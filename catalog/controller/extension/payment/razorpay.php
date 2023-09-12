@@ -315,7 +315,11 @@ class ControllerExtensionPaymentRazorpay extends Controller
                     $this->model_extension_payment_razorpay->addOCRecurringTransaction($ocRecurringData['order_recurring_id'], $razorpay_subscription_id, $planData['plan_bill_amount'], "success");
                 }
 
-                $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id, true);
+                if ($order_info['payment_code'] === 'razorpay' and
+                    $order_info['order_status_id'] === '0')
+                {
+                    $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id, true);
+                }
                 $this->response->redirect($this->url->link('checkout/success', '', true));
             }
             catch (\Razorpay\Api\Errors\SignatureVerificationError $e)
@@ -442,7 +446,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         {
             $order_info = $this->model_checkout_order->getOrder($merchant_order_id);
             if ($order_info['payment_code'] === 'razorpay' and
-                !$order_info['order_status_id'])
+                $order_info['order_status_id'] === '0')
             {
                 $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id);
             }
@@ -483,7 +487,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
             $order_info = $this->model_checkout_order->getOrder($merchant_order_id);
 
             if ($order_info['payment_code'] === 'razorpay' and
-                !$order_info['order_status_id'])
+                $order_info['order_status_id'] === '0')
             {
                 try {
                     $capture_amount = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
