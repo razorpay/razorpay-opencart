@@ -1,5 +1,6 @@
 <?php
-namespace DB;
+namespace Opencart\Admin\Controller\Extension\Razorpay\Payment;
+
 final class MPDO
 {
     private $pdo = null;

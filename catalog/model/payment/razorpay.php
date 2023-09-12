@@ -1,14 +1,15 @@
 <?php
-use DB\mPDO;
+namespace Opencart\Catalog\Model\Extension\Razorpay\Payment;
+
+use Opencart\Admin\Controller\Extension\Razorpay\Payment\MPDO;
 
 if(class_exists('mPDO')  === false)
 {
-    require_once __DIR__ . "/../../../../system/library/db/mPDO.php";
+    require_once __DIR__ . "../../../../system/library/db/mPDO.php";
 }
 
-class ModelExtensionPaymentRazorpay extends Model
-{
-    const RECURRING_ACTIVE      = 1;
+class Razorpay extends \Opencart\System\Engine\Model {
+	const RECURRING_ACTIVE      = 1;
     const RECURRING_INACTIVE    = 2;
     const RECURRING_CANCELLED   = 3;
     const RECURRING_SUSPENDED   = 4;
@@ -22,27 +23,38 @@ class ModelExtensionPaymentRazorpay extends Model
         'year' => "yearly"
     ];
 
-    public function __construct($registry)
+	public function __construct(\Opencart\System\Engine\Registry $registry)
     {
         parent::__construct($registry);
         $this->rzpPdo = new mPDO(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
     }
 
-    public function getMethod($address, $total)
+	public function getMethods($address)
     {
-        $this->language->load('extension/payment/razorpay');
+        $this->language->load('extension/razorpay/payment/razorpay');
+
+        $option_data['razorpay'] = [
+            'code' => 'razorpay.razorpay',
+            'name' => $this->language->get('text_title')
+        ];
 
         $method_data = array(
-            'code' => 'razorpay',
-            'title' => $this->language->get('text_title'),
-            'terms' => '',
-            'sort_order' => $this->config->get('payment_razorpay_sort_order'),
+            'code'          => 'razorpay',
+            'option'        => $option_data,
+            'name'          => $this->language->get('heading_title'),
+            'sort_order'    => $this->config->get('payment_razorpay_sort_order'),
         );
 
+        // $method_data = [
+            // 			'code'       => 'credit_card',
+            // 			'name'       => $this->language->get('heading_title'),
+            // 			'option'     => $option_data,
+            // 			'sort_order' => $this->config->get('payment_credit_card_sort_order')
+            // 		];
         return $method_data;
     }
 
-    public function editSetting($code, $data, $store_id = 0)
+	public function editSetting($code, $data, $store_id = 0)
     {
         foreach ($data as $key => $value)
         {
@@ -73,7 +85,7 @@ class ModelExtensionPaymentRazorpay extends Model
         }
     }
 
-    // Subscription
+	// Subscription
     public function saveSubscriptionDetails($subscriptionData, $planData, $customerId, $order_id)
     {
         $query = "INSERT INTO " . DB_PREFIX . "razorpay_subscriptions SET plan_entity_id = :entity_id, subscription_id = :subscription_id,";
@@ -127,7 +139,7 @@ class ModelExtensionPaymentRazorpay extends Model
         $this->rzpPdo->execute();
     }
 
-    public function updateSubscription($subscriptionData, $subscriptionId)
+	public function updateSubscription($subscriptionData, $subscriptionId)
     {
         $query = "UPDATE " . DB_PREFIX . "razorpay_subscriptions SET  qty = :quantity,";
         $query = $query . " status = :status, total_count = :total_count,";
@@ -174,7 +186,7 @@ class ModelExtensionPaymentRazorpay extends Model
         $this->rzpPdo->execute();
     }
 
-    public function getTotalOrderRecurring()
+	public function getTotalOrderRecurring()
     {
         $this->rzpPdo->prepare("SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "razorpay_subscriptions` WHERE `opencart_user_id` = :opencart_user_id");
         $this->rzpPdo->bindParam(':opencart_user_id', (int)$this->customer->getId());
@@ -183,7 +195,7 @@ class ModelExtensionPaymentRazorpay extends Model
         return $query->row['total'];
     }
 
-    public function getSubscriptionByUserId($start = 0, $limit = 20)
+	public function getSubscriptionByUserId($start = 0, $limit = 20)
     {
         if ($start < 0)
         {
@@ -200,9 +212,9 @@ class ModelExtensionPaymentRazorpay extends Model
         $query = $this->rzpPdo->execute();
 
         return $query->rows;
-    }
+    }	
 
-    public function getSubscriptionDetails($subscriptionId)
+	public function getSubscriptionDetails($subscriptionId)
     {
         $this->rzpPdo->prepare("SELECT rs.*, pd.name AS productName, rpln.plan_name, rpln.plan_type, rpln.plan_id FROM " . DB_PREFIX . "razorpay_subscriptions rs LEFT JOIN " . DB_PREFIX . "razorpay_plans rpln on rs.plan_entity_id = rpln.entity_id  LEFT JOIN " . DB_PREFIX . "product_description pd on pd.product_id = rs.product_id WHERE `subscription_id` = :subscriptionId");
         $this->rzpPdo->bindParam(':subscriptionId', $this->db->escape($subscriptionId));
@@ -211,7 +223,7 @@ class ModelExtensionPaymentRazorpay extends Model
         return $query->row;
     }
 
-    public function getSubscriptionById($subscriptionId)
+	public function getSubscriptionById($subscriptionId)
     {
         $this->rzpPdo->prepare("SELECT *  FROM " . DB_PREFIX . "razorpay_subscriptions WHERE `subscription_id` = :subscriptionId");
         $this->rzpPdo->bindParam(':subscriptionId', $this->db->escape($subscriptionId));
@@ -220,7 +232,7 @@ class ModelExtensionPaymentRazorpay extends Model
         return $query->row;
     }
 
-    public function updateSubscriptionStatus($subscriptionId, $status, $user = null)
+	public function updateSubscriptionStatus($subscriptionId, $status, $user = null)
     {
         $query = "UPDATE " . DB_PREFIX . "razorpay_subscriptions SET status = :status";
 
@@ -241,7 +253,7 @@ class ModelExtensionPaymentRazorpay extends Model
         $this->rzpPdo->execute();
     }
 
-    public function updateSubscriptionPlan($planData)
+	public function updateSubscriptionPlan($planData)
     {
         $query = "UPDATE " . DB_PREFIX . "razorpay_subscriptions SET plan_entity_id = :plan_entity_id";
 
@@ -365,4 +377,79 @@ class ModelExtensionPaymentRazorpay extends Model
         $this->rzpPdo->bindParam(':amount', (float)$amount);
         $this->rzpPdo->execute();
     }
+
+	/* example payment extension functions */
+	public function getMethod(array $address): array {
+		// echo(json_encode($this->load->language('extension/razorpay/payment/razorpay')));
+		$this->load->language('extension/razorpay/payment/razorpay');
+
+		if (!$this->config->get('config_checkout_payment_address')) {
+			$status = true;
+		} elseif (!$this->config->get('payment_credit_card_geo_zone_id')) {
+			$status = true;
+		} else {
+			$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "zone_to_geo_zone` WHERE `geo_zone_id` = '" . (int)$this->config->get('payment_credit_card_geo_zone_id') . "' AND `country_id` = '" . (int)$address['country_id'] . "' AND (`zone_id` = '" . (int)$address['zone_id'] . "' OR `zone_id` = '0')");
+
+			if ($query->num_rows) {
+				$status = true;
+			} else {
+				$status = false;
+			}
+		}
+
+		$method_data = [];
+
+		if ($status) {
+			$option_data = [];
+
+			$option_data['credit_card'] = [
+				'code' => 'credit_card.credit_card',
+				'name' => $this->language->get('text_card_use')
+			];
+
+			$results = $this->getCreditCards($this->customer->getId());
+
+			foreach ($results as $result) {
+				$option_data[$result['credit_card_id']] = [
+					'code' => 'credit_card.' . $result['credit_card_id'],
+					'name' => $this->language->get('text_card_use') . ' ' . $result['card_number']
+				];
+			}
+
+			$method_data = [
+				'code'       => 'credit_card',
+				'name'       => $this->language->get('heading_title'),
+				'option'     => $option_data,
+				'sort_order' => $this->config->get('payment_credit_card_sort_order')
+			];
+		}
+
+		return $method_data;
+	}
+
+	public function getCreditCard(int $customer_id, int $credit_card_id) {
+		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "credit_card` WHERE `customer_id` = '" . (int)$customer_id . "' AND `credit_card_id` = '" . (int)$credit_card_id . "'");
+
+		return $query->row;
+	}
+
+	public function getCreditCards(int $customer_id): array {
+		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "credit_card` WHERE `customer_id` = '" . (int)$customer_id . "'");
+
+		return $query->rows;
+	}
+
+	public function addCreditCard(int $customer_id, array $data): void {
+		$this->db->query("INSERT INTO `" . DB_PREFIX . "credit_card` SET `customer_id` = '" . (int)$customer_id . "', `card_name` = '" . $this->db->escape($data['card_name']) . "', `card_number` = '" . $this->db->escape($data['card_number']) . "', `card_expire_month` = '" . $this->db->escape($data['card_expire_month']) . "', `card_expire_year` = '" . $this->db->escape($data['card_expire_year']) . "', `card_cvv` = '" . $this->db->escape($data['card_cvv']) . "', `date_added` = NOW()");
+	}
+
+	public function deleteCreditCard(int $customer_id, int $credit_card_id): void {
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "credit_card` WHERE `customer_id` = '" . (int)$customer_id . "' AND `credit_card_id` = '" . (int)$credit_card_id . "'");
+	}
+
+	public function charge(int $customer_id, int $order_id, float $amount, int $credit_card_id = 0): string {
+		//$this->db->query("INSERT INTO `" . DB_PREFIX . "credit_card` SET `customer_id` = '" . (int)$customer_id . "', `card_name` = '" . $this->db->escape($data['card_name']) . "', `card_number` = '" . $this->db->escape($data['card_number']) . "', `card_expire_month` = '" . $this->db->escape($data['card_expire_month']) . "', `card_expire_year` = '" . $this->db->escape($data['card_expire_year']) . "', `card_cvv` = '" . $this->db->escape($data['card_cvv']) . "', `date_added` = NOW()");
+
+		return $this->config->get('payment_credit_card_response');
+	}
 }

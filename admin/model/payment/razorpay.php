@@ -1,20 +1,21 @@
 <?php
-use DB\mPDO;
+namespace Opencart\Admin\Model\Extension\Razorpay\Payment;
+
+use Opencart\Admin\Controller\Extension\Razorpay\Payment\MPDO;
 
 if(class_exists('mPDO')  === false)
 {
-    require_once __DIR__ . "/../../../../system/library/db/mPDO.php";
+    require_once __DIR__ . "../../../../system/library/db/mPDO.php";
 }
 
-class ModelExtensionPaymentRazorpay extends Model
-{
-    public function __construct($registry)
+class Razorpay extends \Opencart\System\Engine\Model {
+	public function __construct(\Opencart\System\Engine\Registry $registry)
     {
         parent::__construct($registry);
         $this->rzpPdo = new mPDO(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
     }
-    
-    public function createTables()
+
+	public function createTables()
     {
         $this->db->query(
             "CREATE TABLE IF NOT EXISTS `".DB_PREFIX."razorpay_plans` (
@@ -575,4 +576,28 @@ class ModelExtensionPaymentRazorpay extends Model
         $this->rzpPdo->bindParam(':order_id', (int)$orderId);
         $this->rzpPdo->execute();
     }
+
+	public function getReports(int $download_id, int $start = 0, int $limit = 10): array {
+		if ($start < 0) {
+			$start = 0;
+		}
+
+		if ($limit < 1) {
+			$limit = 10;
+		}
+
+		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "credit_card_report` ORDER BY `date_added` ASC LIMIT " . (int)$start . "," . (int)$limit);
+
+		return $query->rows;
+	}
+
+	public function getTotalReports(): int {
+		$query = $this->db->query("SELECT COUNT(*) AS `total` FROM `" . DB_PREFIX . "credit_card_report`");
+
+		if ($query->num_rows) {
+			return $query->row['total'];
+		} else {
+			return 0;
+		}
+	}
 }
