@@ -127,6 +127,10 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
                     $this->log->write("RZP orderID (:" . $razorpay_order['id'] . ") created for Opencart OrderID (:" . $this->session->data['order_id'] . ")");
                 }
+                else if (isset($this->session->data["razorpay_order_id_" . $this->session->data['order_id']]) === true) 
+                {
+                    $data['razorpay_order_id'] = $this->session->data["razorpay_order_id_" . $this->session->data['order_id']];
+                }
             }
 
         }
