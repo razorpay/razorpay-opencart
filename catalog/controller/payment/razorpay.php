@@ -105,19 +105,23 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                 $data['is_recurring'] = "false";
                 // Orders API with payment autocapture
                 $order_data = $this->get_order_creation_data($this->session->data['order_id']);
-                // echo($this->session->data["razorpay_order_amount"] .' | ');
-                // echo(json_encode($order_info));
-                // echo($this->session->data['order_id'].' | ');
-                // echo($this->session->data["razorpay_order_id_" . $this->session->data['order_id']].' | ');
                 if (isset($this->session->data["razorpay_order_amount"]) === false)
                 {
                     $this->session->data["razorpay_order_amount"] = 0;
                 }
 
-                if ((isset($this->session->data["razorpay_order_id_" . $this->session->data['order_id']]) === false) or
-                    ((isset($this->session->data["razorpay_order_id_" . $this->session->data['order_id']]) === true) and
-                    (($this->session->data["razorpay_order_amount"] === 0) or
-                    ($this->session->data["razorpay_order_amount"] !== $order_data["amount"]))))
+                if (
+                    (isset($this->session->data["razorpay_order_id_" . $this->session->data['order_id']]) === false) or
+                    (
+                        (isset($this->session->data["razorpay_order_id_" . $this->session->data['order_id']]) === true) and
+                        (
+                            ($this->session->data["razorpay_order_amount"] === 0) or
+                            ($this->session->data["razorpay_order_amount"] !== $order_data["amount"] or 
+                            ($this->session->data["razorpay_order_amount"] === $order_data["amount"])
+                            )
+                        )
+                    )
+                )
                 {
                     $razorpay_order = $this->api->order->create($order_data);
 
@@ -127,8 +131,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
                     $this->log->write("RZP orderID (:" . $razorpay_order['id'] . ") created for Opencart OrderID (:" . $this->session->data['order_id'] . ")");
                 }
-                // This prints the razorpay_order_id if set and current order id
-                $this->log->write(json_encode($this->session->data));
             }
 
         }
