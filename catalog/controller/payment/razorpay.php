@@ -14,7 +14,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     const PAYMENT_AUTHORIZED        = 'payment.authorized';
     const PAYMENT_FAILED            = 'payment.failed';
     const ORDER_PAID                = 'order.paid';
-    const WEBHOOK_URL               = HTTP_SERVER . 'index.php?route=extension/razorpay/payment/webhook';
+    const WEBHOOK_URL               = HTTP_SERVER . 'index.php?route=extension/razorpay/payment/razorpay.webhook';
     const SUBSCRIPTION_PAUSED       = 'subscription.paused';
     const SUBSCRIPTION_RESUMED      = 'subscription.resumed';
     const SUBSCRIPTION_CANCELLED    = 'subscription.cancelled';

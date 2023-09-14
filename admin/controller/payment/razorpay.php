@@ -9,7 +9,7 @@ use Razorpay\Api\Errors;
 use Opencart\Admin\Controller\Extension\Razorpay\Payment\CreateWebhook;
 
 class Razorpay extends \Opencart\System\Engine\Controller {
-	const WEBHOOK_URL    = HTTP_CATALOG . 'index.php?route=extension/payment/razorpay/webhook';
+	const WEBHOOK_URL    = HTTP_CATALOG . 'index.php?route=extension/razorpay/payment/razorpay.webhook';
 	
 	private $error = [];
 
