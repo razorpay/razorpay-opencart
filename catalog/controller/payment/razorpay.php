@@ -189,43 +189,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $data['cancel_url'] =  $this->url->link('checkout/checkout', '', 'true');
 
         return $this->load->view('extension/razorpay/payment/razorpay', $data);
-        // if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/extension/razorpay/payment'))
-        // {
-        //     return $this->load->view($this->config->get('config_template') . '/template/extension/razorpay/payment', $data);
-        // }
-        // else
-        // {
-        // }
-		// echo(json_encode($this->load->language('extension/razorpay/payment/razorpay')));
-		// $this->load->language('extension/razorpay/payment/razorpay');
-
-		// if (isset($this->session->data['payment_method'])) {
-		// 	$data['logged'] = $this->customer->isLogged();
-		// 	$data['subscription'] = $this->cart->hasSubscription();
-
-		// 	$data['months'] = [];
-
-		// 	foreach (range(1, 12) as $month) {
-		// 		$data['months'][] = date('m', mktime(0, 0, 0, $month, 1));
-		// }
-
-		// 	$data['years'] = [];
-
-		// 	foreach (range(date('Y'), date('Y', strtotime('+10 year'))) as $year) {
-		// 		$data['years'][] = $year;
-		// 	}
-
-		// 	$data['language'] = $this->config->get('config_language');
-
-		// 	// Card storage
-		// 	if ($this->session->data['payment_method']['code'] == 'credit_card.credit_card') {
-		// 		return $this->load->view('extension/razorpay/payment/credit_card', $data);
-		// 	} else {
-		// 		return $this->load->view('extension/razorpay/payment/stored', $data);
-		// 	}
-		// }
-
-		// return '';
 	}
 
 	private function get_order_creation_data($order_id)
@@ -334,7 +297,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                 );
             }
 
-            // echo('attributes :' . json_encode($attributes));
             $order_info = $this->model_checkout_order->getOrder($merchant_order_id);
             $amount = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
 
@@ -342,7 +304,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             try
             {
                 $this->api->utility->verifyPaymentSignature($attributes);
-                // echo('In callback verfiy signature'. PHP_EOL);
                 if ($isSubscriptionCallBack)
                 {
                     $subscriptionData = $this->api->subscription->fetch($razorpay_subscription_id)->toArray();
