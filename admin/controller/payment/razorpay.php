@@ -157,15 +157,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 			{
 				$data['razorpay_payment_action'] = $this->config->get('payment_razorpay_payment_action');
 			}
-
-			if (isset($this->request->post['payment_razorpay_max_capture_delay']))
-			{
-				$data['razorpay_max_capture_delay'] = $this->request->post['payment_razorpay_max_capture_delay'];
-			}
-			else
-			{
-				$data['razorpay_max_capture_delay'] = $this->config->get('payment_razorpay_max_capture_delay');
-			}
 		
 			//Subscription Status
 			if (isset($this->request->post['payment_razorpay_subscription_status']))
@@ -223,6 +214,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
 	public function save(): void {
 		$this->load->language('extension/razorpay/payment/razorpay');
+		$configData = [];
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate())
 		{
@@ -256,7 +248,12 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 		if (!$json) {
 			$this->load->model('setting/setting');
 
-			$this->model_setting_setting->editSetting('payment_razorpay', $this->request->post);
+			if (count($configData) !== 0) {
+				$this->model_setting_setting->editSetting('payment_razorpay', $configData);
+			}
+			else {
+				$this->model_setting_setting->editSetting('payment_razorpay', $this->request->post);
+			}
 
 			$json['success'] = $this->language->get('text_success');
 		}
