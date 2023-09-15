@@ -543,7 +543,8 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     {
         try
         {
-            $response = \Requests::get($this->api->getBaseUrl() . '/v1/preferences?key_id=' . $this->api->getKey());
+            $apiPreferencesUrl = $this->api->getFullUrl('/v1/preferences?key_id=' . $this->api->getKey());
+            $response = \Requests::get($apiPreferencesUrl);
         }
         catch (\Exception $e)
         {
