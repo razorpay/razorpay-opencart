@@ -428,7 +428,12 @@ class Razorpay extends \Opencart\System\Engine\Controller {
      */
     protected function orderPaid(array $data)
     {
-        $this->log->write('In OP logs');
+        $merchant_order_id = 0;
+        if (isset($data['payload']['payment']['entity']['notes']['opencart_order_id'])) {
+            // reference_no (opencart_order_id) should be passed in payload
+            $merchant_order_id = $data['payload']['payment']['entity']['notes']['opencart_order_id'];
+        }
+        $this->log->write('Order Paid Webhook received for order id : ' . $merchant_order_id);
         $payment_created_time = $data['payload']['payment']['entity']['created_at'];
 
         if(time() < ($payment_created_time + self::OP_WEBHOOK_WAIT_TIME))
@@ -447,8 +452,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             }
         }
 
-        // reference_no (opencart_order_id) should be passed in payload
-        $merchant_order_id = $data['payload']['payment']['entity']['notes']['opencart_order_id'];
         $razorpay_payment_id = $data['payload']['payment']['entity']['id'];
 
         if (isset($merchant_order_id) === true)
@@ -473,6 +476,12 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
     protected function paymentAuthorized(array $data)
     {
+        $merchant_order_id = 0;
+        if (isset($data['payload']['payment']['entity']['notes']['opencart_order_id'])) {
+            // reference_no (opencart_order_id) should be passed in payload
+            $merchant_order_id = $data['payload']['payment']['entity']['notes']['opencart_order_id'];
+        }
+        $this->log->write('Payment Authorized Webhook received for order id : ' . $merchant_order_id);
         //verify if we need to consume it as late authorized
         $payment_created_time = $data['payload']['payment']['entity']['created_at'];
 
@@ -482,8 +491,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             return;
         }
 
-        // reference_no (opencart_order_id) should be passed in payload
-        $merchant_order_id = $data['payload']['payment']['entity']['notes']['opencart_order_id'];
         $razorpay_payment_id = $data['payload']['payment']['entity']['id'];
 
         //update the order
