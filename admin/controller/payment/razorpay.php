@@ -168,11 +168,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 				$data['razorpay_subscription_status'] = $this->config->get('payment_razorpay_subscription_status');
 			}
 
-			// $this->template = 'extension/razorpay/payment/razorpay';
-			// $this->children = array(
-			// 	'common/header',
-			// 	'common/footer',
-			// );
 			$data['header'] = $this->load->controller('common/header');
 			$data['column_left'] = $this->load->controller('common/column_left');
 			$data['footer'] = $this->load->controller('common/footer');
@@ -237,7 +232,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 				$configData = array_merge($this->request->post, $webhookConfigData);
 				$this->model_setting_setting->editSetting('payment_razorpay', $configData);
 				$this->session->data['success'] = $this->language->get('text_success');
-				// $this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true));
 			}
 		}
 		$json = [];

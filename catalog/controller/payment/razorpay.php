@@ -35,7 +35,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     }
 
 	public function index(): string {
-		// echo(json_encode($this->load->language('extension/razorpay/payment/razorpay')));
 		$this->load->language('extension/razorpay/payment/razorpay');
 
         $this->load->model('checkout/order');
@@ -45,7 +44,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $data['button_confirm'] = $this->language->get('button_confirm');
         try
         {
-			//echo();
             if ($this->cart->hasSubscription() and 
             	$this->config->get('payment_razorpay_subscription_status'))
             {
