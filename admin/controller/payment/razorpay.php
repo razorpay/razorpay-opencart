@@ -210,31 +210,51 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 	public function save(): void {
 		$this->load->language('extension/razorpay/payment/razorpay');
 		$configData = [];
+		$json = [];
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate())
 		{
-			$createWebhook = new CreateWebhook(
-				$this->request->post['payment_razorpay_key_id'],
-				$this->request->post['payment_razorpay_key_secret'],
-				$this->config->get('payment_razorpay_webhook_secret'),
-				self::WEBHOOK_URL,
-				$this->request->post['payment_razorpay_subscription_status']
-			);
-
-			$webhookConfigData = $createWebhook->autoCreateWebhook();
-
-			if(array_key_exists('error', $webhookConfigData))
+			$keyIdSecretValidationResult = ( 
+												substr($this->request->post['payment_razorpay_key_id'], 0, 4) === 'rzp_' and 
+												(
+													substr($this->request->post['payment_razorpay_key_id'], 4, 4) === 'test' or
+													substr($this->request->post['payment_razorpay_key_id'], 4, 4) === 'live'
+												)
+											);
+			
+			if ($keyIdSecretValidationResult) 
 			{
-				$this->error['warning'] = $this->language->get('enable_subscription_flag');
+				$createWebhook = new CreateWebhook(
+					$this->request->post['payment_razorpay_key_id'],
+					$this->request->post['payment_razorpay_key_secret'],
+					$this->config->get('payment_razorpay_webhook_secret'),
+					self::WEBHOOK_URL,
+					$this->request->post['payment_razorpay_subscription_status']
+				);
+	
+				$webhookConfigData = $createWebhook->autoCreateWebhook();
+	
+				if(array_key_exists('error', $webhookConfigData))
+				{
+					$this->error['warning'] = $this->language->get('enable_subscription_flag');
+				}
+				else if($webhookConfigData['payment_razorpay_webhook_status'] == 0) 
+				{
+					$json['error'] = 'Error: Couldn\'t create webhook. Please try again';
+				}
+				else
+				{
+					$configData = array_merge($this->request->post, $webhookConfigData);
+					$this->model_setting_setting->editSetting('payment_razorpay', $configData);
+					$this->session->data['success'] = $this->language->get('text_success');
+				}
 			}
-			else
+			else 
 			{
-				$configData = array_merge($this->request->post, $webhookConfigData);
-				$this->model_setting_setting->editSetting('payment_razorpay', $configData);
-				$this->session->data['success'] = $this->language->get('text_success');
+				$json['error'] = 'Error: Please enter valid Razorpay Key id';
 			}
 		}
-		$json = [];
+
 		if (!$this->user->hasPermission('modify', 'extension/razorpay/payment/razorpay')) {
 			$json['error'] = $this->language->get('error_permission');
 		}
