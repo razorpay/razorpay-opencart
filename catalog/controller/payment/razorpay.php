@@ -182,7 +182,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $data['email'] = $order_info['email'];
         $data['phone'] = $order_info['telephone'];
         $data['name'] = $this->config->get('config_name');
-        $data['lang'] = $this->config->get('language_code'); // $this->session->data['language'];
+        $data['lang'] = $this->config->get('language_code');
         $data['return_url'] = $this->url->link('extension/razorpay/payment/razorpay.callback', '', 'true');
         $data['version'] = $this->version;
         $data['oc_version'] = VERSION;
@@ -271,7 +271,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
     public function callback()
     {
-        // return;
         $this->load->model('checkout/order');
         $this->load->model('extension/razorpay/payment/razorpay');
 
@@ -1102,7 +1101,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     }
 
 	public function confirm(): void {
-		// echo(json_encode($this->load->language('extension/razorpay/payment/razorpay')));
 		$this->load->language('extension/razorpay/payment/razorpay');
 
 		$json = [];
@@ -1202,7 +1200,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 	}
 
 	public function stored(): void {
-		// echo(json_encode($this->load->language('extension/razorpay/payment/razorpay')));
 		$this->load->language('extension/razorpay/payment/razorpay');
 
 		$json = [];
@@ -1286,7 +1283,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 	}
 
 	public function delete(): void {
-		// echo(json_encode($this->load->language('extension/razorpay/payment/razorpay')));
 		$this->load->language('extension/razorpay/payment/razorpay');
 
 		$json = [];

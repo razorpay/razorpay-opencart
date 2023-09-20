@@ -44,13 +44,7 @@ class Razorpay extends \Opencart\System\Engine\Model {
             'name'          => $this->language->get('heading_title'),
             'sort_order'    => $this->config->get('payment_razorpay_sort_order'),
         );
-
-        // $method_data = [
-            // 			'code'       => 'credit_card',
-            // 			'name'       => $this->language->get('heading_title'),
-            // 			'option'     => $option_data,
-            // 			'sort_order' => $this->config->get('payment_credit_card_sort_order')
-            // 		];
+        
         return $method_data;
     }
 
@@ -380,7 +374,6 @@ class Razorpay extends \Opencart\System\Engine\Model {
 
 	/* example payment extension functions */
 	public function getMethod(array $address): array {
-		// echo(json_encode($this->load->language('extension/razorpay/payment/razorpay')));
 		$this->load->language('extension/razorpay/payment/razorpay');
 
 		if (!$this->config->get('config_checkout_payment_address')) {
