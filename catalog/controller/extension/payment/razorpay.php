@@ -22,7 +22,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
     const HTTP_CONFLICT_STATUS      = 409;
 
     // Set RZP plugin version
-    private $version = '5.1.0';
+    private $version = '5.1.1';
 
     private $api;
 
