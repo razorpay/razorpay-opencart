@@ -19,8 +19,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     const SUBSCRIPTION_RESUMED      = 'subscription.resumed';
     const SUBSCRIPTION_CANCELLED    = 'subscription.cancelled';
     const SUBSCRIPTION_CHARGED      = 'subscription.charged';
-    const PA_WEBHOOK_WAIT_TIME      = 17;
-    const OP_WEBHOOK_WAIT_TIME      = 20;
+    const WEBHOOK_WAIT_TIME         = 30;
     const HTTP_CONFLICT_STATUS      = 409;
 
     // Set RZP plugin version
@@ -434,14 +433,15 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             $merchant_order_id = $data['payload']['payment']['entity']['notes']['opencart_order_id'];
         }
         $this->log->write('Order Paid Webhook received for order id : ' . $merchant_order_id);
-        
+
         $payment_created_time = $data['payload']['payment']['entity']['created_at'];
 
-        if(time() < ($payment_created_time + self::OP_WEBHOOK_WAIT_TIME))
+        if (time() < ($payment_created_time + self::WEBHOOK_WAIT_TIME))
         {
             header('Status: 409 Webhook conflicts due to early execution.', true, self::HTTP_CONFLICT_STATUS);
             return;
         }
+
         // Do not process if order is subscription type
         if (isset($post['payload']['payment']['entity']['invoice_id']) === true)
         {
@@ -462,6 +462,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                 ($order_info['order_status_id'] === '0'))
             {
                 $this->model_checkout_order->addHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id);
+                $this->log->write("order:$merchant_order_id updated by razorpay order.paid event");
             }
         }
     }
@@ -477,6 +478,11 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
     protected function paymentAuthorized(array $data)
     {
+        if ($this->config->get('payment_razorpay_payment_action') === "capture")
+        {
+            return;
+        }
+
         $merchant_order_id = 0;
         if (isset($data['payload']['payment']['entity']['notes']['opencart_order_id'])) {
             // reference_no (opencart_order_id) should be passed in payload
@@ -487,7 +493,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         //verify if we need to consume it as late authorized
         $payment_created_time = $data['payload']['payment']['entity']['created_at'];
 
-        if(time() < ($payment_created_time + self::PA_WEBHOOK_WAIT_TIME))
+        if (time() < ($payment_created_time + self::WEBHOOK_WAIT_TIME))
         {
             header('Status: 409 Webhook conflicts due to early execution.', true, self::HTTP_CONFLICT_STATUS);
             return;
@@ -520,6 +526,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
                     //update the order status in store
                     $this->model_checkout_order->addHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id);
+                    $this->log->write("order:$merchant_order_id updated by razorpay payment.authorized event");
                 }
                 catch (\Razorpay\Api\Errors\Error $e)
                 {
