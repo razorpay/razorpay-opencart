@@ -39,7 +39,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 			$data['button_cancel'] 				= $this->language->get('button_cancel');
 			$data['help_key_id'] 				= $this->language->get('help_key_id');
 			$data['help_order_status'] 			= $this->language->get('help_order_status');
-			$data['help_webhook_url'] 			= $this->language->get('help_webhook_url');
 
 			if (isset($this->error['warning']))
 			{

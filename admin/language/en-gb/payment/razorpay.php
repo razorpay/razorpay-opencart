@@ -27,8 +27,6 @@ $_['entry_max_capture_delay1'] = 'Max Delay in Payment Capture in minutes';
 //tooltips
 $_['help_key_id'] = 'The Api Key Id and Key Secret you will recieve from the API keys section of Razorpay Dashboard. Use test Key for testing purposes.';
 $_['help_order_status'] = 'The status of the order to be marked on completion of payment.';
-$_['help_webhook_url'] = 'Set Razorpay \'order.paid\' webhooks to call this URL with the below secret.';
-$_['help_max_delay'] = 'It will gets used by \'payment.authorized\' webhooks to capture the payment after this much time, in case of Authorize Only Pament Action.';
 
 // Error
 $_['error_permission'] = 'Warning: You do not have permission to modify payment Razorpay!';
