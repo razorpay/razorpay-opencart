@@ -277,11 +277,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
 	public function install(): void {
 		try {
-			if ($this->user->hasPermission('modify', 'extension/payment')) {
-				$this->load->model('extension/razorpay/payment/credit_card');
-	
-				$this->model_extension_razorpay_payment_credit_card->install();
-			}
 			$this->load->model('extension/razorpay/payment/razorpay');
 		
 			/* Rzp subscriptions tables */
