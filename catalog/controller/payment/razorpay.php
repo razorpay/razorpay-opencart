@@ -273,10 +273,12 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $this->load->model('checkout/order');
         $this->load->model('extension/razorpay/payment/razorpay');
 
-        if (isset($this->request->post['razorpay_payment_id']) === true)
+        $postData = $this->getKeyValueArray(file_get_contents('php://input'));
+
+        if (isset($postData['razorpay_payment_id']) === true)
         {
-            $razorpay_payment_id = $this->request->post['razorpay_payment_id'];
-            $razorpay_signature = $this->request->post['razorpay_signature'];
+            $razorpay_payment_id = $postData['razorpay_payment_id'];
+            $razorpay_signature = $postData['razorpay_signature'];
             $merchant_order_id = $this->session->data['order_id'];
             $isSubscriptionCallBack = false;
 
@@ -382,7 +384,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         if (($enabled === '1') and
             (empty($data['event']) === false))
         {
-
             if (isset($_SERVER['HTTP_X_RAZORPAY_SIGNATURE']) === true)
             {
                 try
@@ -985,7 +986,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     {
         try
         {
-            $postData = $this->request->post;
+            $postData = $this->getKeyValueArray(file_get_contents('php://input'));
 
             $this->load->language('extension/razorpay/payment/razorpay');
             $this->load->model('extension/razorpay/payment/razorpay');
@@ -1115,4 +1116,21 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             }
         }
     }
+
+    protected function getKeyValueArray($inputString) {
+		$postStr = explode("&", $inputString);
+		$post = [];
+		
+		foreach ($postStr as $ele) {
+			$row = explode("=", $ele);
+			$key = isset($row[0]) ? $row[0] : "";
+			$val = isset($row[1]) ? $row[1] : "";
+			if ($row[0] !== "") 
+			{
+				$post[$key] = isset($val) ? $val : "";
+			}
+		}
+
+		return $post;
+	}
 }

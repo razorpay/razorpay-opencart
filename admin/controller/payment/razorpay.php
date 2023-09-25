@@ -15,6 +15,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
 	public function index(): void {
 		try {
+			$post = $this->getKeyValueArray(file_get_contents('php://input'));
 			$this->language->load('extension/razorpay/payment/razorpay');
 
 			$this->document->setTitle($this->language->get('heading_title'));
@@ -100,27 +101,27 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
 			$data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', 'SSL');
 
-			if (isset($this->request->post['payment_razorpay_key_id']))
+			if (isset($post['payment_razorpay_key_id']))
 			{
-				$data['razorpay_key_id'] = $this->request->post['payment_razorpay_key_id'];
+				$data['razorpay_key_id'] = $post['payment_razorpay_key_id'];
 			}
 			else
 			{
 				$data['razorpay_key_id'] = $this->config->get('payment_razorpay_key_id');
 			}
 
-			if (isset($this->request->post['payment_razorpay_key_secret']))
+			if (isset($post['payment_razorpay_key_secret']))
 			{
-			$data['razorpay_key_secret'] = $this->request->post['payment_razorpay_key_secret'];
+			$data['razorpay_key_secret'] = $post['payment_razorpay_key_secret'];
 			}
 			else
 			{
 			$data['razorpay_key_secret'] = $this->config->get('payment_razorpay_key_secret');
 			}
 
-			if (isset($this->request->post['payment_razorpay_order_status_id']))
+			if (isset($post['payment_razorpay_order_status_id']))
 			{
-				$data['razorpay_order_status_id'] = $this->request->post['payment_razorpay_order_status_id'];
+				$data['razorpay_order_status_id'] = $post['payment_razorpay_order_status_id'];
 			}
 			else
 			{
@@ -130,27 +131,27 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
 			$data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
 
-			if (isset($this->request->post['payment_razorpay_status']))
+			if (isset($post['payment_razorpay_status']))
 			{
-				$data['razorpay_status'] = $this->request->post['payment_razorpay_status'];
+				$data['razorpay_status'] = $post['payment_razorpay_status'];
 			}
 			else
 			{
 				$data['razorpay_status'] = $this->config->get('payment_razorpay_status');
 			}
 
-			if (isset($this->request->post['payment_razorpay_sort_order']))
+			if (isset($post['payment_razorpay_sort_order']))
 			{
-				$data['razorpay_sort_order'] = $this->request->post['payment_razorpay_sort_order'];
+				$data['razorpay_sort_order'] = $post['payment_razorpay_sort_order'];
 			}
 			else
 			{
 				$data['razorpay_sort_order'] = $this->config->get('payment_razorpay_sort_order');
 			}
 
-			if (isset($this->request->post['payment_razorpay_payment_action']))
+			if (isset($post['payment_razorpay_payment_action']))
 			{
-				$data['razorpay_payment_action'] = $this->request->post['payment_razorpay_payment_action'];
+				$data['razorpay_payment_action'] = $post['payment_razorpay_payment_action'];
 			}
 			else
 			{
@@ -158,9 +159,9 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 			}
 		
 			//Subscription Status
-			if (isset($this->request->post['payment_razorpay_subscription_status']))
+			if (isset($post['payment_razorpay_subscription_status']))
 			{
-				$data['razorpay_subscription_status'] = $this->request->post['payment_razorpay_subscription_status'];
+				$data['razorpay_subscription_status'] = $post['payment_razorpay_subscription_status'];
 			}
 			else
 			{
@@ -181,17 +182,24 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
 	protected function validate()
     {
+		$postStr = explode("&", file_get_contents('php://input'));
+		$post = [];
+		foreach ($postStr as $ele) {
+			$row = explode("=", $ele);
+			$post[$row[0]] = $row[1];
+		}
+		
         if (!$this->user->hasPermission('modify', 'extension/razorpay/payment/razorpay'))
         {
             $this->error['warning'] = $this->language->get('error_permission');
         }
 
-        if (!$this->request->post['payment_razorpay_key_id'])
+        if (!isset($post['payment_razorpay_key_id']))
         {
             $this->error['payment_razorpay_key_id'] = $this->language->get('error_key_id');
         }
 
-        if (!$this->request->post['payment_razorpay_key_secret'])
+        if (!isset($post['payment_razorpay_key_secret']))
         {
             $this->error['payment_razorpay_key_secret'] = $this->language->get('error_key_secret');
         }
@@ -210,25 +218,26 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 		$this->load->language('extension/razorpay/payment/razorpay');
 		$configData = [];
 		$json = [];
+		$post = $this->getKeyValueArray(file_get_contents('php://input'));
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate())
 		{
 			$keyIdSecretValidationResult = ( 
-												substr($this->request->post['payment_razorpay_key_id'], 0, 4) === 'rzp_' and 
+												substr($post['payment_razorpay_key_id'], 0, 4) === 'rzp_' and 
 												(
-													substr($this->request->post['payment_razorpay_key_id'], 4, 4) === 'test' or
-													substr($this->request->post['payment_razorpay_key_id'], 4, 4) === 'live'
+													substr($post['payment_razorpay_key_id'], 4, 4) === 'test' or
+													substr($post['payment_razorpay_key_id'], 4, 4) === 'live'
 												)
 											);
 			
 			if ($keyIdSecretValidationResult) 
 			{
 				$createWebhook = new CreateWebhook(
-					$this->request->post['payment_razorpay_key_id'],
-					$this->request->post['payment_razorpay_key_secret'],
+					$post['payment_razorpay_key_id'],
+					$post['payment_razorpay_key_secret'],
 					$this->config->get('payment_razorpay_webhook_secret'),
 					self::WEBHOOK_URL,
-					$this->request->post['payment_razorpay_subscription_status']
+					$post['payment_razorpay_subscription_status']
 				);
 	
 				$webhookConfigData = $createWebhook->autoCreateWebhook();
@@ -243,7 +252,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 				}
 				else
 				{
-					$configData = array_merge($this->request->post, $webhookConfigData);
+					$configData = array_merge($post, $webhookConfigData);
 					$this->model_setting_setting->editSetting('payment_razorpay', $configData);
 					$this->session->data['success'] = $this->language->get('text_success');
 				}
@@ -265,7 +274,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 				$this->model_setting_setting->editSetting('payment_razorpay', $configData);
 			}
 			else {
-				$this->model_setting_setting->editSetting('payment_razorpay', $this->request->post);
+				$this->model_setting_setting->editSetting('payment_razorpay', $post);
 			}
 
 			$json['success'] = $this->language->get('text_success');
@@ -277,11 +286,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
 	public function install(): void {
 		try {
-			if ($this->user->hasPermission('modify', 'extension/payment')) {
-				$this->load->model('extension/razorpay/payment/credit_card');
-	
-				$this->model_extension_razorpay_payment_credit_card->install();
-			}
 			$this->load->model('extension/razorpay/payment/razorpay');
 		
 			/* Rzp subscriptions tables */
@@ -305,5 +309,22 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 			echo(json_encode($e->getMessage()));
 			echo(json_encode($e->getTrace()));
 		}
+	}
+
+	protected function getKeyValueArray($inputString) {
+		$postStr = explode("&", $inputString);
+		$post = [];
+		
+		foreach ($postStr as $ele) {
+			$row = explode("=", $ele);
+			$key = isset($row[0]) ? $row[0] : "";
+			$val = isset($row[1]) ? $row[1] : "";
+			if ($row[0] !== "") 
+			{
+				$post[$key] = isset($val) ? $val : "";
+			}
+		}
+
+		return $post;
 	}
 }
