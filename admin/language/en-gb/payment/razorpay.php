@@ -7,7 +7,7 @@ $_['text_payment'] = 'Payment';
 $_['text_extension'] = 'Extensions';
 $_['text_edit'] = 'Edit Razorpay';
 $_['text_success'] = 'Success: You have modified Razorpay account details!';
-$_['text_razorpay'] = '<a href="https://www.razorpay.com" target="_blank"><img src="view/image/payment/razorpay.png" alt="Razorpay" title="Razorpay" style="border: 1px solid #EEEEEE;" /></a>';
+$_['text_razorpay'] = '<a href="https://www.razorpay.com" target="_blank"><img src="https://cdn.razorpay.com/logo.svg" alt="Razorpay" title="Razorpay" style="border: 1px solid #EEEEEE; height:1.5em" /></a>';
 $_['text_authorize'] = 'Authorize Only';
 $_['text_capture'] = 'Authorize and Capture';
 
