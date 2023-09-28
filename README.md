@@ -2,8 +2,6 @@
 
 This extension utilizes Razorpay API and provides seamless integration with OpenCart, allowing payments for Indian merchants via Credit Cards, Debit Cards, Net Banking, Wallets, etc.  without redirecting away from the OpenCart site.
 
-Razorpay Payment Extension for Opencart now enabled with Subscription. Allows you automatically charge customers on a recurring basis, based on a billing cycle that you control.
-
 ### Installation
 
 Copy all files/folders recursively to opencart installation directory.
@@ -27,19 +25,18 @@ Save the plugin settings
 5. Navigate to Extensions -> Payments and click install on Razorpay
 6. After installing, click on Edit
 7. Enable the extension and set the Razorpay Key Id and Secret.
-8. Enable Subscription status to accept recurring payments on opencart.
-9. Please make sure that you have Webhooks setup on the [Razorpay Dashboard](https://dashboard.razorpay.com/app/webhooks) to ensure that recurring payments are marked as paid on Opencart.
-10. This extension supports the following webhook events:
+8. Please make sure that you have Webhooks setup on the [Razorpay Dashboard](https://dashboard.razorpay.com/app/webhooks) to ensure that recurring payments are marked as paid on Opencart.
+9. This extension supports the following webhook events:
     - payment.authorized
     - payment.failed
     - order.paid
     
 
 ## Note:
-While installing to Opencart 4 make sure to only have these files in your zip folder
-admin/
-catalog/
-system/
+While installing to Opencart 4 make sure to only have these files in your zip folder 
+admin/ 
+catalog/ 
+system/ 
 install.json 
 
 ### Development
