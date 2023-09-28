@@ -32,12 +32,12 @@ Save the plugin settings
     - order.paid
     
 
-## Note:
-While installing to Opencart 4 make sure to only have these files in your zip folder 
-admin/ 
-catalog/ 
-system/ 
-install.json 
+### Note:
+While installing to Opencart 4 make sure to only have these files in your zip folder  
+admin/  
+catalog/  
+system/  
+install.json   
 
 ### Development
 
