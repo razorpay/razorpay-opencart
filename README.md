@@ -33,7 +33,7 @@ Save the plugin settings
     
 
 ### Note:
-While installing the Razorpay plugin to Opencart 4 make sure to only have these folders/files and no hidden files in your zip folder
+While installing the Razorpay plugin to Opencart 4 make sure to only have these folders/files and no hidden files in your zip folder  
 `admin/`  
 `catalog/`  
 `system/`  
