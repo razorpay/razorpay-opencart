@@ -1,0 +1,150 @@
+{{ header }}{{ column_left }}
+<div id="content">
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="float-end">
+				<button type="submit" form="form-payment" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary">
+					<i class="fa fa-save"></i>
+				</button>
+				<a href="{{ cancel }}" data-bs-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default">
+					<i class="fa fa-reply"></i>
+				</a>
+			</div>
+			<h1>{{ heading_title }}</h1>
+			<ol class="breadcrumb">
+				{% for breadcrumb in breadcrumbs %}
+					<li class="breadcrumb-item">
+						<a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>
+					</li>
+				{% endfor %}
+			</ol>
+		</div>
+	</div>
+	<div class="container-fluid">
+		{% if error_warning %}
+			<div class="alert alert-danger">
+				<i class="fa fa-exclamation-circle"></i>
+				{{ error_warning }}
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+			</div>
+		{% endif %}
+		<div class="card">
+			<div class="card-header">
+				<i class="fa fa-pencil"></i>
+				{{ text_edit }}
+			</div>
+			<div class="card-body">
+				<div class="form-group">
+					<div class="col-sm-10">
+						First <a href="https://easy.razorpay.com/onboarding?recommended_product=payment_gateway&source=opencart" target="_blank">signup</a> for a 
+						Razorpay account or <a href="https://dashboard.razorpay.com/signin?screen=sign_in&source=opencart" target="_blank">login</a> if you have an existing account.
+					</div>
+				</div>
+				<br/>
+				<form id="form-payment" action="{{ save }}" method="post" data-oc-toggle="ajax" enctype="multipart/form-data">
+					<div class="form-group required">
+						<div class="row mb-3">
+							<label class="col-sm-2 col-form-label" for="input-key-id">
+								<span data-bs-toggle="tooltip" title="{{ help_key_id }}">{{ entry_key_id }}</span>
+							</label>
+							<div class="col-sm-10">
+								<input type="text" name="payment_razorpay_key_id" value="{{ razorpay_key_id }}" placeholder="{{ entry_key_id }}" id="input-key-id" class="form-control" required/>
+								{% if error_key_id %}
+									<div class="text-danger">{{ error_key_id }}</div>
+								{% endif %}
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="row mb-3 required">
+							<label class="col-sm-2 col-form-label" for="input-key-secret">{{ entry_key_secret }}</label>
+							<div class="col-sm-10">
+								<input type="text" name="payment_razorpay_key_secret" value="{{ razorpay_key_secret }}" placeholder="{{ entry_key_secret }}" id="input-key-secret" class="form-control" required/>
+								{% if error_key_secret %}
+									<div class="text-danger">{{ error_key_secret }}</div>
+								{% endif %}
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="row mb-3">
+							<label class="col-sm-2 col-form-label" for="input-order-status">
+								<span data-bs-toggle="tooltip" title="{{ help_order_status }}">{{ entry_order_status }}</span>
+							</label>
+							<div class="col-sm-10">
+								<select name="payment_razorpay_order_status_id" id="input-order-status" class="form-control">
+									{% for order_status in order_statuses %}
+										{% if ((razorpay_order_status_id and order_status.order_status_id == razorpay_order_status_id)) %}
+											<option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+										{% else %}
+											<option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+										{% endif %}
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="row mb-3">
+							<label class="col-sm-2 col-form-label" for="input-status">{{ entry_status }}</label>
+							<div class="col-sm-10">
+								<select name="payment_razorpay_status" id="input-status" class="form-control">
+									{% if razorpay_status %}
+										<option value="1" selected="selected">{{ text_enabled }}</option>
+										<option value="0">{{ text_disabled }}</option>
+									{% else %}
+										<option value="1">{{ text_enabled }}</option>
+										<option value="0" selected="selected">{{ text_disabled }}</option>
+									{% endif %}
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="row mb-3">
+							<label class="col-sm-2 col-form-label" for="input-sort-order">{{ entry_sort_order }}</label>
+							<div class="col-sm-10">
+								<input type="text" name="payment_razorpay_sort_order" value="{{ razorpay_sort_order }}" placeholder="{{ entry_sort_order }}" id="input-sort-order" class="form-control"/>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="row mb-3">
+							<label class="col-sm-2 col-form-label" for="input-pay-action">{{ entry_payment_action }}</label>
+							<div class="col-sm-10">
+								<select name="payment_razorpay_payment_action" id="input-pay-action" class="form-control">
+									{% if not razorpay_payment_action or (razorpay_payment_action == 'capture') %}
+										<option value="capture" selected="selected">{{ text_capture }}</option>
+										<option value="authorize">{{ text_authorize }}</option>
+									{% else %}
+										<option value="capture">{{ text_capture }}</option>
+										<option value="authorize" selected="selected">{{ text_authorize }}</option>
+									{% endif %}
+								</select>
+							</div>
+						</div>
+					</div>
+
+					<div hidden class="form-group">
+						<div class="row mb-3">
+							<label class="col-sm-2 col-form-label" for="input-subscription-status">{{ entry_subscription_status }}</label>
+							<div class="col-sm-10">
+								<select name="payment_razorpay_subscription_status" id="input-subscription-status" class="form-control">
+									{% if razorpay_subscription_status %}
+										<option value="1" selected="selected">{{ text_enabled }}</option>
+										<option value="0">{{ text_disabled }}</option>
+									{% else %}
+										<option value="1">{{ text_enabled }}</option>
+										<option value="0" selected="selected">{{ text_disabled }}</option>
+									{% endif %}
+								</select>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+{{ footer }}

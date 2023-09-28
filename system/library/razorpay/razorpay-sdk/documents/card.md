@@ -2,7 +2,7 @@
 
 ### Create customer
 ```php
-$api->customer->create(array('name' => 'Razorpay User', 'email' => 'customer@razorpay.com','contact'=>'9123456780', 'fail_existing'=> '0', 'notes'=> array('notes_key_1'=> 'Tea, Earl Grey, Hot','notes_key_2'=> 'Tea, Earl Grey… decaf'));
+$api->customer->create(array('name' => 'Razorpay User', 'email' => 'customer@razorpay.com','contact'=>'9123456780', 'fail_existing'=> '0', 'notes'=> array('notes_key_1'=> 'Tea, Earl Grey, Hot','notes_key_2'=> 'Tea, Earl Grey… decaf')));
 ```
 
 **Parameters:**
@@ -91,7 +91,7 @@ $api->subscription->createSubscriptionRegistration(array('customer'=>array('name
 
 | Name            | Type    | Description                                                                  |
 |-----------------|---------|------------------------------------------------------------------------------|
-| customer   | array      | Details of the customer to whom the registration link will be sent. |
+| customer   | array      | All parameters listed [here](https://razorpay.com/docs/api/payments/recurring-payments/cards/create-authorization-transaction/#121-create-a-registration-link) are supported |
 | type*  | array | the value is `link`. |
 | amount*   | integer      | The amount to be captured (should be equal to the authorized amount, in paise) |
 | currency*   | string  | The currency of the payment (defaults to INR)  |
@@ -213,7 +213,7 @@ $api->order->create(array('amount' => '100', 'currency' => 'INR', 'customer_id'=
 ## Create a recurring payment
 
 ```php
-$api->payment->createRecurring(['email'=>'gaurav.kumar@example.com','contact'=>'9123456789','amount'=>100,'currency'=>'INR','order_id'=>$orderid,'customer_id'=>$customerId,'token'=>$tokenId,'recurring'=>'1','description'=>'Creating recurring payment for Gaurav Kumar', 'notes'=> array('key1'=> 'value3','key2'=> 'value2')));
+$api->payment->createRecurring(array('email'=>'gaurav.kumar@example.com','contact'=>'9123456789','amount'=>100,'currency'=>'INR','order_id'=>$orderid,'customer_id'=>$customerId,'token'=>$tokenId,'recurring'=>'1','description'=>'Creating recurring payment for Gaurav Kumar', 'notes'=> array('key1'=> 'value3','key2'=> 'value2')));
 ```
 **Parameters:**
 
@@ -460,8 +460,23 @@ $api->card->fetch($cardId);
 
 | Name            | Type    | Description                                                                  |
 |-----------------|---------|------------------------------------------------------------------------------|
-| cardId*          | string | card id to be fetched                                               |
+| cardId*          | string | card id to be fetched  |
 
+```json
+{
+    "id": "card_JXPULjlKqC5j0i",
+    "entity": "card",
+    "name": "Gaurav",
+    "last4": "4366",
+    "network": "Visa",
+    "type": "credit",
+    "issuer": "UTIB",
+    "international": false,
+    "emi": true,
+    "sub_type": "consumer",
+    "token_iin": null
+}
+```
 -------------------------------------------------------------------------------------------------------
 
 ## Delete tokens
@@ -484,6 +499,48 @@ $api->customer->fetch($customerId)->tokens()->delete($tokenId);
 ```
 -------------------------------------------------------------------------------------------------------
 
+## Using Card Number/ Tokenised Card Number
+
+```php
+$api->card->requestCardReference(array("number" =>"4854980604708430"));
+```
+**Parameters:**
+
+| Name        | Type    | Description                                                                  |
+|-------------|---------|------------------------------------------------------------------------------|
+| number* | string | The card number whose PAR or network reference id should be retrieved. |
+| tokenised  | string | Determines if the card is saved as a token. Possible value is `true` or `false` |
+
+**Response:**
+```json
+{
+  "network": "Visa",
+  "payment_account_reference": "V0010013819231376539033235990",
+  "network_reference_id": null
+}
+```
+-------------------------------------------------------------------------------------------------------
+
+## Using Razporpay token
+
+```php
+$api->card->requestCardReference(array("token" =>"token_4lsdksD31GaZ09"));
+```
+**Parameters:**
+
+| Name        | Type    | Description                                                                  |
+|-------------|---------|------------------------------------------------------------------------------|
+| token* | string | The token whose PAR or network reference id should be retrieved.|
+
+**Response:**
+```json
+{
+  "network": "Visa",
+  "payment_account_reference": "V0010013819231376539033235990",
+  "network_reference_id": null
+}
+```
+-------------------------------------------------------------------------------------------------------
 **PN: * indicates mandatory fields**
 <br>
 <br>
