@@ -37,7 +37,7 @@ While installing to Opencart 4 make sure to only have these files in your zip fo
 `admin/`  
 `catalog/`  
 `system/`  
-`install.json``   
+`install.json`   
 
 ### Development
 
