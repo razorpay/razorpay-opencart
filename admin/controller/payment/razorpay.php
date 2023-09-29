@@ -414,9 +414,9 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 			'start'                  => ($page - 1) * $this->config->get('config_limit_admin'),
 			'limit'                  => $this->config->get('config_limit_admin')
 			);
-		$plan_total = $this->model_extension_payment_razorpay->getTotalPlan($filter_data);
+		$plan_total = $this->model_extension_razorpay_payment_razorpay->getTotalPlan($filter_data);
 
-		$results = $this->model_extension_payment_razorpay->getPlans($filter_data);
+		$results = $this->model_extension_razorpay_payment_razorpay->getPlans($filter_data);
 
 		foreach ($results as $result)
 		{
@@ -435,7 +435,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 				'plan_status'     => $result['plan_status'],
 				'created_at'    => date($this->language->get('date_format_short'), strtotime($result['created_at'])),
 				'view'          => $this->url->link('extension/razorpay/payment/razorpay', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true),
-				'singleEnable'          => $this->url->link('extension/razorpay/payment/razorpay/singleEnable', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true),
+				'singleEnable'          => $this->url->link('extension/razorpay/payment/razorpay.singleEnable', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true),
 				'singleDisable'          => $this->url->link('extension/razorpay/payment/razorpay.singleDisable', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true)
 			);
 		}
@@ -550,14 +550,23 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$pagination = new Pagination();
-		$pagination->total = $plan_total;
-		$pagination->page = $page;
-		$pagination->limit = $this->config->get('config_limit_admin');
-		$pagination->url = $this->url->link('extension/razorpay/payment/razorpay.getSubscription', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true);
+		// $pagination = new Pagination();
+		// $pagination->total = $plan_total;
+		// $pagination->page = $page;
+		// $pagination->limit = $this->config->get('config_limit_admin');
+		// $pagination->url = $this->url->link('extension/razorpay/payment/razorpay.getSubscription', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true);
 
 
-		$data['pagination'] = $pagination->render();
+		// $data['pagination'] = $pagination->render();
+
+		$data['pagination'] = $this->load->controller('common/pagination', [
+			'total' => $plan_total,
+			'page'  => $page,
+			'limit' => $this->config->get('config_limit_admin'),
+			'url'   => $this->url->link('extension/razorpay/payment/razorpay.getSubscription', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true)
+		]);
+
+		// $data['results'] = sprintf($this->language->get('text_pagination'), ($report_total) ? (($page - 1) * 10) + 1 : 0, ((($page - 1) * 10) > ($report_total - 10)) ? $report_total : ((($page - 1) * 10) + 10), $report_total, ceil($report_total / 10));
 
 		$data['results'] = sprintf($this->language->get('text_pagination'), ($plan_total) ? (($page - 1) * $this->config->get('config_limit_admin')) + 1 : 0, ((($page - 1) * $this->config->get('config_limit_admin')) > ($plan_total - $this->config->get('config_limit_admin'))) ? $plan_total : ((($page - 1) * $this->config->get('config_limit_admin')) + $this->config->get('config_limit_admin')), $plan_total, ceil($plan_total / $this->config->get('config_limit_admin')));
 
@@ -688,13 +697,13 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 					return;
 				}
 			
-				$data['plan_entity_id'] = $this->model_extension_payment_razorpay->addPlan($this->request->post, $razorpay_plan['id']);
+				$data['plan_entity_id'] = $this->model_extension_razorpay_payment_razorpay->addPlan($this->request->post, $razorpay_plan['id']);
 					
 				$this->load->model('localisation/language');
 
 				$languages = $data['languages'] = $this->model_localisation_language->getLanguages();
 			
-				$this->model_extension_payment_razorpay->addRecurring($data);
+				$this->model_extension_razorpay_payment_razorpay->addRecurring($data);
 
 				$this->session->data['success'] = $this->language->get('text_plan_success');
 		
@@ -754,7 +763,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 			{
 				foreach ($this->request->post['selected'] as $entity_id)
 				{
-					$this->model_extension_payment_razorpay->enablePlan($entity_id);
+					$this->model_extension_razorpay_payment_razorpay->enablePlan($entity_id);
 					
 				}
 
@@ -764,7 +773,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 			{
 				foreach ($this->request->post['selected'] as $entity_id)
 				{
-					$this->model_extension_payment_razorpay->disablePlan($entity_id);
+					$this->model_extension_razorpay_payment_razorpay->disablePlan($entity_id);
 				}
 
 				$this->session->data['success'] = $this->language->get('text_disable_success');
@@ -1219,9 +1228,9 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 			'limit'                         => $this->config->get('config_limit_admin')
 		);
 	
-		$subscription_total = $this->model_extension_payment_razorpay->getTotalSubscriptions($filter_data);
+		$subscription_total = $this->model_extension_razorpay_payment_razorpay->getTotalSubscriptions($filter_data);
 
-		$results = $this->model_extension_payment_razorpay->getSubscription($filter_data);
+		$results = $this->model_extension_razorpay_payment_razorpay->getSubscription($filter_data);
 		
 		foreach ($results as $result)
 		{
@@ -1350,13 +1359,20 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 			$url .= '&sort=' . $this->request->get['sort'];
 		}
 
-		$pagination = new Pagination();
-		$pagination->total = $subscription_total;
-		$pagination->page = $page;
-		$pagination->limit = $this->config->get('config_limit_admin');
-		$pagination->url = $this->url->link('extension/razorpay/payment/razorpay.getSubscription', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true);
+		// $pagination = new Pagination();
+		// $pagination->total = $subscription_total;
+		// $pagination->page = $page;
+		// $pagination->limit = $this->config->get('config_limit_admin');
+		// $pagination->url = $this->url->link('extension/razorpay/payment/razorpay.getSubscription', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true);
 
-		$data['pagination'] = $pagination->render();
+		// $data['pagination'] = $pagination->render();
+
+		$data['pagination'] = $this->load->controller('common/pagination', [
+			'total' => $subscription_total,
+			'page'  => $page,
+			'limit' => $this->config->get('config_limit_admin'),
+			'url'   => $this->url->link('extension/razorpay/payment/razorpay.getSubscription', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true)
+		]);
 
 		$data['results'] = sprintf($this->language->get('text_pagination'), ($subscription_total) ? (($page - 1) * $this->config->get('config_limit_admin')) + 1 : 0, ((($page - 1) * $this->config->get('config_limit_admin')) > ($subscription_total - $this->config->get('config_limit_admin'))) ? $subscription_total : ((($page - 1) * $this->config->get('config_limit_admin')) + $this->config->get('config_limit_admin')), $subscription_total, ceil($subscription_total / $this->config->get('config_limit_admin')));
 
@@ -1468,7 +1484,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 		try {
 			foreach ($entity_id as $entityId)
 			{
-				$subscriptionData = $this->model_extension_payment_razorpay->getSingleSubscription($entityId);
+				$subscriptionData = $this->model_extension_razorpay_payment_razorpay->getSingleSubscription($entityId);
 
 				if ($subscriptionData['status'] == "paused")
 				{
@@ -1476,8 +1492,8 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
 					$api->subscription->fetch($subscriptionData['subscription_id'])->resume(array('resume_at' => 'now'));
 
-					$this->model_extension_payment_razorpay->resumeSubscription($entityId, "admin");
-					$this->model_extension_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 1);
+					$this->model_extension_razorpay_payment_razorpay->resumeSubscription($entityId, "admin");
+					$this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 1);
 				}
 
 			}
@@ -1515,14 +1531,14 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 		try {
 			foreach ($entity_id as $entityId)
 			{
-				$subscriptionData = $this->model_extension_payment_razorpay->getSingleSubscription($entityId);
+				$subscriptionData = $this->model_extension_razorpay_payment_razorpay->getSingleSubscription($entityId);
 
 				if ($subscriptionData['status'] == "active")
 				{
 					$api = $this->getApiIntance();
 					$api->subscription->fetch($subscriptionData['subscription_id'])->pause(["pause_at" => "now"]);
-					$this->model_extension_payment_razorpay->pauseSubscription($entityId, "admin");
-					$this->model_extension_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 2);
+					$this->model_extension_razorpay_payment_razorpay->pauseSubscription($entityId, "admin");
+					$this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 2);
 				}
 
 			}
@@ -1561,14 +1577,14 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 		try {
 			foreach ($entity_id as $entityId)
 			{
-				$subscriptionData = $this->model_extension_payment_razorpay->getSingleSubscription($entityId);
+				$subscriptionData = $this->model_extension_razorpay_payment_razorpay->getSingleSubscription($entityId);
 
 				if (($subscriptionData['status'] == "active") || ($subscriptionData['status'] == "paused"))
 				{
 					$api = $this->getApiIntance();
 					$api->subscription->fetch($subscriptionData['subscription_id'])->cancel(["cancel_at_cycle_end" => 0]);
-					$this->model_extension_payment_razorpay->cancelSubscription($entityId, "admin");
-					$this->model_extension_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 3);
+					$this->model_extension_razorpay_payment_razorpay->cancelSubscription($entityId, "admin");
+					$this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 3);
 				}
 
 			}
@@ -1610,7 +1626,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 			$entity_id = 0;
 		}
 
-		$data['results'] =  $results=$this->model_extension_payment_razorpay->getSubscriptionInfo($entity_id);
+		$data['results'] =  $results=$this->model_extension_razorpay_payment_razorpay->getSubscriptionInfo($entity_id);
 
 		if ($results)
 		{
