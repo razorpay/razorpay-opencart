@@ -1,0 +1,55 @@
+{{ header }}
+{{ column_left }}
+<div id="content">
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="pull-right">
+				<button type="submit" form="form-square-checkout" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary">
+					<i class="fa fa-save"></i>
+				</button>
+				<a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default">
+					<i class="fa fa-reply"></i>
+				</a>
+			</div>
+			<h1>{{ heading_title }}</h1>
+			<ul class="breadcrumb">
+				{% for breadcrumb in breadcrumbs %}
+					<li>
+						<a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>
+					</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+	<div class="container-fluid">
+		{% for alert in alerts %}
+			<div class="alert alert-{{ alert.type }}">
+				<i class="fa fa-{{ alert.icon }}"></i>&nbsp;{{ alert.text }}
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+			</div>
+		{% endfor %}
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">
+					<i class="fa fa-pencil"></i>&nbsp;{{ text_edit_heading }}</h3>
+			</div>
+			<div class="panel-body">
+				<form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-square-checkout" class="form-horizontal">
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label" for="dropdown_payment_razorpay_subscription_status">
+							<span data-toggle="tooltip" title="{{ text_extension_status_help }}">{{ text_extension_status }}</span>
+						</label>
+						<div class="col-sm-10">
+							<select name="payment_razorpay_subscription_status" id="dropdown_payment_razorpay_subscription_status" class="form-control">
+								<option value="1" {% if payment_razorpay_subscription_status == 1 %} selected {% endif %}>{{ text_extension_status_enabled }}</option>
+								<option value="0" {% if payment_razorpay_subscription_status == 0 %} selected {% endif %}>{{ text_extension_status_disabled }}</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div></div>{{ footer }}
