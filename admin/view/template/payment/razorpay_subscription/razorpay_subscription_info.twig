@@ -2,23 +2,23 @@
 <div id="content">
 	<div class="page-header">
 		<div class="container-fluid">
-			<div class="pull-right">
+			<div class="float-end">
 				{% if (status=='active') %}
-					<a href="{{ singlePause }}" id="button-pause" data-toggle="tooltip" title="{{ button_pause }}" class="btn btn-warning" name="pause">
+					<a href="{{ singlePause }}" id="button-pause" data-bs-toggle="tooltip" title="{{ button_pause }}" class="btn btn-warning" name="pause">
 						<i class="fa fa-pause"></i>
 						Pause</a>
-					<a href="{{ singleCancel }}" type="submit" id="button-cancel" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-danger" name="cancel">
+					<a href="{{ singleCancel }}" type="submit" id="button-cancel" data-bs-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-danger" name="cancel">
 						<i class="fa fa-ban"></i>
 						Cancel</a>
 				{% elseif (status=='paused') %}
-					<a href="{{ singleResume }}" type="submit" id="button-resume" data-toggle="tooltip" title="{{ button_resume }}" class="btn btn-primary" name="resume">
+					<a href="{{ singleResume }}" type="submit" id="button-resume" data-bs-toggle="tooltip" title="{{ button_resume }}" class="btn btn-primary" name="resume">
 						<i class="fa fa-undo"></i>
 						Resume</a>
-					<a href="{{ singleCancel }}" type="submit" id="button-cancel" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-danger" name="cancel">
+					<a href="{{ singleCancel }}" type="submit" id="button-cancel" data-bs-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-danger" name="cancel">
 						<i class="fa fa-ban"></i>
 						Cancel</a>
 				{% endif %}
-				<a href="{{ back }}" data-toggle="tooltip" title="{{ button_back }}" class="btn btn-default">
+				<a href="{{ back }}" data-bs-toggle="tooltip" title="{{ button_back }}" class="btn btn-default">
 					<i class="fa fa-reply"></i>
 					Back</a>
 			</div>

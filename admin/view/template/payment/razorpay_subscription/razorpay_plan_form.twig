@@ -32,7 +32,7 @@
 				<i class="fa fa-pencil"></i> {{ text_form }}
 			</div>
 			<div class="card-body">
-				<form action="{{ action }}" name="form-payment"  method="post" enctype="multipart/form-data" id="form-payment">
+				<form action="{{ action }}" name="form-payment" data-oc-toggle="ajax" method="post" enctype="multipart/form-data" id="form-payment">
 					<div class="form-group required">
 						<div class="row mb-3">
 							<label class="col-sm-2 col-form-label" for="input-customer">{{ entry_plan_name }}</label>
@@ -56,15 +56,17 @@
 							</div>
 						</div>
 					</div>
-					<div class="form-group required">
-						<div class="row mb-3">
-							<label class="col-sm-2 col-form-label" for="input-product-id"><span data-toggle="tooltip" title="{{ help_product_name }}">{{ entry_product_name }}</span></label>
-							<div class="col-sm-10">
-								<input type="text" name="product-name" placeholder="{{ entry_product_name }}" value="{{ opencart_product_id }}" id="input-product-id" class="form-control" />
-								<input type="hidden" name="product_id" value="" />
-								{% if error_product_name %}
-									<div class="text-danger">{{ error_product_name }}</div>
-								{% endif %}
+					<div  id="tab-product">
+						<div class="form-group required">
+							<div class="row mb-3">
+								<label class="col-sm-2 col-form-label" for="input-product-id"><span data-toggle="tooltip" title="{{ help_product_name }}">{{ entry_product_name }}</span></label>
+								<div class="col-sm-10">
+									<input type="text" name="product-name" data-oc-toggle="switch" data-oc-target="input-product-id" placeholder="{{ entry_product_name }}" value="{{ opencart_product_id }}"  id="input-product-id" class="form-control" />
+									<input type="hidden" data-oc-toggle="switch" data-oc-target="#input-product-id" name="product_id" value="" />
+									{% if error_product_name %}
+										<div class="text-danger">{{ error_product_name }}</div>
+									{% endif %}
+								</div>
 							</div>
 						</div>
 					</div>
@@ -157,13 +159,15 @@
 </div>
 <script type="text/javascript"><!--
 //auto load product id
-$('#tab-product input[name=\'product-name\']').autocomplete({
+$('#input-product-id').autocomplete({
 	'source': function(request, response) {
 		$.ajax({
-			url: 'index.php?route=catalog/product/autocomplete&user_token={{ user_token }}&filter_name=' +  encodeURIComponent(request),
+			url: 'index.php?route=catalog/product.autocomplete&user_token={{ user_token }}&filter_name=' +  encodeURIComponent(request),
 			dataType: 'json',
 			success: function(json) {
+				console.log(json)
 				response($.map(json, function(item) {
+					
 					return {
 						label: item['name'],
 						value: item['product_id'],
@@ -176,8 +180,11 @@ $('#tab-product input[name=\'product-name\']').autocomplete({
 		});
 	},
 	'select': function(item) {
-		$('#tab-product input[name=\'product-name\']').val(item['label']);
-		$('#tab-product input[name=\'product_id\']').val(item['value']);
+		console.log(item)
+		{# $('#tab-product input[name=\'product-name\']').val(item['label']); #}
+		{# $('#tab-product input[name=\'product_id\']').val(item['value']); #}
+		$('#tab-product input[name=\'product-name\']').val('');
+		$('#tab-product input[name=\'product_id\']').val('');
 		if (item['option'] != '') {
  			html  = '<fieldset>';
             html += '  <legend>{{ entry_option }}</legend>';
@@ -207,6 +214,8 @@ $('#tab-product input[name=\'product-name\']').autocomplete({
 				}
 			}
 			html += '</fieldset>';
+
+			$('#input-product-id').append(html)
 		} else {
 			$('#option').html('');
 		}

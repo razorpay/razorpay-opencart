@@ -70,11 +70,12 @@
 						</div>
 						<div class="mb-3">
 							<label class="form-label" for="input-date-added">{{ entry_date_created }}</label>
-							<div class="input-group">
+							<div class="input-group date">
 								<input type="text" name="filter_date_created" value="{{ filter_date_created }}" placeholder="{{ entry_date_added }}" data-date-format="YYYY-MM-DD" id="input-date-added" class="form-control date"/>
-								<div class="input-group-text"><i class="fa-regular fa-calendar"></i></div>
-									{# <button type="button" class="btn btn-default"> #}
-									{# </button> #}
+								<div class="input-group-btn">
+									<button type="button" class="btn btn-default">
+										<i class="fa-regular fa-calendar"></i></div>
+									</button>
 							</div>
 						</div>
 						<div class="text-end">
@@ -88,7 +89,7 @@
 					<div class="card-header"><i class="fa fa-list"></i>{{ text_list }}</div>
 					<div class="card-body">
 						<form action={{status}} method="post" enctype="multipart/form-data" id="form-plan" name="form-plan">
-							<div class="table-responsive">
+							<div class="table-responsive" style="overflow-x:auto">
 								<table class="table table-bordered table-hover">
 									<thead>
 										<tr>
@@ -270,7 +271,7 @@ $('#status').val('2');
 			url += '&filter_date_created=' + encodeURIComponent(filter_date_created);
 		}
 	
-		location = 'index.php?route=extension/payment/razorpay/getPlan&user_token={{ user_token }}' + url;
+		location = 'index.php?route=extension/razorpay/payment/razorpay.getPlan&user_token={{ user_token }}' + url;
 	});
 	//-->--></script>
 
