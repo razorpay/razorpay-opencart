@@ -61,8 +61,9 @@
 							<div class="row mb-3">
 								<label class="col-sm-2 col-form-label" for="input-product-id"><span data-toggle="tooltip" title="{{ help_product_name }}">{{ entry_product_name }}</span></label>
 								<div class="col-sm-10">
-									<input type="text" name="product-name" data-oc-toggle="switch" data-oc-target="input-product-id" placeholder="{{ entry_product_name }}" value="{{ opencart_product_id }}"  id="input-product-id" class="form-control" />
-									<input type="hidden" data-oc-toggle="switch" data-oc-target="#input-product-id" name="product_id" value="" />
+									<input type="text" name="product-name" value="" placeholder="{{ entry_product_name }}" id="input-product-id" data-oc-target="product_id" class="form-control" autocomplete="off"/>
+									<ul id="product_id" class="dropdown-menu"></ul>
+									{# <input type="text" name="product-price" class="dropdown-menu" id="product_id2" value=""/> #}
 									{% if error_product_name %}
 										<div class="text-danger">{{ error_product_name }}</div>
 									{% endif %}
@@ -165,7 +166,7 @@ $('#input-product-id').autocomplete({
 			url: 'index.php?route=catalog/product.autocomplete&user_token={{ user_token }}&filter_name=' +  encodeURIComponent(request),
 			dataType: 'json',
 			success: function(json) {
-				console.log(json)
+				{# console.log(json) #}
 				response($.map(json, function(item) {
 					
 					return {
@@ -181,49 +182,11 @@ $('#input-product-id').autocomplete({
 	},
 	'select': function(item) {
 		console.log(item)
-		{# $('#tab-product input[name=\'product-name\']').val(item['label']); #}
-		{# $('#tab-product input[name=\'product_id\']').val(item['value']); #}
-		$('#tab-product input[name=\'product-name\']').val('');
-		$('#tab-product input[name=\'product_id\']').val('');
-		if (item['option'] != '') {
- 			html  = '<fieldset>';
-            html += '  <legend>{{ entry_option }}</legend>';
-			for (i = 0; i < item['option'].length; i++) {
-				option = item['option'][i];
-				if (option['type'] == 'select') {
-					html += '<div class="form-group' + (option['required'] ? ' required' : '') + '">';
-					html += '  <label class="col-sm-2 col-form-label" for="input-option' + option['product_option_id'] + '">' + option['name'] + '</label>';
-					html += '  <div class="col-sm-10">';
-					html += '    <select name="option[' + option['product_option_id'] + ']" id="input-option' + option['product_option_id'] + '" class="form-control">';
-					html += '      <option value="">{{ text_select }}</option>';
-
-					for (j = 0; j < option['product_option_value'].length; j++) {
-						option_value = option['product_option_value'][j];
-
-						html += '<option value="' + option_value['product_option_value_id'] + '">' + option_value['name'];
-
-						if (option_value['price']) {
-							html += ' (' + option_value['price_prefix'] + option_value['price'] + ')';
-						}
-
-						html += '</option>';
-					}
-					html += '    </select>';
-					html += '  </div>';
-					html += '</div>';
-				}
-			}
-			html += '</fieldset>';
-
-			$('#input-product-id').append(html)
-		} else {
-			$('#option').html('');
-		}
+        //$('#input-product-id').val(item['label']);
+		$('#tab-product input[name=\'product-name\']').val(item['label']);
+		$('#tab-product input[name=\'product_id\']').val(item['value']);
+		//$('#tab-product input[name=\'product-price\']').val(item['label']);
 	}
 });
-
-
-
 //--></script>
- 
 {{ footer }}
