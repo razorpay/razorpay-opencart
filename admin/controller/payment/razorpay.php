@@ -218,6 +218,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 		$this->load->language('extension/razorpay/payment/razorpay');
 		$configData = [];
 		$json = [];
+
 		$post = $this->getKeyValueArray(file_get_contents('php://input'));
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate())
@@ -596,9 +597,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 		$this->load->model('extension/razorpay/payment/razorpay');
 		$subscription_status= $this->config->get('payment_razorpay_subscription_status');
 
-		$post = $this->getKeyValueArray(file_get_contents('php://input'));
-		var_dump($post);
-		$this->log->write(json_encode($post));
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') and
 		$this->validateForm())
 		{

@@ -32,7 +32,7 @@
 				<i class="fa fa-pencil"></i> {{ text_form }}
 			</div>
 			<div class="card-body">
-				<form action="{{ action }}" name="form-payment" data-oc-toggle="ajax" method="post" enctype="multipart/form-data" id="form-payment">
+				<form action="{{ action }}" data-oc-toggle="ajax" method="post" id="form-razorpay-addplan">
 					<div class="form-group required">
 						<div class="row mb-3">
 							<label class="col-sm-2 col-form-label" for="input-customer">{{ entry_plan_name }}</label>
@@ -59,11 +59,11 @@
 					<div  id="tab-product">
 						<div class="form-group required">
 							<div class="row mb-3">
-								<label class="col-sm-2 col-form-label" for="input-product-id"><span data-toggle="tooltip" title="{{ help_product_name }}">{{ entry_product_name }}</span></label>
+								<label class="col-sm-2 col-form-label" for="input-product"><span data-toggle="tooltip" title="{{ help_product_name }}">{{ entry_product_name }}</span></label>
 								<div class="col-sm-10">
-									<input type="text" name="product-name" value="" placeholder="{{ entry_product_name }}" id="input-product-id" data-oc-target="product_id" class="form-control" autocomplete="off"/>
-									<ul id="product_id" class="dropdown-menu"></ul>
-									{# <input type="text" name="product-price" class="dropdown-menu" id="product_id2" value=""/> #}
+									<input type="text" name="product-name" value="" placeholder="{{ entry_product_name }}" id="input-product" data-oc-target="autocomplete_product" class="form-control" autocomplete="off"/>
+									<input type="hidden" name="product_id" value="" />
+									<ul id="autocomplete_product" class="dropdown-menu"></ul>
 									{% if error_product_name %}
 										<div class="text-danger">{{ error_product_name }}</div>
 									{% endif %}
@@ -150,7 +150,7 @@
 						</div>
 					</div>
 					<div class="float-end">
-						<button form="form-payment" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_save }}</button>
+						<button form="form-razorpay-addplan" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_save }}</button>
 						<a href="{{ cancel }}" class="btn btn-default"><i class="fa fa-reply"></i> {{ button_cancel }}</a>
 					</div>
 				</form>
@@ -160,7 +160,7 @@
 </div>
 <script type="text/javascript"><!--
 //auto load product id
-$('#input-product-id').autocomplete({
+$('#input-product').autocomplete({
 	'source': function(request, response) {
 		$.ajax({
 			url: 'index.php?route=catalog/product.autocomplete&user_token={{ user_token }}&filter_name=' +  encodeURIComponent(request),
@@ -168,7 +168,7 @@ $('#input-product-id').autocomplete({
 			success: function(json) {
 				{# console.log(json) #}
 				response($.map(json, function(item) {
-					
+
 					return {
 						label: item['name'],
 						value: item['product_id'],
@@ -181,8 +181,7 @@ $('#input-product-id').autocomplete({
 		});
 	},
 	'select': function(item) {
-		console.log(item)
-        //$('#input-product-id').val(item['label']);
+		console.log(item);
 		$('#tab-product input[name=\'product-name\']').val(item['label']);
 		$('#tab-product input[name=\'product_id\']').val(item['value']);
 		//$('#tab-product input[name=\'product-price\']').val(item['label']);
