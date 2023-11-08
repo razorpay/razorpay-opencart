@@ -496,54 +496,53 @@ class Razorpay extends \Opencart\System\Engine\Model {
         return $query->row;
     }
 
-    public function addRecurring($data)
+    public function addSubscription($data)
     {
-        $this->rzpPdo->prepare("INSERT INTO `" . DB_PREFIX . "recurring` SET `status` = :status, `price` = :price, `frequency` = :frequency, `duration` = :duration, `cycle` = :cycle, `trial_status` = :trial_status, `trial_price` = :trial_price, `trial_frequency` = :trial_frequency, `trial_duration` = :trial_duration, `trial_cycle` = :trial_cycle");
-        $this->rzpPdo->bindParam(':status', (int)$data['status']);
-        $this->rzpPdo->bindParam(':price', (float)$data['price']);
-        $this->rzpPdo->bindParam(':frequency', $this->db->escape($data['frequency']));
-        $this->rzpPdo->bindParam(':duration', (int)$data['duration']);
-        $this->rzpPdo->bindParam(':cycle', (int)$data['cycle']);
-        $this->rzpPdo->bindParam(':trial_status', (int)$data['trial_status']);
-        $this->rzpPdo->bindParam(':trial_price', (float)$data['trial_price']);
+        $this->rzpPdo->prepare("INSERT INTO `" . DB_PREFIX . "subscription_plan` SET `trial_frequency` = :trial_frequency, `trial_duration` = :trial_duration, `trial_cycle` = :trial_cycle, `trial_status` = :trial_status, `frequency` = :frequency, `duration` = :duration, `cycle` = :cycle, `status` = :status");
+
         $this->rzpPdo->bindParam(':trial_frequency', $this->db->escape($data['trial_frequency']));
         $this->rzpPdo->bindParam(':trial_duration', (int)$data['trial_duration']);
         $this->rzpPdo->bindParam(':trial_cycle', (int)$data['trial_cycle']);
+        $this->rzpPdo->bindParam(':trial_status', (int)$data['trial_status']);
+        $this->rzpPdo->bindParam(':frequency', $this->db->escape($data['frequency']));
+        $this->rzpPdo->bindParam(':duration', (int)$data['duration']);
+        $this->rzpPdo->bindParam(':cycle', (int)$data['cycle']);
+        $this->rzpPdo->bindParam(':status', (int)$data['status']);
         $this->rzpPdo->execute();
-        
-        $recurring_id = $this->rzpPdo->getLastId();
 
-        foreach ($data['languages'] as $language_id => $recurring_description)
+        $subscription_plan_id = $this->rzpPdo->getLastId();
+
+        foreach ($data['languages'] as $language_id => $subscription_description)
         {
-            $this->rzpPdo->prepare("INSERT INTO `" . DB_PREFIX . "recurring_description` SET `recurring_id` = :recurring_id, `language_id` = :language_id, `name` = :name");
-            $this->rzpPdo->bindParam(':recurring_id', (int)$recurring_id);
-            $this->rzpPdo->bindParam(':language_id', (int)$recurring_description['language_id']);
+            $this->rzpPdo->prepare("INSERT INTO `" . DB_PREFIX . "subscription_plan_description` SET `subscription_plan_id` = :subscription_plan_id, `language_id` = :language_id, `name` = :name");
+            $this->rzpPdo->bindParam(':subscription_plan_id', (int)$subscription_plan_id);
+            $this->rzpPdo->bindParam(':language_id', (int)$subscription_description['language_id']);
             $this->rzpPdo->bindParam(':name', $this->db->escape($data['plan_name']));
             $this->rzpPdo->execute();
         }
 
         //product recurring mapping
-        $this->rzpPdo->prepare("INSERT INTO `" . DB_PREFIX . "product_recurring` SET `product_id` = :product_id, `recurring_id` = :recurring_id, `customer_group_id` = :customer_group_id");
+        $this->rzpPdo->prepare("INSERT INTO `" . DB_PREFIX . "product_subscription` SET `product_id` = :product_id, `subscription_plan_id` = :subscription_plan_id, `customer_group_id` = :customer_group_id, `trial_price` = :trial_price, `price` = :price");
         $this->rzpPdo->bindParam(':product_id', (int)$data['product_id']);
-        $this->rzpPdo->bindParam(':recurring_id', (int)$recurring_id);
+        $this->rzpPdo->bindParam(':subscription_plan_id', (int)$subscription_plan_id);
         $this->rzpPdo->bindParam(':customer_group_id', (int)$data['customer_group_id']);
+        $this->rzpPdo->bindParam(':trial_price', (float)$data['trial_price']);
+        $this->rzpPdo->bindParam(':price', (float)$data['price']);
         $this->rzpPdo->execute();
-        
+
         // update plan table with recurring id
         $update_plan = "UPDATE " . DB_PREFIX . "razorpay_plans SET recurring_id = :recurring_id WHERE entity_id = :entity_id";
         $this->rzpPdo->prepare($update_plan);
-        $this->rzpPdo->bindParam(':recurring_id', (int)$recurring_id);
+        $this->rzpPdo->bindParam(':recurring_id', (int)$subscription_plan_id);
         $this->rzpPdo->bindParam(':entity_id', (int)$data['plan_entity_id']);
         $this->rzpPdo->execute();
-        
+
         //update plan price in product table
         $update_price = "UPDATE " . DB_PREFIX . "product SET price = :price WHERE product_id = :product_id";
         $this->rzpPdo->prepare($update_price);
         $this->rzpPdo->bindParam(':price', (float)$data['price']);
         $this->rzpPdo->bindParam(':product_id', (int)$data['product_id']);
         $this->rzpPdo->execute();
-        
-        return $recurring_id;
     }
 
     public function addLayout()

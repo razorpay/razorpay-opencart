@@ -1333,7 +1333,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
                 $languages = $data['languages'] = $this->model_localisation_language->getLanguages();
 
-                $this->model_extension_razorpay_payment_razorpay->addRecurring($data);
+                $this->model_extension_razorpay_payment_razorpay->addSubscription($data);
 
                 $this->session->data['success'] = $this->language->get('text_plan_success');
 
