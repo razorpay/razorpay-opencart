@@ -275,13 +275,27 @@ class Razorpay extends \Opencart\System\Engine\Model {
         return $query->rows;
     }
 
-    public function getPlanByRecurringIdAndFrequencyAndProductId($recurringId, $planType, $productId)
+    public function getPlanBySubscriptionIdAndFrequencyAndProductId($recurringId, $planType, $productId)
     {
         $this->rzpPdo->prepare("SELECT * FROM " . DB_PREFIX
             . "razorpay_plans WHERE recurring_id = :recurringId AND plan_type = '"
             . self::PLAN_TYPE[$planType] . "' AND opencart_product_id = :productId");
+
         $this->rzpPdo->bindParam(':recurringId', (int)$recurringId);
         $this->rzpPdo->bindParam(':productId', (int)$productId);
+        $query = $this->rzpPdo->execute();
+
+        return $query->row;
+    }
+
+    public function getOrderProductId($orderId, $productId)
+    {
+        $this->rzpPdo->prepare("SELECT order_product_id FROM " . DB_PREFIX
+            . "order_product WHERE order_id = :orderId AND product_id = :productId");
+
+        $this->rzpPdo->bindParam(':orderId', (int)$orderId);
+        $this->rzpPdo->bindParam(':productId', (int)$productId);
+
         $query = $this->rzpPdo->execute();
 
         return $query->row;
@@ -311,51 +325,49 @@ class Razorpay extends \Opencart\System\Engine\Model {
         return (bool)$this->config->get('payment_razorpay_subscription_status');
     }
 
-    public function createOCRecurring($recurringData)
+    public function createOCSubscription($subscriptionData)
     {
-        $query = "INSERT INTO `" . DB_PREFIX . "order_recurring` SET `order_id` = :order_id, `date_added` = NOW(), `status` = '" . self::RECURRING_PENDING . "',";
-        $query = $query . " `product_id` = :product_id, `product_name` = :product_name,";
-        $query = $query . " `product_quantity` = :product_quantity, `recurring_id` = :recurring_id,";
-        $query = $query . " `recurring_name` = :recurring_name, `recurring_description` = :recurring_description,";
-        $query = $query . " `recurring_frequency` = :recurring_frequency, `recurring_cycle` = :recurring_cycle,";
-        $query = $query . " `recurring_duration` = :recurring_duration, `recurring_price` = :recurring_price,";
-        $query = $query . " `trial` = :trial, `trial_frequency` = :trial_frequency,";
-        $query = $query . " `trial_cycle` = :trial_cycle, `trial_duration` = :trial_duration,";
-        $query = $query . " `trial_price` = :trial_price, `reference` = :reference";
+        $query = "INSERT INTO `" . DB_PREFIX . "order_subscription` SET `order_product_id` = :order_product_id,";
+        $query = $query . " `order_id` = :order_id, `product_id` = :product_id,";
+        $query = $query . " `subscription_plan_id` = :subscription_plan_id, `trial_price` = :trial_price,";
+        $query = $query . " `trial_tax` = :trial_tax, `trial_frequency` = :trial_frequency,";
+        $query = $query . " `trial_remaining` = :trial_remaining, `trial_status` = :trial_status,";
+        $query = $query . " `price` = :price, `tax` = :tax,";
+        $query = $query . " `frequency` = :frequency, `cycle` = :cycle,";
+        $query = $query . " `duration` = :duration";
 
         $this->rzpPdo->prepare($query);
-        $this->rzpPdo->bindParam(':order_id', (int)$recurringData['order_id']);
-        $this->rzpPdo->bindParam(':product_id', (int)$recurringData['product_id']);
-        $this->rzpPdo->bindParam(':product_name', $this->db->escape($recurringData['product_name']));
-        $this->rzpPdo->bindParam(':product_quantity', $this->db->escape($recurringData['product_quantity']));
-        $this->rzpPdo->bindParam(':recurring_id', (int)$recurringData['recurring_id']);
-        $this->rzpPdo->bindParam(':recurring_name', $this->db->escape($recurringData['recurring_name']));
-        $this->rzpPdo->bindParam(':recurring_description', $this->db->escape($recurringData['recurring_description']));
-        $this->rzpPdo->bindParam(':recurring_frequency', $this->db->escape($recurringData['recurring_frequency']));
-        $this->rzpPdo->bindParam(':recurring_cycle', (int)$recurringData['recurring_cycle']);
-        $this->rzpPdo->bindParam(':recurring_duration', (int)$recurringData['recurring_duration']);
-        $this->rzpPdo->bindParam(':recurring_price', (float)$recurringData['recurring_price']);
-        $this->rzpPdo->bindParam(':trial', (int)$recurringData['trial']);
-        $this->rzpPdo->bindParam(':trial_frequency', $this->db->escape($recurringData['trial_frequency']));
-        $this->rzpPdo->bindParam(':trial_cycle', (int)$recurringData['trial_cycle']);
-        $this->rzpPdo->bindParam(':trial_duration', (int)$recurringData['trial_duration']);
-        $this->rzpPdo->bindParam(':trial_price', (float)$recurringData['trial_price']);
-        $this->rzpPdo->bindParam(':reference', $this->db->escape($recurringData['reference']));
+        $this->rzpPdo->bindParam(':order_product_id', (int)$subscriptionData['order_product_id']);
+        $this->rzpPdo->bindParam(':order_id', (int)$subscriptionData['order_id']);
+        $this->rzpPdo->bindParam(':product_id', (int)$subscriptionData['product_id']);
+        $this->rzpPdo->bindParam(':subscription_plan_id', (int)$subscriptionData['subscription_plan_id']);
+        $this->rzpPdo->bindParam(':trial_price', (float)$subscriptionData['trial_price']);
+        $this->rzpPdo->bindParam(':trial_tax', (float)$subscriptionData['trial_tax']);
+        $this->rzpPdo->bindParam(':trial_frequency', $this->db->escape($subscriptionData['trial_frequency']));
+        $this->rzpPdo->bindParam(':trial_cycle', (int)$subscriptionData['trial_cycle']);
+        $this->rzpPdo->bindParam(':trial_duration', (int)$subscriptionData['trial_duration']);
+        $this->rzpPdo->bindParam(':trial_remaining', (int)$subscriptionData['trial_remaining']);
+        $this->rzpPdo->bindParam(':trial_status', (int)$subscriptionData['trial_status']);
+        $this->rzpPdo->bindParam(':price', (float)$subscriptionData['price']);
+        $this->rzpPdo->bindParam(':tax', (float)$subscriptionData['tax']);
+        $this->rzpPdo->bindParam(':frequency', $this->db->escape($subscriptionData['frequency']));
+        $this->rzpPdo->bindParam(':cycle', (int)$subscriptionData['cycle']);
+        $this->rzpPdo->bindParam(':duration', (int)$subscriptionData['duration']);
 
         return $this->rzpPdo->execute();
     }
 
-    public function updateOCRecurringStatus( $orderId, $status)
+    public function updateOCSubscriptionStatus( $orderId, $status)
     {
-        $this->rzpPdo->prepare("UPDATE " . DB_PREFIX . "order_recurring SET status = :status WHERE order_id =:order_id");
+        $this->rzpPdo->prepare("UPDATE " . DB_PREFIX . "order_subscription SET status = :status WHERE order_id =:order_id");
         $this->rzpPdo->bindParam(':status', (int)$status);
         $this->rzpPdo->bindParam(':order_id', (int)$orderId);
         $this->rzpPdo->execute();
     }
 
-    public function getOCRecurringStatus($orderId)
+    public function getOCSubscriptionStatus($orderId)
     {
-        $this->rzpPdo->prepare("SELECT * FROM " . DB_PREFIX . "order_recurring WHERE order_id = :orderId");
+        $this->rzpPdo->prepare("SELECT * FROM " . DB_PREFIX . "order_subscription WHERE order_id = :orderId");
         $this->rzpPdo->bindParam(':orderId', (int)$orderId);
         $query = $this->rzpPdo->execute();
 

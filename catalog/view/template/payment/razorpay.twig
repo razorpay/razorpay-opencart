@@ -2,8 +2,8 @@
 
     <form action="{{ api_url }}checkout/embedded" method="post" name="embedded_checkout_form">
         <input type="hidden" name="key_id" value="{{ key_id }}">
-        <input type="hidden" name="is_recurring" id="isRecurring" value="{{ is_recurring }}">
-        {% if is_recurring %}
+        <input type="hidden" name="is_subscription" id="isSubscription" value="{{ is_subscription }}">
+        {% if is_subscription %}
             <input type="hidden" name="subscription_id" value="{{ razorpay_order_id }}">
         {% else %}
             <input type="hidden" name="order_id" value="{{ razorpay_order_id }}">
@@ -18,7 +18,7 @@
 
         <input type="hidden" name="notes[opencart_order_id]" value="{{ merchant_order_id }}">
 
-        {% if is_recurring %}
+        {% if is_subscription %}
             <input type="hidden" name="_[integration]" value="opencart-subscription">
         {% else %}
             <input type="hidden" name="_[integration]" value="opencart">
@@ -38,7 +38,7 @@
     <script data-cfasync='false' type='text/javascript' src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script data-cfasync='false' type='text/javascript'>
 
-        if ({{ is_recurring }}) {
+        if ({{ is_subscription }}) {
             var razorpay_options = {
                 key: "{{ key_id }}",
                 subscription_id: "{{ razorpay_order_id }}",
