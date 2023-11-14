@@ -572,6 +572,229 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $this->response->setOutput($this->load->view('extension/razorpay/payment/razorpay_subscription/razorpay_subscription_list', $data));
     }
 
+    //for Subscription status change
+    public function changeStatus()
+    {
+        $this->load->language('extension/razorpay/payment/razorpay');
+
+        $this->document->setTitle($this->language->get('heading_title'));
+
+        $this->load->model('extension/razorpay/payment/razorpay');
+
+        // single status change
+        if (isset($this->request->get['status']))
+        {
+            $status = $this->request->get['status'];
+        }
+        else
+        {
+            $status = 0;
+        }
+
+        if ((isset($this->request->post['selected'])) && ($this->request->post['status']))
+        {
+            $status = $this->request->post['status'];
+            if($status==1)
+            {
+                $this->log->write('Status 1');
+                $this->resumeSubscription($this->request->post['selected']);
+            }
+            else if($status==2)
+            {
+                $this->log->write('Status 2');
+                $this->pauseSubscription($this->request->post['selected']);
+            }
+            else if($status==3)
+            {
+                $this->log->write('Status 3');
+                $this->cancelSubscription($this->request->post['selected']);
+            }
+            else
+            {
+                $this->log->write('Status 4');
+                return;
+            }
+        }
+        else
+        {
+            return $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay.getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true));
+
+            return;
+        }
+    }
+
+    public function changeSingleStatus()
+    {
+        $status = $this->request->get['status'];
+        $eid= str_split($this->request->get['entity_id']);
+
+        if($status==1)
+        {
+            $this->resumeSubscription($eid);
+            $this->session->data['success'] = $this->language->get('text_resume_success');
+
+            return;
+        }
+        else if($status==2)
+        {
+            $this->pauseSubscription($eid);
+            $this->session->data['success'] = $this->language->get('text_pause_success');
+
+            return;
+        }
+        else if($status==3)
+        {
+            $this->cancelSubscription($eid);
+            $this->session->data['success'] = $this->language->get('text_pause_success');
+
+            return $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay.getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true));
+        }
+        else
+        {
+            return;
+        }
+    }
+
+    public function resumeSubscription($entity_id)
+    {
+        $this->load->language('extension/razorpay/payment/razorpay');
+
+        $this->document->setTitle($this->language->get('heading_title'));
+
+        $this->load->model('extension/razorpay/payment/razorpay');
+        $url = '';
+
+        try {
+            foreach ($entity_id as $entityId)
+            {
+                $subscriptionData = $this->model_extension_razorpay_payment_razorpay->getSingleSubscription($entityId);
+
+                if ($subscriptionData['status'] == "paused")
+                {
+                    $api = $this->getApiIntance();
+
+                    $api->subscription->fetch($subscriptionData['subscription_id'])->resume(array('resume_at' => 'now'));
+
+                    $this->model_extension_razorpay_payment_razorpay->resumeSubscription($entityId, "admin");
+                    $this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 1);
+                }
+
+            }
+            $this->session->data['success'] = $this->language->get('text_resume_success');
+
+            return $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay.getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true));
+
+        }
+        catch (\Razorpay\Api\Errors\Error $e)
+        {
+            $this->log->write($e->getMessage());
+            $this->error['warning'] = $e->getMessage();
+
+            if (isset($this->error['warning']))
+            {
+                $this->session->data['error_warning'] = $this->error['warning'];
+            }
+            else
+            {
+                $this->session->data['error_warning'] = '';
+            }
+
+            return;
+        }
+    }
+
+    public function pauseSubscription($entity_id)
+    {
+        $this->load->language('extension/razorpay/payment/razorpay');
+        $url = '';
+        $this->document->setTitle($this->language->get('heading_title'));
+
+        $this->load->model('extension/razorpay/payment/razorpay');
+
+        try {
+            foreach ($entity_id as $entityId)
+            {
+                $subscriptionData = $this->model_extension_razorpay_payment_razorpay->getSingleSubscription($entityId);
+
+                if ($subscriptionData['status'] == "active")
+                {
+                    $api = $this->getApiIntance();
+                    $api->subscription->fetch($subscriptionData['subscription_id'])->pause(["pause_at" => "now"]);
+                    $this->model_extension_razorpay_payment_razorpay->pauseSubscription($entityId, "admin");
+                    $this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 2);
+                }
+
+            }
+
+            $this->session->data['success'] = $this->language->get('text_pause_success');
+
+            return $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay.getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true));
+
+        }
+        catch (\Razorpay\Api\Errors\Error $e)
+        {
+            $this->log->write($e->getMessage());
+            $this->error['warning'] = $e->getMessage();
+
+            if (isset($this->error['warning']))
+            {
+                $this->session->data['error_warning'] = $this->error['warning'];
+            }
+            else
+            {
+                $this->session->data['error_warning'] = '';
+            }
+
+            return;
+        }
+    }
+
+    public function cancelSubscription($entity_id)
+    {
+        $this->load->language('extension/razorpay/payment/razorpay');
+
+        $this->document->setTitle($this->language->get('heading_title'));
+
+        $this->load->model('extension/razorpay/payment/razorpay');
+
+        try {
+            foreach ($entity_id as $entityId)
+            {
+                $subscriptionData = $this->model_extension_razorpay_payment_razorpay->getSingleSubscription($entityId);
+
+                if (($subscriptionData['status'] == "active") || ($subscriptionData['status'] == "paused"))
+                {
+                    $api = $this->getApiIntance();
+                    $api->subscription->fetch($subscriptionData['subscription_id'])->cancel(["cancel_at_cycle_end" => 0]);
+                    $this->model_extension_razorpay_payment_razorpay->cancelSubscription($entityId, "admin");
+                    $this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 3);
+                }
+
+            }
+
+            $this->session->data['success'] = $this->language->get('text_cancel_success');
+
+            return $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay.getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true));
+
+        }
+        catch (\Razorpay\Api\Errors\Error $e)
+        {
+            $this->log->write($e->getMessage());
+            $this->error['warning'] = $e->getMessage();
+
+            if (isset($this->error['warning']))
+            {
+                $this->session->data['error_warning'] = $this->error['warning'];
+            }
+            else
+            {
+                $this->session->data['error_warning'] = '';
+            }
+
+            return;
+        }
+    }
+
     public function subscriptionInfo()
     {
         $this->load->language('extension/razorpay/payment/razorpay');

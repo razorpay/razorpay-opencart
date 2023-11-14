@@ -249,22 +249,22 @@
 																<a href="{{ sub.view }}" data-oc-toggle="tooltip" title="{{ button_view }}" class="btn btn-primary">
 																	<i class="fa fa-eye"></i>
 																</a>
-																<button type="button" data-oc-toggle="dropdown" class="btn btn-primary dropdown-toggle">
-																	<span class="caret"></span>
+																<button type="button" data-bs-toggle="dropdown" class="btn btn-primary dropdown-toggle">
+																	<i class="fa-solid fa-caret-down"></i>
 																</button>
 																<ul class="dropdown-menu dropdown-menu-right">
 																	<li>
-																		<a href="{{ sub.singleResume }}">
+																		<a href="{{ sub.singleResume }}" class="dropdown-item">
 																			<i class="fa fa-undo"></i>
 																			{{ button_resume }}</a>
 																	</li>
 																	<li>
-																		<a href="{{ sub.singlePause }}">
+																		<a href="{{ sub.singlePause }}" class="dropdown-item">
 																			<i class="fa fa-pause"></i>
 																			{{ button_pause }}</a>
 																	</li>
 																	<li>
-																		<a href="{{ sub.singleCancel }}">
+																		<a href="{{ sub.singleCancel }}" class="dropdown-item">
 																			<i class="fa fa-ban"></i>
 																			{{ button_cancel }}</a>
 																	</li>
