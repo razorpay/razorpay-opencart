@@ -577,23 +577,12 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             $url .= '&order=' . $this->request->get['order'];
         }
 
-        // $pagination = new Pagination();
-        // $pagination->total = $plan_total;
-        // $pagination->page = $page;
-        // $pagination->limit = $this->config->get('config_limit_admin');
-        // $pagination->url = $this->url->link('extension/razorpay/payment/razorpay.getSubscription', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true);
-
-
-        // $data['pagination'] = $pagination->render();
-
         $data['pagination'] = $this->load->controller('common/pagination', [
             'total' => $plan_total,
             'page'  => $page,
             'limit' =>10,
             'url'   => $this->url->link('extension/razorpay/payment/razorpay.getPlan', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true)
         ]);
-
-        // $data['results'] = sprintf($this->language->get('text_pagination'), ($report_total) ? (($page - 1) * 10) + 1 : 0, ((($page - 1) * 10) > ($report_total - 10)) ? $report_total : ((($page - 1) * 10) + 10), $report_total, ceil($report_total / 10));
 
         $data['results'] = sprintf($this->language->get('text_pagination'), ($plan_total) ? (($page - 1) *10) + 1 : 0, ((($page - 1) *10) > ($plan_total -10)) ? $plan_total : ((($page - 1) *10) +10), $plan_total, ceil($plan_total /10));
 

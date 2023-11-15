@@ -230,59 +230,50 @@
 				</div>
 			</div>
 		</div>
-		<script
-			type="text/javascript">
-			<!--
-
+		<script type="text/javascript">
 			$('#button-enable').click(function () {
-$('#status').val('1');
+				$('#status').val('1');
+				$("#form-plan").submit();
+			});
 
-});
-$('#button-disable').click(function () {
-$('#status').val('2');
+			$('#button-disable').click(function () {
+				$('#status').val('2');
+				$("#form-plan").submit();
+			});
 
-});
+		$('#button-filter').on('click', function() {
+			url = '';
 
-// --> </script> <script type="text/javascript"><!--
-	$('#button-filter').on('click', function() {
-		url = '';
-	
-		var filter_plan_id = $('input[name=\'filter_plan_id\']').val();
-	
-		if (filter_plan_id) {
-			url += '&filter_plan_id=' + encodeURIComponent(filter_plan_id);
-		}
-	
-		var filter_plan_name = $('input[name=\'filter_plan_name\']').val();
-	
-		if (filter_plan_name) {
-			url += '&filter_plan_name=' + encodeURIComponent(filter_plan_name);
-		}
-	
-		var filter_plan_status = $('select[name=\'filter_plan_status\']').val();
-	
-		if (filter_plan_status !== '') {
-			url += '&filter_plan_status=' + encodeURIComponent(filter_plan_status);
-		}
-	
-		var filter_date_created = $('input[name=\'filter_date_created\']').val();
-	
-		if (filter_date_created) {
-			url += '&filter_date_created=' + encodeURIComponent(filter_date_created);
-		}
-	
-		location = 'index.php?route=extension/razorpay/payment/razorpay.getPlan&user_token={{ user_token }}' + url;
-	});
-	//-->--></script>
+			var filter_plan_id = $('input[name=\'filter_plan_id\']').val();
 
-		<script type="text/javascript"><!--
+			if (filter_plan_id) {
+				url += '&filter_plan_id=' + encodeURIComponent(filter_plan_id);
+			}
 
-		//-->
+			var filter_plan_name = $('input[name=\'filter_plan_name\']').val();
+
+			if (filter_plan_name) {
+				url += '&filter_plan_name=' + encodeURIComponent(filter_plan_name);
+			}
+
+			var filter_plan_status = $('select[name=\'filter_plan_status\']').val();
+
+			if (filter_plan_status !== '') {
+				url += '&filter_plan_status=' + encodeURIComponent(filter_plan_status);
+			}
+
+			var filter_date_created = $('input[name=\'filter_date_created\']').val();
+
+			if (filter_date_created) {
+				url += '&filter_date_created=' + encodeURIComponent(filter_date_created);
+			}
+
+			location = 'index.php?route=extension/razorpay/payment/razorpay.getPlan&user_token={{ user_token }}' + url;
+		});
 	</script>
-	<script src="view/javascript/jquery/datetimepicker/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
-	<link href="view/javascript/jquery/datetimepicker/bootstrap-datetimepicker.min.css" type="text/css" rel="stylesheet" media="screen"/>
+	<script src="view/javascript/jquery/datetimepicker/daterangepicker.js" type="text/javascript"></script>
+	<link href="view/javascript/jquery/datetimepicker/daterangepicker.css" type="text/css" rel="stylesheet" media="screen"/>
 	<script	type="text/javascript">
-		<!--
-		$('.date').datetimepicker({language: '{{ datepicker }}', pickTime: false});
-//--></script>
+		$('.date').daterangepicker({timePicker: false});
+	</script>
 	{{footer}}
