@@ -292,67 +292,54 @@
 				</div>
 			</div>
 		</div>
-		<script
-			type="text/javascript">
-			<!--
-
+		<script type="text/javascript">
 			$('#button-resume').click(function () {
-$('#status').val('1');
+				$('#status').val('1');
+				$("#form-plan").submit();
+			});
+			$('#button-pause').click(function () {
+				$('#status').val('2');
+				$("#form-plan").submit();
+			});
+			$('#button-cancel').click(function () {
+				$('#status').val('3');
+				$("#form-plan").submit();
+			});
 
-});
-$('#button-pause').click(function () {
-$('#status').val('2');
-});
+			$('#button-filter').on('click', function () {
+				url = '';
+				var filter_subscription_id = $('input[name=\'filter_subscription_id\']').val();
 
-$('#button-cancel').click(function () {
-$('#status').val('3');
-});
-// --> </script> <script type="text/javascript"><!--
-$('#button-filter').on('click', function () {
-url = '';
+				if (filter_subscription_id) {
+				url += '&filter_subscription_id=' + encodeURIComponent(filter_subscription_id);
+				}
 
-var filter_subscription_id = $('input[name=\'filter_subscription_id\']').val();
+				var filter_plan_name = $('input[name=\'filter_plan_name\']').val();
 
-if (filter_subscription_id) {
-url += '&filter_subscription_id=' + encodeURIComponent(filter_subscription_id);
-}
+				if (filter_plan_name) {
+				url += '&filter_plan_name=' + encodeURIComponent(filter_plan_name);
+				}
 
-var filter_plan_name = $('input[name=\'filter_plan_name\']').val();
+				var filter_subscription_status = $('select[name=\'filter_subscription_status\']').val();
 
-if (filter_plan_name) {
-url += '&filter_plan_name=' + encodeURIComponent(filter_plan_name);
-}
-
-var filter_subscription_status = $('select[name=\'filter_subscription_status\']').val();
-
-if (filter_subscription_status !== '') {
-url += '&filter_subscription_status=' + encodeURIComponent(filter_subscription_status);
-}
+				if (filter_subscription_status !== '') {
+				url += '&filter_subscription_status=' + encodeURIComponent(filter_subscription_status);
+			}
 
 
-var filter_date_created = $('input[name=\'filter_date_created\']').val();
+			var filter_date_created = $('input[name=\'filter_date_created\']').val();
 
-if (filter_date_created) {
-url += '&filter_date_created=' + encodeURIComponent(filter_date_created);
-}
+			if (filter_date_created) {
+				url += '&filter_date_created=' + encodeURIComponent(filter_date_created);
+			}
 
-location = 'index.php?route=extension/razorpay/payment/razorpay.getSubscription&user_token={{ user_token }}' + url;
-});
-// -->
-			-->
+			location = 'index.php?route=extension/razorpay/payment/razorpay.getSubscription&user_token={{ user_token }}' + url;
+			});
+
 		</script>
-
-		<script type="text/javascript"><!--
-
-		//-->
-	</script>
 	<script src="view/javascript/jquery/datetimepicker/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
 	<link href="view/javascript/jquery/datetimepicker/bootstrap-datetimepicker.min.css" type="text/css" rel="stylesheet" media="screen"/>
-	<script
-		type="text/javascript">
-		<!--
+	<script type="text/javascript">
 		$('.date').datetimepicker({language: '{{ datepicker }}', pickTime: false});
-//
-		-->
 	</script>
 	{{footer}}
