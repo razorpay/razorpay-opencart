@@ -1223,6 +1223,67 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $this->response->setOutput($this->load->view('extension/razorpay/payment/razorpay_subscription/razorpay_plan_list', $data));
     }
 
+    //for status change
+    public function statusPlan()
+    {
+        $this->load->language('extension/razorpay/payment/razorpay');
+
+        $this->document->setTitle($this->language->get('heading_title'));
+
+        $this->load->model('extension/razorpay/payment/razorpay');
+
+        if ((isset($this->request->post['selected'])) and
+            ($this->request->post['status']))
+        {
+            $status = $this->request->post['status'];
+
+            if ($status === '1')
+            {
+                foreach ($this->request->post['selected'] as $entity_id)
+                {
+                    $this->model_extension_razorpay_payment_razorpay->enablePlan($entity_id);
+
+                }
+
+                $this->session->data['success'] = $this->language->get('text_enable_success');
+            }
+            else if ($status === '2')
+            {
+                foreach ($this->request->post['selected'] as $entity_id)
+                {
+                    $this->model_extension_razorpay_payment_razorpay->disablePlan($entity_id);
+                }
+
+                $this->session->data['success'] = $this->language->get('text_disable_success');
+            }
+            else
+            {
+                $this->session->data['warning'] = $this->language->get('text_select_warning');
+            }
+
+            $url = '';
+
+            if (isset($this->request->get['sort']))
+            {
+                $url .= '&sort=' . $this->request->get['sort'];
+            }
+
+            if (isset($this->request->get['order']))
+            {
+                $url .= '&order=' . $this->request->get['order'];
+            }
+
+            if (isset($this->request->get['page']))
+            {
+                $url .= '&page=' . $this->request->get['page'];
+            }
+
+            $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay.getPlan', 'user_token=' . $this->session->data['user_token'] . $url, true));
+        }
+
+        $this->getPlan();
+    }
+
 	protected function getKeyValueArray($inputString) {
 		$postStr = explode("&", $inputString);
 		$post = [];
