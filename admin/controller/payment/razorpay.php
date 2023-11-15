@@ -283,7 +283,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
 	}
-
+	
     public function getSubscription()
     {
         $this->load->language('extension/razorpay/payment/razorpay');
@@ -538,14 +538,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         {
             $url .= '&sort=' . $this->request->get['sort'];
         }
-
-        // $pagination = new Pagination();
-        // $pagination->total = $subscription_total;
-        // $pagination->page = $page;
-        // $pagination->limit = $this->config->get('config_limit_admin');
-        // $pagination->url = $this->url->link('extension/razorpay/payment/razorpay.getSubscription', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true);
-
-        // $data['pagination'] = $pagination->render();
 
         $data['pagination'] = $this->load->controller('common/pagination', [
             'total' => $subscription_total,
