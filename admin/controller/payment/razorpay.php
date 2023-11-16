@@ -284,19 +284,64 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 		$this->response->setOutput(json_encode($json));
 	}
 
-	public function install(): void {
-		try {
-			$this->load->model('extension/razorpay/payment/razorpay');
-		
-			/* Rzp subscriptions tables */
-			$this->model_extension_razorpay_payment_razorpay->createTables();
-			$this->model_extension_razorpay_payment_razorpay->addLayout();
-		}
-		catch(\Exception $e) {
-			echo(json_encode($e->getMessage()));
-			echo(json_encode($e->getTrace()));
-		}
-	}
+	public function rzpAdminMenu(string $route = '', array &$data = []): void
+    {
+        if ($this->config->get('payment_razorpay_subscription_status') !== '1')
+        {
+            return;
+        }
+
+        $rzpNav = [];
+
+        $this->load->language('extension/razorpay/payment/razorpay');
+
+        $rzpNav[] = [
+            'name'      => "plan",
+            'href'      => $this->url->link('extension/razorpay/payment/razorpay.getPlan', 'user_token=' . $this->session->data['user_token'], true),
+            'children'  => []
+        ];
+        $rzpNav[] = [
+            'name'      => "subscription",
+            'href'      => $this->url->link('extension/razorpay/payment/razorpay.getSubscription', 'user_token=' . $this->session->data['user_token'], true),
+            'children'  => []
+        ];
+
+        $data['menus'][] = [
+            'id'        => 'menu-catalog',
+            'icon'      => 'fa-solid fa-tag',
+            'name'      => 'Razorpay Subscription',
+            'href'      => '',
+            'children'  => $rzpNav
+        ];
+    }
+
+    public function install(): void
+    {
+        try
+        {
+            $this->load->model('setting/event');
+            $this->model_setting_event->deleteEventByCode('razorpay_admin_menu');
+
+            $this->model_setting_event->addEvent([
+                'code'          => 'razorpay_admin_menu',
+                'description'   => 'Razorpay Plans and Subscriptions',
+                'trigger'       => 'admin/view/common/column_left/before',
+                'action'        => 'extension/razorpay/payment/razorpay.rzpAdminMenu',
+                'status'        => true,
+                'sort_order'    => 1
+            ]);
+            
+            $this->load->model('extension/razorpay/payment/razorpay');
+
+            /* Rzp subscriptions tables */
+            $this->model_extension_razorpay_payment_razorpay->createTables();
+            $this->model_extension_razorpay_payment_razorpay->addLayout();
+        }
+        catch(\Exception $e) {
+            echo(json_encode($e->getMessage()));
+            echo(json_encode($e->getTrace()));
+        }
+    }
 
 	public function uninstall(): void {
 		try{ 
