@@ -855,7 +855,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             return;
         }
 
-        $rzpNav=[];
+        $rzpNav = [];
 
         $this->load->language('extension/razorpay/payment/razorpay');
 
@@ -879,19 +879,21 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         ];
     }
 
-	public function install(): void {
-		try {
+	public function install(): void
+    {
+		try
+        {
             $this->load->model('setting/event');
 
             $this->model_setting_event->deleteEventByCode('razorpay_admin_menu');
 
             $this->model_setting_event->addEvent([
-                'code' => 'razorpay_admin_menu',
-                'description' => 'Razorpay Plans and Subscriptions',
-                'trigger' => 'admin/view/common/column_left/before',
-                'action' => 'extension/razorpay/payment/razorpay.rzpAdminMenu',
-                'status' => true,
-                'sort_order' => 1
+                'code'          => 'razorpay_admin_menu',
+                'description'   => 'Razorpay Plans and Subscriptions',
+                'trigger'       => 'admin/view/common/column_left/before',
+                'action'        => 'extension/razorpay/payment/razorpay.rzpAdminMenu',
+                'status'        => true,
+                'sort_order'    => 1
             ]);
 
 			$this->load->model('extension/razorpay/payment/razorpay');
