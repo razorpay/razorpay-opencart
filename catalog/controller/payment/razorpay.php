@@ -37,23 +37,22 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 		$this->load->language('extension/razorpay/payment/razorpay');
 
         $this->load->model('checkout/order');
+        $this->load->model('checkout/subscription');
 
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
         $data['button_confirm'] = $this->language->get('button_confirm');
         try
         {
-            if ($this->cart->hasSubscription() and 
+            if ($this->cart->hasSubscription() and
             	$this->config->get('payment_razorpay_subscription_status'))
             {
-                $this->load->model('extension/razorpay/payment/razorpay');
-
                 //validate for non-subscription product and if recurring is product for more than 1
-                $this->validate_non_recurring_products();
+                $this->validate_non_subscription_products();
 
-                if ($this->cart->hasRecurringProducts() > 1)
+                if (count($this->cart->getSubscriptions()) > 1)
                 {
-                    $this->log->write("Cart has more than 1 recurring product");
+                    $this->log->write("Cart has more than 1 subscription product");
                     echo "<div class='alert alert-danger alert-dismissible'>We do not support payment of two different subscription products at once. Please remove one of the products from your cart to proceed.</div>";
                     exit ;
                 }
@@ -69,32 +68,17 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
                     $this->session->data["razorpay_subscription_order_id_" . $this->session->data['order_id']] = $subscription_order['id'];
                     $data['razorpay_order_id'] = $this->session->data["razorpay_subscription_order_id_" . $this->session->data['order_id']];
-                    $data['is_recurring'] = "true";
-                    $recurring_description = "Recurring order ";
+                    $data['is_subscription'] = "true";
                     $cartDetails = $this->cart->getProducts();
 
-                    $recurringData = [
-                        "order_id" => $this->session->data['order_id'],
-                        "product_id" => $cartDetails[0]["product_id"],
-                        "product_name" => $cartDetails[0]["name"],
-                        "product_quantity" =>$cartDetails[0]["quantity"],
-                        "recurring_id" => $cartDetails[0]["recurring"]["recurring_id"],
-                        "recurring_name" =>$cartDetails[0]["recurring"]["name"],
-                        "recurring_description" => $cartDetails[0]["recurring"]["frequency"] . "ly recurring with SubscriptionId ".$subscription_order['id'],
-                        "recurring_frequency" => $cartDetails[0]["recurring"]["frequency"] . "ly",
-                        "recurring_cycle" => $cartDetails[0]["recurring"]["cycle"],
-                        "recurring_duration" => $cartDetails[0]["recurring"]["duration"],
-                        "recurring_price" => $cartDetails[0]["recurring"]["price"],
-                        "trial" => $cartDetails[0]["recurring"]["trial"],
-                        "trial_frequency" => $cartDetails[0]["recurring"]["trial_frequency"],
-                        "trial_cycle" => $cartDetails[0]["recurring"]["trial_cycle"],
-                        "trial_duration" => $cartDetails[0]["recurring"]["trial_duration"],
-                        "trial_price" => $cartDetails[0]["recurring"]["trial_price"],
-                        "reference" => "Subscription Id ". $subscription_order['id']
-                    ];
+                    $cart_id = array_key_first($cartDetails);
 
-                    $this->model_extension_razorpay_payment_razorpay->createOCRecurring($recurringData);
+                    $orderProductId = $this->model_extension_razorpay_payment_razorpay->getOrderProductId($this->session->data['order_id'], $cartDetails[$cart_id]["product_id"]);
 
+                    $order_subscription_info = $this->model_checkout_order->getSubscription($this->session->data['order_id'], $orderProductId['order_product_id']);
+
+                    // Add subscription
+                    $subscription_id = $this->model_checkout_subscription->addSubscription(array_merge($order_subscription_info, $cartDetails[$cart_id], $order_info));
 
                     $this->log->write("RZP subscriptionID (:" . $subscription_order['id'] . ") created for Opencart OrderID (:" . $this->session->data['order_id'] . ")");
                 }
@@ -102,7 +86,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             }
             else
             {
-                $data['is_recurring'] = "false";
+                $data['is_subscription'] = "false";
                 // Orders API with payment autocapture
                 $order_data = $this->get_order_creation_data($this->session->data['order_id']);
                 if (isset($this->session->data["razorpay_order_amount"]) === false)
@@ -209,18 +193,17 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         return $data;
     }
 
-    public function validate_non_recurring_products()
+    public function validate_non_subscription_products()
     {
-        $nonRecurringProduct = array_filter($this->cart->getProducts(), function ($product)
+        $nonSubscriptionProduct = array_filter($this->cart->getProducts(), function ($product)
         {
             return array_filter($product, function ($value, $key) {
-                return $key == "recurring" and empty($value);
+                return $key == "subscription" and empty($value);
             }, ARRAY_FILTER_USE_BOTH);
         });
-
-        if (!empty($nonRecurringProduct))
+        if (empty($nonSubscriptionProduct) === false)
         {
-            $this->log->write("Cart has recurring product and non recurring product");
+            $this->log->write("Cart has subscription product and non subscription product");
             echo "<div class='alert alert-danger alert-dismissible'>You have a one-time payment product and a subscription payment product in your cart. Please remove one of the products from the cart to proceed.</div>";
             exit;
         }
@@ -231,22 +214,25 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $this->load->model('extension/razorpay/payment/razorpay');
 
         $order = $this->model_checkout_order->getOrder($order_id);
-        $recurringPlanData = $this->cart->getProducts()[0]["recurring"];
-        $productId = $this->cart->getProducts()[0]['product_id'];
+        $cartProducts = $this->cart->getProducts();
 
-        $planData = $this->model_extension_razorpay_payment_razorpay->getPlanByRecurringIdAndFrequencyAndProductId($recurringPlanData['recurring_id'], $recurringPlanData['frequency'], $productId);
+        $cart_id = array_key_first($cartProducts);
+        $subscriptionPlanData = $cartProducts[$cart_id]["subscription"];
+        $productId = $cartProducts[$cart_id]['product_id'];
+
+        $planData = $this->model_extension_razorpay_payment_razorpay->getPlanBySubscriptionIdAndFrequencyAndProductId($subscriptionPlanData['subscription_plan_id'], $subscriptionPlanData['frequency'], $productId);
 
         $subscriptionData = [
-            "customer_id" => $this->getRazorpayCustomerData($order),
-            "plan_id" => $planData['plan_id'],
-            "total_count" => $planData['plan_bill_cycle'],
-            "quantity" => $this->cart->getProducts()[0]['quantity'],
-            "customer_notify" => 0,
-            "notes" => [
-                "source" => "opencart-subscription",
+            "customer_id"       => $this->getRazorpayCustomerData($order),
+            "plan_id"           => $planData['plan_id'],
+            "total_count"       => $planData['plan_bill_cycle'],
+            "quantity"          => $cartProducts[$cart_id]['quantity'],
+            "customer_notify"   => 0,
+            "source"            => "opencart-subscription",
+            "notes"             => [
+                "source"            => "opencart-subscription",
                 "merchant_order_id" => $order_id,
-            ],
-            "source" => "opencart-subscription",
+            ]
         ];
 
         if ($planData['plan_trial'])
@@ -316,13 +302,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
                     $planData = $this->model_extension_razorpay_payment_razorpay->fetchRZPPlanById($subscriptionData['plan_id']);
                     $this->model_extension_razorpay_payment_razorpay->updateSubscription($subscriptionData, $razorpay_subscription_id);
-
-                    // Update oC recurring table and OC recurring transaction
-                    $this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($this->session->data['order_id'], 1);
-
-                    // Creating OC Recurring Transaction
-                    $ocRecurringData = $this->model_extension_razorpay_payment_razorpay->getOCRecurringStatus($this->session->data['order_id']);
-                    $this->model_extension_razorpay_payment_razorpay->addOCRecurringTransaction($ocRecurringData['order_recurring_id'], $razorpay_subscription_id, $planData['plan_bill_amount'], "success");
                 }
 
                 if ($order_info['payment_method']['code'] === 'razorpay.razorpay' and
@@ -337,7 +316,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                 if ($isSubscriptionCallBack)
                 {
                     // Update oC recurring table for failed payment
-                    $this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($this->session->data['order_id'], 4);
+                    $this->model_extension_razorpay_payment_razorpay->updateOCSubscriptionStatus($this->session->data['order_id'], 4);
                 }
                 $this->model_checkout_order->addHistory($merchant_order_id, 10, $e->getMessage() . ' Payment Failed! Check Razorpay dashboard for details of Payment Id:' . $razorpay_payment_id);
 
@@ -1102,7 +1081,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                 $this->log->write("Subscription charged webhook event initiated for Opencart OrderID (:" . $merchant_order_id . ")");
 
                 // Creating OC Recurring Transaction
-                $ocRecurringData = $this->model_extension_razorpay_payment_razorpay->getOCRecurringStatus($merchant_order_id);
+                $ocRecurringData = $this->model_extension_razorpay_payment_razorpay->getOCSubscriptionStatus($merchant_order_id);
                 $this->model_extension_razorpay_payment_razorpay->addOCRecurringTransaction($ocRecurringData['order_recurring_id'], $subscriptionId, $amount, "success");
 
                 // Update RZP Subscription and OC subscription
