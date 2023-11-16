@@ -301,29 +301,21 @@ class Razorpay extends \Opencart\System\Engine\Model {
         $this->rzpPdo->prepare("UPDATE " . DB_PREFIX . "razorpay_plans SET plan_status = '" . 2 . "' WHERE entity_id = :entity_id");
         $this->rzpPdo->bindParam(':entity_id', (int)$entity_id);
         $this->rzpPdo->execute();
-        
-        //delete from recurring table;
-        $this->deleteRecurring($entity_id);
+
+        //delete plan linked to product table;
+        $this->deleteSubscription($entity_id);
     }
 
-    public function deleteRecurring($entity_id)
+    public function deleteSubscription($entity_id)
     {
         $this->rzpPdo->prepare("SELECT * FROM `" . DB_PREFIX . "razorpay_plans` WHERE entity_id = :entity_id");
         $this->rzpPdo->bindParam(':entity_id', (int)$entity_id);
         $query = $this->rzpPdo->execute();
         $planData = $query->row;
-        $recurring_id = $planData['recurring_id'];
+        $subscription_plan_id = $planData['recurring_id'];
 
-        $this->rzpPdo->prepare("Delete FROM `" . DB_PREFIX . "product_recurring` WHERE recurring_id = :recurring_id");
-        $this->rzpPdo->bindParam(':recurring_id', (int)$recurring_id);
-        $this->rzpPdo->execute();
-
-        $this->rzpPdo->prepare("Delete FROM `" . DB_PREFIX . "recurring` WHERE recurring_id = :recurring_id");
-        $this->rzpPdo->bindParam(':recurring_id', (int)$recurring_id);
-        $this->rzpPdo->execute();
-
-        $this->rzpPdo->prepare("Delete FROM `" . DB_PREFIX . "recurring_description` WHERE recurring_id = :recurring_id");
-        $this->rzpPdo->bindParam(':recurring_id', (int)$recurring_id);
+        $this->rzpPdo->prepare("Delete FROM `" . DB_PREFIX . "product_subscription` WHERE subscription_plan_id = :subscription_plan_id");
+        $this->rzpPdo->bindParam(':subscription_plan_id', (int)$subscription_plan_id);
         $this->rzpPdo->execute();
     }
 
