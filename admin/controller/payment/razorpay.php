@@ -284,7 +284,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 		$this->response->setOutput(json_encode($json));
 	}
 
-    public function rzpAdminMenu(string $route = '', array &$data = []): void
+	public function rzpAdminMenu(string $route = '', array &$data = []): void
     {
         if ($this->config->get('payment_razorpay_subscription_status') !== '1')
         {
