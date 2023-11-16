@@ -201,8 +201,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                 return $key == "subscription" and empty($value);
             }, ARRAY_FILTER_USE_BOTH);
         });
-
-        if (!empty($nonSubscriptionProduct))
+        if (empty($nonSubscriptionProduct) === false)
         {
             $this->log->write("Cart has subscription product and non subscription product");
             echo "<div class='alert alert-danger alert-dismissible'>You have a one-time payment product and a subscription payment product in your cart. Please remove one of the products from the cart to proceed.</div>";
@@ -224,16 +223,16 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $planData = $this->model_extension_razorpay_payment_razorpay->getPlanBySubscriptionIdAndFrequencyAndProductId($subscriptionPlanData['subscription_plan_id'], $subscriptionPlanData['frequency'], $productId);
 
         $subscriptionData = [
-            "customer_id" => $this->getRazorpayCustomerData($order),
-            "plan_id" => $planData['plan_id'],
-            "total_count" => $planData['plan_bill_cycle'],
-            "quantity" => $cartProducts[$cart_id]['quantity'],
-            "customer_notify" => 0,
-            "notes" => [
-                "source" => "opencart-subscription",
+            "customer_id"       => $this->getRazorpayCustomerData($order),
+            "plan_id"           => $planData['plan_id'],
+            "total_count"       => $planData['plan_bill_cycle'],
+            "quantity"          => $cartProducts[$cart_id]['quantity'],
+            "customer_notify"   => 0,
+            "source"            => "opencart-subscription",
+            "notes"             => [
+                "source"            => "opencart-subscription",
                 "merchant_order_id" => $order_id,
-            ],
-            "source" => "opencart-subscription",
+            ]
         ];
 
         if ($planData['plan_trial'])
