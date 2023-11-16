@@ -560,15 +560,4 @@ class Razorpay extends \Opencart\System\Engine\Model {
         $this->rzpPdo->bindParam(':position', 'column_right');
         $this->rzpPdo->execute();
     }
-
-    public function updateOCRecurringStatus( $orderId, $status)
-    {
-        $query = "UPDATE " . DB_PREFIX . "order_recurring SET status = :status";
-        $query = $query ." WHERE order_id = :order_id" ;
-
-        $this->rzpPdo->prepare($query);
-        $this->rzpPdo->bindParam(':status', (int)$status);
-        $this->rzpPdo->bindParam(':order_id', (int)$orderId);
-        $this->rzpPdo->execute();
-    }
 }
