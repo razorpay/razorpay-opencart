@@ -500,7 +500,7 @@ class Razorpay extends \Opencart\System\Engine\Model {
     {
         $sql = "INSERT INTO `" . DB_PREFIX . "subscription_plan` SET `trial_frequency` = :trial_frequency,
          `trial_duration` = :trial_duration, `trial_cycle` = :trial_cycle, `trial_status` = :trial_status,
-         `frequency` = :frequency, `duration` = :duration, `cycle` = :cycle, `status` = :status"
+         `frequency` = :frequency, `duration` = :duration, `cycle` = :cycle, `status` = :status";
 
         $this->rzpPdo->prepare($sql);
 

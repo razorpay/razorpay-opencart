@@ -1014,7 +1014,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
         $data['cancel'] = $this->url->link('extension/razorpay/payment/razorpay.getPlan', 'user_token=' . $this->session->data['user_token'] . $url, true);
 
-        $data['user_token'] = $this->session->data['user_token'];
+        $data['catalog_product_url'] = str_replace('&amp;', '&', $this->url->link('catalog/product.autocomplete', 'user_token=' . $this->session->data['user_token']));
 
         $data['code'] = '';
         $data['from_name'] = '';
