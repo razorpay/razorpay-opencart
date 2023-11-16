@@ -588,7 +588,9 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     public function changeSingleStatus()
     {
         $status = $this->request->get['status'];
-        $eid= str_split($this->request->get['entity_id']);
+        $eid= [
+            $this->request->get['entity_id']
+        ];
 
         if ($status == 1)
         {
