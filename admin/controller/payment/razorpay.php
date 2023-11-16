@@ -880,10 +880,10 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     }
 	
 	public function install(): void
-	{
-		try
-		{
-			$this->load->model('setting/event');
+    {
+        try
+        {
+            $this->load->model('setting/event');
 
             $this->model_setting_event->deleteEventByCode('razorpay_admin_menu');
 
