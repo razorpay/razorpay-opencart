@@ -1020,7 +1020,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
         $data['plans'] = array();
 
-        $filter_data = array(
+        $filter_data = [
             'filter_plan_id'        => $filter_plan_id,
             'filter_plan_name'      => $filter_plan_name,
             'filter_plan_status'    => $filter_plan_status,
@@ -1028,8 +1028,8 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             'sort'                  => $sort,
             'order'                 => $order,
             'start'                 => ($page - 1) *10,
-            'limit'                 =>10
-        );
+            'limit'                 => 10
+        ];
         $plan_total = $this->model_extension_razorpay_payment_razorpay->getTotalPlan($filter_data);
 
         $results = $this->model_extension_razorpay_payment_razorpay->getPlans($filter_data);
