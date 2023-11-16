@@ -277,9 +277,10 @@ class Razorpay extends \Opencart\System\Engine\Model {
 
     public function getPlanBySubscriptionIdAndFrequencyAndProductId($recurringId, $planType, $productId)
     {
-        $this->rzpPdo->prepare("SELECT * FROM " . DB_PREFIX
-            . "razorpay_plans WHERE recurring_id = :recurringId AND plan_type = '"
-            . self::PLAN_TYPE[$planType] . "' AND opencart_product_id = :productId");
+        $sql = "SELECT * FROM " . DB_PREFIX . "razorpay_plans WHERE recurring_id = :recurringId AND
+        plan_type = '" . self::PLAN_TYPE[$planType] . "' AND opencart_product_id = :productId";
+
+        $this->rzpPdo->prepare($sql);
 
         $this->rzpPdo->bindParam(':recurringId', (int)$recurringId);
         $this->rzpPdo->bindParam(':productId', (int)$productId);
