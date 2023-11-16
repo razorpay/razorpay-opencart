@@ -317,102 +317,82 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $this->load->language('extension/razorpay/payment/razorpay');
         $this->load->model('extension/razorpay/payment/razorpay');
 
-        if (isset($this->request->get['filter_plan_id']))
+        $filter_plan_id = '';
+        $filter_plan_name = '';
+        $filter_plan_status = '';
+        $filter_date_created = '';
+        $sort = 'p.entity_id';
+        $order = 'DESC';
+        $page = 1;
+
+        if (isset($this->request->get['filter_plan_id']) === true)
         {
             $filter_plan_id = trim($this->request->get['filter_plan_id']);
         }
-        else
-        {
-            $filter_plan_id = '';
-        }
 
-        if (isset($this->request->get['filter_plan_name']))
+        if (isset($this->request->get['filter_plan_name']) === true)
         {
             $filter_plan_name = trim($this->request->get['filter_plan_name']);
         }
-        else
-        {
-            $filter_plan_name = '';
-        }
 
-        if (isset($this->request->get['filter_plan_status']))
+        if (isset($this->request->get['filter_plan_status']) === true)
         {
             $filter_plan_status = trim($this->request->get['filter_plan_status']);
         }
-        else
-        {
-            $filter_plan_status = '';
-        }
 
-        if (isset($this->request->get['filter_date_created']))
+        if (isset($this->request->get['filter_date_created']) === true)
         {
             $filter_date_created = trim($this->request->get['filter_date_created']);
         }
-        else
-        {
-            $filter_date_created = '';
-        }
 
-        if (isset($this->request->get['sort']))
+        if (isset($this->request->get['sort']) === true)
         {
             $sort = $this->request->get['sort'];
         }
-        else
-        {
-            $sort = 'p.entity_id';
-        }
 
-        if (isset($this->request->get['entity_id']))
+        if (isset($this->request->get['entity_id']) === true)
         {
             $order = $this->request->get['entity_id'];
         }
-        else
-        {
-            $order = 'DESC';
-        }
 
-        if (isset($this->request->get['page']))
+        if (isset($this->request->get['page']) === true)
         {
             $page = (int)$this->request->get['page'];
-        }
-        else
-        {
-            $page = 1;
         }
 
         $url = '';
 
-        if (isset($this->request->get['filter_plan_id']))
+        if (isset($this->request->get['filter_plan_id']) === true)
         {
             $url .= '&filter_plan_id=' . trim($this->request->get['filter_plan_id']);
         }
 
-        if (isset($this->request->get['filter_plan_name']))
+        if (isset($this->request->get['filter_plan_name']) === true)
         {
             $url .= '&filter_plan_name=' . urlencode(html_entity_decode($this->request->get['filter_plan_name'], ENT_QUOTES, 'UTF-8'));
         }
 
-        if (isset($this->request->get['filter_plan_status']))
+        if (isset($this->request->get['filter_plan_status']) === true)
         {
             $url .= '&filter_plan_status=' . $this->request->get['filter_plan_status'];
         }
 
-        if (isset($this->request->get['filter_date_created']))
+        if (isset($this->request->get['filter_date_created']) === true)
         {
             $url .= '&filter_date_created=' . $this->request->get['filter_date_created'];
         }
 
-        if (isset($this->request->get['sort']))
+        if (isset($this->request->get['sort']) === true)
         {
             $url .= '&sort=' . $this->request->get['sort'];
         }
 
-        if (isset($this->request->get['plan']))
+        if (isset($this->request->get['plan']) === true)
         {
             $url .= '&plan=' . $this->request->get['plan'];
         }
 
-        if (isset($this->request->get['page']))
+        if (isset($this->request->get['page']) === true)
         {
             $url .= '&page=' . $this->request->get['page'];
         }
@@ -433,13 +413,13 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
         $filter_data = array(
             'filter_plan_id'        => $filter_plan_id,
-            'filter_plan_name'         => $filter_plan_name,
+            'filter_plan_name'      => $filter_plan_name,
             'filter_plan_status'    => $filter_plan_status,
-            'filter_date_created'      => $filter_date_created,
-            'sort'                   => $sort,
-            'order'                  => $order,
-            'start'                  => ($page - 1) *10,
-            'limit'                  =>10
+            'filter_date_created'   => $filter_date_created,
+            'sort'                  => $sort,
+            'order'                 => $order,
+            'start'                 => ($page - 1) *10,
+            'limit'                 =>10
         );
         $plan_total = $this->model_extension_razorpay_payment_razorpay->getTotalPlan($filter_data);
 
@@ -447,80 +427,71 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
         foreach ($results as $result)
         {
-            $data['plans'][] = array(
-                'entity_id'      => $result['entity_id'],
-                'plan_id'      => $result['plan_id'],
-                'plan_name'    => $result['plan_name'],
-                'plan_desc'     => $result['plan_desc'],
-                'name'          => $result['name'],
-                'plan_type'     => $result['plan_type'],
-                'plan_frequency'     => $result['plan_frequency'],
-                'plan_bill_cycle'     => $result['plan_bill_cycle'],
-                'plan_trial'     => $result['plan_trial'],
-                'plan_bill_amount'     => $result['plan_bill_amount'],
-                'plan_addons'     => $result['plan_addons'],
-                'plan_status'     => $result['plan_status'],
-                'created_at'    => date($this->language->get('date_format_short'), strtotime($result['created_at'])),
-                'view'          => $this->url->link('extension/razorpay/payment/razorpay', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true),
-                'singleEnable'          => $this->url->link('extension/razorpay/payment/razorpay.singleEnable', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true),
-                'singleDisable'          => $this->url->link('extension/razorpay/payment/razorpay.singleDisable', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true)
-            );
+            $data['plans'][] = [
+                'entity_id'         => $result['entity_id'],
+                'plan_id'           => $result['plan_id'],
+                'plan_name'         => $result['plan_name'],
+                'plan_desc'         => $result['plan_desc'],
+                'name'              => $result['name'],
+                'plan_type'         => $result['plan_type'],
+                'plan_frequency'    => $result['plan_frequency'],
+                'plan_bill_cycle'   => $result['plan_bill_cycle'],
+                'plan_trial'        => $result['plan_trial'],
+                'plan_bill_amount'  => $result['plan_bill_amount'],
+                'plan_addons'       => $result['plan_addons'],
+                'plan_status'       => $result['plan_status'],
+                'created_at'        => date($this->language->get('date_format_short'), strtotime($result['created_at'])),
+                'view'              => $this->url->link('extension/razorpay/payment/razorpay', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true),
+                'singleEnable'      => $this->url->link('extension/razorpay/payment/razorpay.singleEnable', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true),
+                'singleDisable'     => $this->url->link('extension/razorpay/payment/razorpay.singleDisable', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true)
+            ];
         }
 
         $data['user_token'] = $this->session->data['user_token'];
+        $data['error_warning'] = '';
+        $data['success'] = '';
+        $data['selected'] = array();
 
-        if (isset($this->error['warning']))
+        if (isset($this->error['warning']) === true)
         {
             $data['error_warning'] = $this->error['warning'];
         }
-        else
-        {
-            $data['error_warning'] = '';
-        }
 
-        if (isset($this->session->data['success']))
+        if (isset($this->session->data['success']) === true)
         {
             $data['success'] = $this->session->data['success'];
 
             unset($this->session->data['success']);
         }
-        else
-        {
-            $data['success'] = '';
-        }
 
-        if (isset($this->request->post['selected']))
+        if (isset($this->request->post['selected']) === true)
         {
             $data['selected'] = (array)$this->request->post['selected'];
-        }
-        else
-        {
-            $data['selected'] = array();
         }
 
         $url = '';
 
-        if (isset($this->request->get['filter_plan_id']))
+        if (isset($this->request->get['filter_plan_id']) === true)
         {
             $url .= '&filter_plan_id=' . trim($this->request->get['filter_plan_id']);
         }
 
-        if (isset($this->request->get['filter_plan_name']))
+        if (isset($this->request->get['filter_plan_name']) === true)
         {
             $url .= '&filter_plan_name=' . urlencode(html_entity_decode($this->request->get['filter_plan_name'], ENT_QUOTES, 'UTF-8'));
         }
 
-        if (isset($this->request->get['filter_plan_status']))
+        if (isset($this->request->get['filter_plan_status']) === true)
         {
             $url .= '&filter_plan_status=' . trim($this->request->get['filter_plan_status']);
         }
 
-        if (isset($this->request->get['filter_total']))
+        if (isset($this->request->get['filter_total']) === true)
         {
             $url .= '&filter_total=' . $this->request->get['filter_total'];
         }
 
-        if (isset($this->request->get['filter_date_created']))
+        if (isset($this->request->get['filter_date_created']) === true)
         {
             $url .= '&filter_date_created=' . trim($this->request->get['filter_date_created']);
         }
@@ -534,7 +505,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             $url .= '&order=ASC';
         }
 
-        if (isset($this->request->get['page']))
+        if (isset($this->request->get['page']) === true)
         {
             $url .= '&page=' . $this->request->get['page'];
         }
@@ -547,32 +518,32 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
         $url = '';
 
-        if (isset($this->request->get['filter_plan_id']))
+        if (isset($this->request->get['filter_plan_id']) === true)
         {
             $url .= '&filter_plan_id=' . trim($this->request->get['filter_plan_id']);
         }
 
-        if (isset($this->request->get['filter_plan_name']))
+        if (isset($this->request->get['filter_plan_name']) === true)
         {
             $url .= '&filter_plan_name=' . urlencode(html_entity_decode($this->request->get['filter_plan_name'], ENT_QUOTES, 'UTF-8'));
         }
 
-        if (isset($this->request->get['filter_plan_status']))
+        if (isset($this->request->get['filter_plan_status']) === true)
         {
             $url .= '&filter_plan_status=' . $this->request->get['filter_plan_status'];
         }
 
-        if (isset($this->request->get['filter_date_created']))
+        if (isset($this->request->get['filter_date_created']) === true)
         {
             $url .= '&filter_date_created=' . $this->request->get['filter_date_created'];
         }
 
-        if (isset($this->request->get['sort']))
+        if (isset($this->request->get['sort']) === true)
         {
             $url .= '&sort=' . $this->request->get['sort'];
         }
 
-        if (isset($this->request->get['order']))
+        if (isset($this->request->get['order']) === true)
         {
             $url .= '&order=' . $this->request->get['order'];
         }
