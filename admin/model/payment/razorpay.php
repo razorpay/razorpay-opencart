@@ -288,7 +288,7 @@ class Razorpay extends \Opencart\System\Engine\Model {
             'customer_group_id'=>$this->config->get('config_customer_group_id'),
             'languages'=>$this->model_localisation_language->getLanguages()
         );
-        $this->addRecurring($data);
+        $this->addSubscription($data);
 
         // update status
         $this->rzpPdo->prepare("UPDATE " . DB_PREFIX . "razorpay_plans SET plan_status = '" . 1 . "'WHERE entity_id = :entity_id");
