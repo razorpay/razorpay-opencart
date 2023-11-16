@@ -498,7 +498,11 @@ class Razorpay extends \Opencart\System\Engine\Model {
 
     public function addSubscription($data)
     {
-        $this->rzpPdo->prepare("INSERT INTO `" . DB_PREFIX . "subscription_plan` SET `trial_frequency` = :trial_frequency, `trial_duration` = :trial_duration, `trial_cycle` = :trial_cycle, `trial_status` = :trial_status, `frequency` = :frequency, `duration` = :duration, `cycle` = :cycle, `status` = :status");
+        $sql = "INSERT INTO `" . DB_PREFIX . "subscription_plan` SET `trial_frequency` = :trial_frequency,
+         `trial_duration` = :trial_duration, `trial_cycle` = :trial_cycle, `trial_status` = :trial_status,
+         `frequency` = :frequency, `duration` = :duration, `cycle` = :cycle, `status` = :status"
+
+        $this->rzpPdo->prepare($sql);
 
         $this->rzpPdo->bindParam(':trial_frequency', $this->db->escape($data['trial_frequency']));
         $this->rzpPdo->bindParam(':trial_duration', (int)$data['trial_duration']);
