@@ -717,6 +717,330 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $this->getForm();
     }
 
+    /* Subscription Modules */
+    public function getPlan()
+    {
+        $this->load->language('extension/razorpay/payment/razorpay');
+        $this->load->model('extension/razorpay/payment/razorpay');
+
+        $filter_plan_id = '';
+        $filter_plan_name = '';
+        $filter_plan_status = '';
+        $filter_date_created = '';
+        $sort = 'p.entity_id';
+        $order = 'DESC';
+        $page = 1;
+
+        if (isset($this->request->get['filter_plan_id']) === true)
+        {
+            $filter_plan_id = trim($this->request->get['filter_plan_id']);
+        }
+
+        if (isset($this->request->get['filter_plan_name']) === true)
+        {
+            $filter_plan_name = trim($this->request->get['filter_plan_name']);
+        }
+
+        if (isset($this->request->get['filter_plan_status']) === true)
+        {
+            $filter_plan_status = trim($this->request->get['filter_plan_status']);
+        }
+
+        if (isset($this->request->get['filter_date_created']) === true)
+        {
+            $filter_date_created = trim($this->request->get['filter_date_created']);
+        }
+
+        if (isset($this->request->get['sort']) === true)
+        {
+            $sort = $this->request->get['sort'];
+        }
+
+        if (isset($this->request->get['entity_id']) === true)
+        {
+            $order = $this->request->get['entity_id'];
+        }
+
+        if (isset($this->request->get['page']) === true)
+        {
+            $page = (int)$this->request->get['page'];
+        }
+
+        $url = '';
+
+        if (isset($this->request->get['filter_plan_id']) === true)
+        {
+            $url .= '&filter_plan_id=' . trim($this->request->get['filter_plan_id']);
+        }
+
+        if (isset($this->request->get['filter_plan_name']) === true)
+        {
+            $url .= '&filter_plan_name=' . urlencode(html_entity_decode($this->request->get['filter_plan_name'], ENT_QUOTES, 'UTF-8'));
+        }
+
+        if (isset($this->request->get['filter_plan_status']) === true)
+        {
+            $url .= '&filter_plan_status=' . $this->request->get['filter_plan_status'];
+        }
+
+        if (isset($this->request->get['filter_date_created']) === true)
+        {
+            $url .= '&filter_date_created=' . $this->request->get['filter_date_created'];
+        }
+
+        if (isset($this->request->get['sort']) === true)
+        {
+            $url .= '&sort=' . $this->request->get['sort'];
+        }
+
+        if (isset($this->request->get['plan']) === true)
+        {
+            $url .= '&plan=' . $this->request->get['plan'];
+        }
+
+        if (isset($this->request->get['page']) === true)
+        {
+            $url .= '&page=' . $this->request->get['page'];
+        }
+
+        $data['breadcrumbs'] = array();
+
+        $data['breadcrumbs'][] = array(
+            'text' => $this->language->get('text_home'),
+            'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true)
+        );
+
+        $data['breadcrumbs'][] = array(
+            'text' => $this->language->get('plan_title'),
+            'href' => $this->url->link('extension/razorpay/payment/razorpay.getPlan', 'user_token=' . $this->session->data['user_token'] . $url, true)
+        );
+
+        $data['plans'] = array();
+
+        $filter_data = [
+            'filter_plan_id'        => $filter_plan_id,
+            'filter_plan_name'      => $filter_plan_name,
+            'filter_plan_status'    => $filter_plan_status,
+            'filter_date_created'   => $filter_date_created,
+            'sort'                  => $sort,
+            'order'                 => $order,
+            'start'                 => ($page - 1) *10,
+            'limit'                 => 10
+        ];
+        $plan_total = $this->model_extension_razorpay_payment_razorpay->getTotalPlan($filter_data);
+
+        $results = $this->model_extension_razorpay_payment_razorpay->getPlans($filter_data);
+
+        foreach ($results as $result)
+        {
+            $data['plans'][] = [
+                'entity_id'         => $result['entity_id'],
+                'plan_id'           => $result['plan_id'],
+                'plan_name'         => $result['plan_name'],
+                'plan_desc'         => $result['plan_desc'],
+                'name'              => $result['name'],
+                'plan_type'         => $result['plan_type'],
+                'plan_frequency'    => $result['plan_frequency'],
+                'plan_bill_cycle'   => $result['plan_bill_cycle'],
+                'plan_trial'        => $result['plan_trial'],
+                'plan_bill_amount'  => $result['plan_bill_amount'],
+                'plan_addons'       => $result['plan_addons'],
+                'plan_status'       => $result['plan_status'],
+                'created_at'        => date($this->language->get('date_format_short'), strtotime($result['created_at'])),
+                'view'              => $this->url->link('extension/razorpay/payment/razorpay', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true),
+                'singleEnable'      => $this->url->link('extension/razorpay/payment/razorpay.singleEnable', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true),
+                'singleDisable'     => $this->url->link('extension/razorpay/payment/razorpay.singleDisable', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true)
+            ];
+        }
+
+        $data['user_token'] = $this->session->data['user_token'];
+        $data['error_warning'] = '';
+        $data['success'] = '';
+        $data['selected'] = array();
+
+        if (isset($this->error['warning']) === true)
+        {
+            $data['error_warning'] = $this->error['warning'];
+        }
+
+        if (isset($this->session->data['success']) === true)
+        {
+            $data['success'] = $this->session->data['success'];
+
+            unset($this->session->data['success']);
+        }
+
+        if (isset($this->request->post['selected']) === true)
+        {
+            $data['selected'] = (array)$this->request->post['selected'];
+        }
+
+        $url = '';
+
+        if (isset($this->request->get['filter_plan_id']) === true)
+        {
+            $url .= '&filter_plan_id=' . trim($this->request->get['filter_plan_id']);
+        }
+
+        if (isset($this->request->get['filter_plan_name']) === true)
+        {
+            $url .= '&filter_plan_name=' . urlencode(html_entity_decode($this->request->get['filter_plan_name'], ENT_QUOTES, 'UTF-8'));
+        }
+
+        if (isset($this->request->get['filter_plan_status']) === true)
+        {
+            $url .= '&filter_plan_status=' . trim($this->request->get['filter_plan_status']);
+        }
+
+        if (isset($this->request->get['filter_total']) === true)
+        {
+            $url .= '&filter_total=' . $this->request->get['filter_total'];
+        }
+
+        if (isset($this->request->get['filter_date_created']) === true)
+        {
+            $url .= '&filter_date_created=' . trim($this->request->get['filter_date_created']);
+        }
+
+        if ($order == 'ASC')
+        {
+            $url .= '&order=DESC';
+        }
+        else
+        {
+            $url .= '&order=ASC';
+        }
+
+        if (isset($this->request->get['page']) === true)
+        {
+            $url .= '&page=' . $this->request->get['page'];
+        }
+        $path = 'extension/razorpay/payment/razorpay.plan_list';
+        $data['sort_order'] = $this->url->link($path, 'user_token=' . $this->session->data['user_token'] . '&sort=p.plan_id' . $url, true);
+        $data['sort_customer'] = $this->url->link($path, 'user_token=' . $this->session->data['user_token'] . '&sort=plan_name' . $url, true);
+        $data['sort_status'] = $this->url->link($path, 'user_token=' . $this->session->data['user_token'] . '&sort=plan_status' . $url, true);
+
+        $data['sort_date_added'] = $this->url->link($path, 'user_token=' . $this->session->data['user_token'] . '&sort=o.date_added' . $url, true);
+
+        $url = '';
+
+        if (isset($this->request->get['filter_plan_id']) === true)
+        {
+            $url .= '&filter_plan_id=' . trim($this->request->get['filter_plan_id']);
+        }
+
+        if (isset($this->request->get['filter_plan_name']) === true)
+        {
+            $url .= '&filter_plan_name=' . urlencode(html_entity_decode($this->request->get['filter_plan_name'], ENT_QUOTES, 'UTF-8'));
+        }
+
+        if (isset($this->request->get['filter_plan_status']) === true)
+        {
+            $url .= '&filter_plan_status=' . $this->request->get['filter_plan_status'];
+        }
+
+        if (isset($this->request->get['filter_date_created']) === true)
+        {
+            $url .= '&filter_date_created=' . $this->request->get['filter_date_created'];
+        }
+
+        if (isset($this->request->get['sort']) === true)
+        {
+            $url .= '&sort=' . $this->request->get['sort'];
+        }
+
+        if (isset($this->request->get['order']) === true)
+        {
+            $url .= '&order=' . $this->request->get['order'];
+        }
+
+        $data['pagination'] = $this->load->controller('common/pagination', [
+            'total' => $plan_total,
+            'page'  => $page,
+            'limit' =>10,
+            'url'   => $this->url->link('extension/razorpay/payment/razorpay.getPlan', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true)
+        ]);
+
+        $data['results'] = sprintf($this->language->get('text_pagination'), ($plan_total) ? (($page - 1) *10) + 1 : 0, ((($page - 1) *10) > ($plan_total -10)) ? $plan_total : ((($page - 1) *10) +10), $plan_total, ceil($plan_total /10));
+
+        $data['filter_plan_id'] = $filter_plan_id;
+        $data['filter_plan_name'] = $filter_plan_name;
+        $data['filter_plan_status'] = $filter_plan_status;
+        $data['filter_date_created'] = $filter_date_created;
+        $data['sort'] = $sort;
+        $data['order'] = $order;
+
+        $data['add'] = $this->url->link('extension/razorpay/payment/razorpay.add', 'user_token=' . $this->session->data['user_token'] . $url, true);
+        $data['status'] = $this->url->link('extension/razorpay/payment/razorpay.statusPlan', 'user_token=' . $this->session->data['user_token'] . $url, true);
+
+        $data['header'] = $this->load->controller('common/header');
+        $data['column_left'] = $this->load->controller('common/column_left');
+        $data['footer'] = $this->load->controller('common/footer');
+
+        $this->response->setOutput($this->load->view('extension/razorpay/payment/razorpay_subscription/razorpay_plan_list', $data));
+    }
+
+    //for status change
+    public function statusPlan()
+    {
+        $this->load->language('extension/razorpay/payment/razorpay');
+
+        $this->document->setTitle($this->language->get('heading_title'));
+
+        $this->load->model('extension/razorpay/payment/razorpay');
+
+        if ((isset($this->request->post['selected'])) and
+            ($this->request->post['status']))
+        {
+            $status = $this->request->post['status'];
+
+            if ($status === '1')
+            {
+                foreach ($this->request->post['selected'] as $entity_id)
+                {
+                    $this->model_extension_razorpay_payment_razorpay->enablePlan($entity_id);
+
+                }
+
+                $this->session->data['success'] = $this->language->get('text_enable_success');
+            }
+            else if ($status === '2')
+            {
+                foreach ($this->request->post['selected'] as $entity_id)
+                {
+                    $this->model_extension_razorpay_payment_razorpay->disablePlan($entity_id);
+                }
+
+                $this->session->data['success'] = $this->language->get('text_disable_success');
+            }
+            else
+            {
+                $this->session->data['warning'] = $this->language->get('text_select_warning');
+            }
+
+            $url = '';
+
+            if (isset($this->request->get['sort']))
+            {
+                $url .= '&sort=' . $this->request->get['sort'];
+            }
+
+            if (isset($this->request->get['order']))
+            {
+                $url .= '&order=' . $this->request->get['order'];
+            }
+
+            if (isset($this->request->get['page']))
+            {
+                $url .= '&page=' . $this->request->get['page'];
+            }
+
+            $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay.getPlan', 'user_token=' . $this->session->data['user_token'] . $url, true));
+        }
+
+        $this->getPlan();
+    }
+
     protected function getApiIntance()
     {
         return new Api($this->config->get('payment_razorpay_key_id'), $this->config->get('payment_razorpay_key_secret'));
