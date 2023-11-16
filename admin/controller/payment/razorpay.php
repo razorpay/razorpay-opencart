@@ -314,12 +314,12 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             'children' => $rzpNav
         ];
     }
-
+	
 	public function install(): void
-    {
+	{
 		try
-        {
-            $this->load->model('setting/event');
+		{
+			$this->load->model('setting/event');
 
             $this->model_setting_event->deleteEventByCode('razorpay_admin_menu');
 
