@@ -289,96 +289,76 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $this->load->language('extension/razorpay/payment/razorpay');
         $this->load->model('extension/razorpay/payment/razorpay');
 
-        if (isset($this->request->get['filter_subscription_id']))
+        $filter_subscription_id = '';
+        $filter_plan_name = '';
+        $filter_subscription_status = '';
+        $filter_date_created = '';
+        $sort = 's.entity_id';
+        $order = 'DESC';
+        $page = 1;
+
+        if (isset($this->request->get['filter_subscription_id']) === true)
         {
             $filter_subscription_id = trim($this->request->get['filter_subscription_id']);
         }
-        else
-        {
-            $filter_subscription_id = '';
-        }
 
-        if (isset($this->request->get['filter_plan_name']))
+        if (isset($this->request->get['filter_plan_name']) === true)
         {
             $filter_plan_name = trim($this->request->get['filter_plan_name']);
         }
-        else
-        {
-            $filter_plan_name = '';
-        }
 
-        if (isset($this->request->get['filter_subscription_status']))
+        if (isset($this->request->get['filter_subscription_status']) === true)
         {
             $filter_subscription_status = $this->request->get['filter_subscription_status'];
         }
-        else
-        {
-            $filter_subscription_status = '';
-        }
 
-        if (isset($this->request->get['filter_date_created']))
+        if (isset($this->request->get['filter_date_created']) === true)
         {
             $filter_date_created = $this->request->get['filter_date_created'];
         }
-        else
-        {
-            $filter_date_created = '';
-        }
 
-        if (isset($this->request->get['sort']))
+        if (isset($this->request->get['sort']) === true)
         {
             $sort = $this->request->get['sort'];
         }
-        else
-        {
-            $sort = 's.entity_id';
-        }
 
-        if (isset($this->request->get['entity_id']))
+        if (isset($this->request->get['entity_id']) === true)
         {
             $order = $this->request->get['entity_id'];
         }
-        else
-        {
-            $order = 'DESC';
-        }
 
-        if (isset($this->request->get['page']))
+        if (isset($this->request->get['page']) === true)
         {
             $page = (int)$this->request->get['page'];
-        }
-        else
-        {
-            $page = 1;
         }
 
         $url = '';
 
-        if (isset($this->request->get['filter_subscription_id']))
+        if (isset($this->request->get['filter_subscription_id']) === true)
         {
             $url .= '&filter_subscription_id=' . trim($this->request->get['filter_subscription_id']);
         }
 
-        if (isset($this->request->get['filter_plan_name']))
+        if (isset($this->request->get['filter_plan_name']) === true)
         {
             $url .= '&filter_plan_name=' . urlencode(html_entity_decode($this->request->get['filter_plan_name'], ENT_QUOTES, 'UTF-8'));
         }
 
-        if (isset($this->request->get['filter_subscription_status']))
+        if (isset($this->request->get['filter_subscription_status']) === true)
         {
             $url .= '&filter_subscription_status=' . $this->request->get['filter_subscription_status'];
         }
 
-        if (isset($this->request->get['filter_date_created']))
+        if (isset($this->request->get['filter_date_created']) === true)
         {
             $url .= '&filter_date_created=' . $this->request->get['filter_date_created'];
         }
 
-        if (isset($this->request->get['sort']))
+        if (isset($this->request->get['sort']) === true)
         {
             $url .= '&sort=' . $this->request->get['sort'];
         }
-        if (isset($this->request->get['page']))
+        if (isset($this->request->get['page']) === true)
         {
             $url .= '&page=' . $this->request->get['page'];
         }
@@ -395,7 +375,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             'href' => $this->url->link('extension/razorpay/payment/razorpay.getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true)
         );
 
-        $data['subscriptions'] = array();
+        $data['subscriptions'] = [];
 
         $filter_data = array(
             'filter_subscription_id'        => $filter_subscription_id,
@@ -404,8 +384,8 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             'filter_date_created'           => $filter_date_created,
             'sort'                          => $sort,
             'order'                         => $order,
-            'start'                         => ($page - 1) *10,
-            'limit'                         =>10
+            'start'                         => ($page - 1) * 10,
+            'limit'                         => 10
         );
 
         $subscription_total = $this->model_extension_razorpay_payment_razorpay->getTotalSubscriptions($filter_data);
@@ -414,79 +394,71 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
         foreach ($results as $result)
         {
-            $data['subscriptions'][] = array(
-                'entity_id'             => $result['entity_id'],
-                'subscription_id'      => $result['subscription_id'],
-                'plan_id'               =>$result['plan_id'],
-                'customer_fname'    => $result['firstname'],
-                'customer_lname'     => $result['lastname'],
-                'product_name'          => $result['name'],
-                'status'     => ucfirst($result['status']),
-                'cancel_by'     => $result['updated_by'],
-                'total_count'     => $result['total_count'],
-                'paid_count'     => $result['paid_count'],
-                'remaining_count'     => $result['remaining_count'],
-                'start_at'     => isset($result['start_at']) ? date($this->language->get('date_format_short'), strtotime($result['start_at'])) : "",
-                'end_at'     => isset($result['end_at']) ? date($this->language->get('date_format_short'), strtotime($result['end_at'])) : "",
-                'subscription_created_at'     => $result['subscription_created_at'],
-                'next_charge_at'     =>  isset($result['next_charge_at']) ? date($this->language->get('date_format_short'), strtotime($result['next_charge_at'])) : "",
-                'created_at'   => isset($result['created_at']) ? date($this->language->get('date_format_short'), strtotime($result['created_at'])) : "",
-                'view'          => $this->url->link('extension/razorpay/payment/razorpay.subscriptionInfo', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true),
-                'singleResume' => $this->url->link('extension/razorpay/payment/razorpay.changeSingleStatus', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . '&status=1'. $url, true),
-                'singlePause' => $this->url->link('extension/razorpay/payment/razorpay.changeSingleStatus', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . '&status=2'. $url, true),
-                'singleCancel' => $this->url->link('extension/razorpay/payment/razorpay.changeSingleStatus', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . '&status=3'. $url, true)
-            );
+            $data['subscriptions'][] = [
+                'entity_id'                 => $result['entity_id'],
+                'subscription_id'           => $result['subscription_id'],
+                'plan_id'                   => $result['plan_id'],
+                'customer_fname'            => $result['firstname'],
+                'customer_lname'            => $result['lastname'],
+                'product_name'              => $result['name'],
+                'status'                    => ucfirst($result['status']),
+                'cancel_by'                 => $result['updated_by'],
+                'total_count'               => $result['total_count'],
+                'paid_count'                => $result['paid_count'],
+                'remaining_count'           => $result['remaining_count'],
+                'start_at'                  => isset($result['start_at']) ? date($this->language->get('date_format_short'), strtotime($result['start_at'])) : "",
+                'end_at'                    => isset($result['end_at']) ? date($this->language->get('date_format_short'), strtotime($result['end_at'])) : "",
+                'subscription_created_at'   => $result['subscription_created_at'],
+                'next_charge_at'            =>  isset($result['next_charge_at']) ? date($this->language->get('date_format_short'), strtotime($result['next_charge_at'])) : "",
+                'created_at'                => isset($result['created_at']) ? date($this->language->get('date_format_short'), strtotime($result['created_at'])) : "",
+                'view'                      => $this->url->link('extension/razorpay/payment/razorpay.subscriptionInfo', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true),
+                'singleResume'              => $this->url->link('extension/razorpay/payment/razorpay.changeSingleStatus', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . '&status=1'. $url, true),
+                'singlePause'               => $this->url->link('extension/razorpay/payment/razorpay.changeSingleStatus', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . '&status=2'. $url, true),
+                'singleCancel'              => $this->url->link('extension/razorpay/payment/razorpay.changeSingleStatus', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . '&status=3'. $url, true)
+            ];
         }
 
         $data['user_token'] = $this->session->data['user_token'];
 
-        if (isset($this->error['warning']))
+        $data['error_warning'] = '';
+        $data['success'] = '';
+        $data['selected'] = [];
+
+        if (isset($this->error['warning']) === true)
         {
             $data['error_warning'] = $this->error['warning'];
         }
-        else
-        {
-            $data['error_warning'] = '';
-        }
 
-        if (isset($this->session->data['success']))
+        if (isset($this->session->data['success']) === true)
         {
             $data['success'] = $this->session->data['success'];
 
             unset($this->session->data['success']);
         }
-        else
-        {
-            $data['success'] = '';
-        }
 
-        if (isset($this->request->post['selected']))
+        if (isset($this->request->post['selected']) === true)
         {
             $data['selected'] = (array)$this->request->post['selected'];
-        }
-        else
-        {
-            $data['selected'] = array();
         }
 
         $url = '';
 
-        if (isset($this->request->get['filter_subscription_status']))
+        if (isset($this->request->get['filter_subscription_status']) === true)
         {
             $url .= '&filter_subscription_status=' . $this->request->get['filter_subscription_status'];
         }
 
-        if (isset($this->request->get['filter_subscription_id']))
+        if (isset($this->request->get['filter_subscription_id']) === true)
         {
             $url .= '&filter_subscription_id=' . urlencode(html_entity_decode($this->request->get['filter_subscription_id'], ENT_QUOTES, 'UTF-8'));
         }
 
-        if (isset($this->request->get['filter_plan_name']))
+        if (isset($this->request->get['filter_plan_name']) === true)
         {
             $url .= '&filter_plan_name=' . $this->request->get['filter_plan_name'];
         }
 
-        if (isset($this->request->get['filter_date_created']))
+        if (isset($this->request->get['filter_date_created']) === true)
         {
             $url .= '&filter_date_created=' . $this->request->get['filter_date_created'];
         }
@@ -514,27 +486,27 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
         $url = '';
 
-        if (isset($this->request->get['filter_subscription_id']))
+        if (isset($this->request->get['filter_subscription_id']) === true)
         {
             $url .= '&filter_subscription_id=' . $this->request->get['filter_subscription_id'];
         }
 
-        if (isset($this->request->get['filter_plan_name']))
+        if (isset($this->request->get['filter_plan_name']) === true)
         {
             $url .= '&filter_plan_name=' . urlencode(html_entity_decode($this->request->get['filter_plan_name'], ENT_QUOTES, 'UTF-8'));
         }
 
-        if (isset($this->request->get['filter_plan_status']))
+        if (isset($this->request->get['filter_plan_status']) === true)
         {
             $url .= '&filter_plan_status=' . $this->request->get['filter_plan_status'];
         }
 
-        if (isset($this->request->get['filter_date_created']))
+        if (isset($this->request->get['filter_date_created']) === true)
         {
             $url .= '&filter_date_created=' . $this->request->get['filter_date_created'];
         }
 
-        if (isset($this->request->get['sort']))
+        if (isset($this->request->get['sort']) === true)
         {
             $url .= '&sort=' . $this->request->get['sort'];
         }
@@ -542,7 +514,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $data['pagination'] = $this->load->controller('common/pagination', [
             'total' => $subscription_total,
             'page'  => $page,
-            'limit' =>10,
+            'limit' => 10,
             'url'   => $this->url->link('extension/razorpay/payment/razorpay.getSubscription', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true)
         ]);
 
@@ -573,37 +545,35 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
         $this->load->model('extension/razorpay/payment/razorpay');
 
+        $status = 0;
+
         // single status change
-        if (isset($this->request->get['status']))
+        if (isset($this->request->get['status']) === true)
         {
             $status = $this->request->get['status'];
-        }
-        else
-        {
-            $status = 0;
         }
 
         if ((isset($this->request->post['selected'])) && ($this->request->post['status']))
         {
             $status = $this->request->post['status'];
-            if($status==1)
+            if ($status == 1)
             {
-                $this->log->write('Status 1');
+                $this->log->write('Resume Subscription: Status 1');
                 $this->resumeSubscription($this->request->post['selected']);
             }
-            else if($status==2)
+            else if($status == 2)
             {
-                $this->log->write('Status 2');
+                $this->log->write('Pause Subscription: Status 2');
                 $this->pauseSubscription($this->request->post['selected']);
             }
-            else if($status==3)
+            else if($status == 3)
             {
-                $this->log->write('Status 3');
+                $this->log->write('Cancel Subscription: Status 3');
                 $this->cancelSubscription($this->request->post['selected']);
             }
             else
             {
-                $this->log->write('Status 4');
+                $this->log->write('Subscription Status: '. $status);
                 return;
             }
         }
@@ -620,21 +590,21 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $status = $this->request->get['status'];
         $eid= str_split($this->request->get['entity_id']);
 
-        if($status==1)
+        if ($status == 1)
         {
             $this->resumeSubscription($eid);
             $this->session->data['success'] = $this->language->get('text_resume_success');
 
             return;
         }
-        else if($status==2)
+        else if($status == 2)
         {
             $this->pauseSubscription($eid);
             $this->session->data['success'] = $this->language->get('text_pause_success');
 
             return;
         }
-        else if($status==3)
+        else if($status == 3)
         {
             $this->cancelSubscription($eid);
             $this->session->data['success'] = $this->language->get('text_pause_success');
@@ -847,15 +817,15 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
             foreach ($invoiceResult['items'] as $result)
             {
-                $data['invoiceDetails'][] = array(
+                $data['invoiceDetails'][] = [
                     'id'                => $result['id'],
                     'recurring_amt'     => $result['line_items'][0]['net_amount']/100,
-                    'addons'            =>$result['line_items'][0]['unit_amount']/100,
-                    'status'            =>ucfirst($result['status']),
-                    'total_amt'         =>$result['amount']/100,
-                    'date'              =>date('M d, Y', $result['billing_start']),
-                    'short_url'         =>$result['short_url']
-                );
+                    'addons'            => $result['line_items'][0]['unit_amount']/100,
+                    'status'            => ucfirst($result['status']),
+                    'total_amt'         => $result['amount']/100,
+                    'date'              => date('M d, Y', $result['billing_start']),
+                    'short_url'         => $result['short_url']
+                ];
             }
 
             $data['singleResume'] = $this->url->link('extension/razorpay/payment/razorpay.changeSingleStatus', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $results['sub_id'] . '&status=1'. $url, true);
