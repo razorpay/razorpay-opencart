@@ -315,22 +315,23 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     {
         $data['text_form'] = !isset($this->request->get['entity_id']) ? $this->language->get('text_add') : $this->language->get('text_edit');
 
+        $data['entity_id'] = 0;
+        $data['error_warning'] = '';
+        $data['error_plan_name'] = '';
+        $data['error_plan_desc'] = '';
+        $data['error_product_name'] = '';
+        $data['error_billing_frequency'] = '';
+        $data['error_billing_cycle'] = '';
+        $data['error_billing_amount'] = '';
+
         if (isset($this->request->get['entity_id']))
         {
             $data['entity_id'] = (int)$this->request->get['entity_id'];
-        }
-        else
-        {
-            $data['entity_id'] = 0;
         }
 
         if (isset($this->error['warning']))
         {
             $data['error_warning'] = $this->error['warning'];
-        }
-        else
-        {
-            $data['error_warning'] = '';
         }
 
         //fields
@@ -338,54 +339,30 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         {
             $data['error_plan_name'] = $this->error['plan_name'];
         }
-        else
-        {
-            $data['error_plan_name'] = '';
-        }
 
         if (isset($this->error['plan_desc']))
         {
             $data['error_plan_desc'] = $this->error['plan_desc'];
-        }
-        else
-        {
-            $data['error_plan_desc'] = '';
         }
 
         if (isset($this->error['product-name']))
         {
             $data['error_product_name'] = $this->error['product-name'];
         }
-        else
-        {
-            $data['error_product_name'] = '';
-        }
 
         if (isset($this->error['billing_frequency']))
         {
             $data['error_billing_frequency'] = $this->error['billing_frequency'];
-        }
-        else
-        {
-            $data['error_billing_frequency'] = '';
         }
 
         if (isset($this->error['billing_cycle']))
         {
             $data['error_billing_cycle'] = $this->error['billing_cycle'];
         }
-        else
-        {
-            $data['error_billing_cycle'] = '';
-        }
 
         if (isset($this->error['billing_amount']))
         {
             $data['error_billing_amount'] = $this->error['billing_amount'];
-        }
-        else
-        {
-            $data['error_billing_amount'] = '';
         }
 
         $url = '';
@@ -430,6 +407,16 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
         $data['user_token'] = $this->session->data['user_token'];
 
+        $data['code'] = '';
+        $data['from_name'] = '';
+        $data['from_email'] = '';
+        $data['to_name'] = '';
+        $data['to_email'] = '';
+        $data['voucher_theme_id'] = '';
+        $data['message'] = '';
+        $data['amount'] = '';
+        $data['status'] = true;
+
         //fields
         if (isset($this->request->post['code']))
         {
@@ -438,10 +425,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         elseif (!empty($voucher_info))
         {
             $data['code'] = $voucher_info['code'];
-        }
-        else
-        {
-            $data['code'] = '';
         }
 
         if (isset($this->request->post['from_name']))
@@ -452,10 +435,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         {
             $data['from_name'] = $voucher_info['from_name'];
         }
-        else
-        {
-            $data['from_name'] = '';
-        }
 
         if (isset($this->request->post['from_email']))
         {
@@ -464,10 +443,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         elseif (!empty($voucher_info))
         {
             $data['from_email'] = $voucher_info['from_email'];
-        }
-        else
-        {
-            $data['from_email'] = '';
         }
 
         if (isset($this->request->post['to_name']))
@@ -478,10 +453,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         {
             $data['to_name'] = $voucher_info['to_name'];
         }
-        else
-        {
-            $data['to_name'] = '';
-        }
 
         if (isset($this->request->post['to_email']))
         {
@@ -490,10 +461,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         elseif (!empty($voucher_info))
         {
             $data['to_email'] = $voucher_info['to_email'];
-        }
-        else
-        {
-            $data['to_email'] = '';
         }
 
         $this->load->model('sale/voucher_theme');
@@ -508,10 +475,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         {
             $data['voucher_theme_id'] = $voucher_info['voucher_theme_id'];
         }
-        else
-        {
-            $data['voucher_theme_id'] = '';
-        }
 
         if (isset($this->request->post['message']))
         {
@@ -520,10 +483,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         elseif (!empty($voucher_info))
         {
             $data['message'] = $voucher_info['message'];
-        }
-        else
-        {
-            $data['message'] = '';
         }
 
         if (isset($this->request->post['amount']))
@@ -534,10 +493,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         {
             $data['amount'] = $voucher_info['amount'];
         }
-        else
-        {
-            $data['amount'] = '';
-        }
 
         if (isset($this->request->post['status']))
         {
@@ -546,10 +501,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         elseif (!empty($voucher_info))
         {
             $data['status'] = $voucher_info['status'];
-        }
-        else
-        {
-            $data['status'] = true;
         }
 
         $data['header'] = $this->load->controller('common/header');
