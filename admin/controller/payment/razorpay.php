@@ -888,9 +888,4 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
 		return $post;
 	}
-
-    protected function getApiIntance()
-    {
-        return new Api($this->config->get('payment_razorpay_key_id'), $this->config->get('payment_razorpay_key_secret'));
-    }
 }
