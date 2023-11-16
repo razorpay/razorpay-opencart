@@ -640,7 +640,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                     $api->subscription->fetch($subscriptionData['subscription_id'])->resume(array('resume_at' => 'now'));
 
                     $this->model_extension_razorpay_payment_razorpay->resumeSubscription($entityId, "admin");
-                    $this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 1);
                 }
 
             }
@@ -685,7 +684,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                     $api = $this->getApiIntance();
                     $api->subscription->fetch($subscriptionData['subscription_id'])->pause(["pause_at" => "now"]);
                     $this->model_extension_razorpay_payment_razorpay->pauseSubscription($entityId, "admin");
-                    $this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 2);
                 }
 
             }
@@ -731,7 +729,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                     $api = $this->getApiIntance();
                     $api->subscription->fetch($subscriptionData['subscription_id'])->cancel(["cancel_at_cycle_end" => 0]);
                     $this->model_extension_razorpay_payment_razorpay->cancelSubscription($entityId, "admin");
-                    $this->model_extension_razorpay_payment_razorpay->updateOCRecurringStatus($subscriptionData['order_id'], 3);
                 }
 
             }
