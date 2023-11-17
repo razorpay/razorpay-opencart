@@ -313,11 +313,6 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             }
             catch (\Razorpay\Api\Errors\SignatureVerificationError $e)
             {
-                if ($isSubscriptionCallBack)
-                {
-                    // Update oC recurring table for failed payment
-                    $this->model_extension_razorpay_payment_razorpay->updateOCSubscriptionStatus($this->session->data['order_id'], 4);
-                }
                 $this->model_checkout_order->addHistory($merchant_order_id, 10, $e->getMessage() . ' Payment Failed! Check Razorpay dashboard for details of Payment Id:' . $razorpay_payment_id);
 
                 $this->session->data['error'] = $e->getMessage() . ' Payment Failed! Check Razorpay dashboard for details of Payment Id:' . $razorpay_payment_id;
