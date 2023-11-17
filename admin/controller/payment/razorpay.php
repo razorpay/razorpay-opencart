@@ -857,12 +857,12 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $this->load->language('extension/razorpay/payment/razorpay');
 
         $rzpNav[] = [
-            'name'      => "plan",
+            'name'      => "Plan",
             'href'      => $this->url->link('extension/razorpay/payment/razorpay.getPlan', 'user_token=' . $this->session->data['user_token'], true),
             'children'  => []
         ];
         $rzpNav[] = [
-            'name'      => "subscription",
+            'name'      => "Subscription",
             'href'      => $this->url->link('extension/razorpay/payment/razorpay.getSubscription', 'user_token=' . $this->session->data['user_token'], true),
             'children'  => []
         ];
