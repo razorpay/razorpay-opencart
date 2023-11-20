@@ -21,6 +21,11 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     const SUBSCRIPTION_CHARGED      = 'subscription.charged';
     const WEBHOOK_WAIT_TIME         = 30;
     const HTTP_CONFLICT_STATUS      = 409;
+    const CURRENCY_NOT_ALLOWED  = [
+        'KWD',
+        'OMR',
+        'BHD',
+    ];
 
     // Set RZP plugin version
     private $version = '6.0.1';
@@ -40,6 +45,13 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $this->load->model('checkout/subscription');
 
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
+
+        if (in_array($order_info['currency_code'],  self::CURRENCY_NOT_ALLOWED) === true)
+        {
+            $this->log->write("Order creation failed, because currency (" . $order_info['currency_code'] . ") not supported");
+            echo "<div class='alert alert-danger alert-dismissible'>Order creation failed, because currency (" . $order_info['currency_code'] . ") not supported.</div>";
+            exit ;
+        }
 
         $data['button_confirm'] = $this->language->get('button_confirm');
         try
