@@ -114,13 +114,12 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                 ($this->model_checkout_cart->getTotals)($totals, $taxes, $total);
                 $cartTotal = $total * 100;
 
-                if ($order_data["amount"] != $cartTotal and
-                    isset($this->session->data['order_id']) === true)
+                if ($order_data["amount"] != $cartTotal or
+                    $order_info['order_status_id'])
                 {
                     unset($this->session->data['order_id']);
-
-                    echo "<div class='alert alert-danger alert-dismissible'> Order amount mismatch. Please retry payment.</div>";
-                    exit;
+                    $this->session->data['error'] = "Order amount mismatch. Please retry checkout.";
+                    $this->response->redirect($this->url->link('checkout/cart','language=' . $this->config->get('config_language'), true));
                 }
 
                 if (isset($this->session->data["razorpay_order_amount"]) === false)
