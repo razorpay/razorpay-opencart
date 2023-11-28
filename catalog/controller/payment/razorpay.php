@@ -106,20 +106,14 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                 // Orders API with payment autocapture
                 $order_data = $this->get_order_creation_data($this->session->data['order_id']);
 
-                // validate order amount
-                $this->load->model('checkout/cart');
-                $totals = [];
-                $taxes = $this->cart->getTaxes();
-                $total = 0;
-                ($this->model_checkout_cart->getTotals)($totals, $taxes, $total);
-                $cartTotal = $total * 100;
-
-                if ($order_data["amount"] != $cartTotal or
-                    $order_info['order_status_id'])
+                if ($order_info['order_status_id'])
                 {
-                    unset($this->session->data['order_id']);
-                    $this->session->data['error'] = "Order amount mismatch. Please retry checkout.";
-                    $this->response->redirect($this->url->link('checkout/cart','language=' . $this->config->get('config_language'), true));
+                    $rzpOrder = $this->api->order->fetch($this->session->data["razorpay_order_id_" . $this->session->data['order_id']]);
+
+                    if ($rzpOrder['status'] === 'paid')
+                    {
+                        $this->response->redirect($this->url->link('checkout/success', 'language=' . $this->config->get('config_language'), true));
+                    }
                 }
 
                 if (isset($this->session->data["razorpay_order_amount"]) === false)
