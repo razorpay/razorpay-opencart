@@ -101,6 +101,18 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                 $data['is_subscription'] = "false";
                 // Orders API with payment autocapture
                 $order_data = $this->get_order_creation_data($this->session->data['order_id']);
+
+                if ($order_info['order_status_id'] and
+                    isset($this->session->data["razorpay_order_id_" . $this->session->data['order_id']]) === true)
+                {
+                    $rzpOrder = $this->api->order->fetch($this->session->data["razorpay_order_id_" . $this->session->data['order_id']]);
+
+                    if ($rzpOrder['status'] === 'paid')
+                    {
+                        $this->response->redirect($this->url->link('checkout/success', 'language=' . $this->config->get('config_language'), true));
+                    }
+                }
+
                 if (isset($this->session->data["razorpay_order_amount"]) === false)
                 {
                     $this->session->data["razorpay_order_amount"] = 0;
