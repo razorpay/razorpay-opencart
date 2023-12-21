@@ -191,6 +191,8 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['api_url']    = $this->api->getBaseUrl();
         $data['cancel_url'] =  $this->url->link('checkout/checkout', '', 'true');
 
+        header('Set-Cookie: ' . $this->config->get('session_name') . '=' . $this->session->getId() . '; HttpOnly; SameSite=None; Secure; HttpOnly;');
+
         if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/extension/payment/razorpay'))
         {
             return $this->load->view($this->config->get('config_template') . '/template/extension/payment/razorpay', $data);
