@@ -30,11 +30,20 @@ class ModelExtensionPaymentRazorpay extends Model
 
     public function getMethod($address, $total)
     {
-        $this->language->load('extension/payment/razorpay');
+        $title = 'Razorpay (UPI, Cards, Wallets, Netbanking)';
+
+        $titleZones = [
+            'MYS' => 'Curlec (FPX, Cards, Wallets)'
+        ];
+
+        if (array_key_exists($address['iso_code_3'], $titleZones))
+        {
+            $title = $titleZones[$address['iso_code_3']];
+        }
 
         $method_data = array(
             'code' => 'razorpay',
-            'title' => $this->language->get('text_title'),
+            'title' => $title,
             'terms' => '',
             'sort_order' => $this->config->get('payment_razorpay_sort_order'),
         );
