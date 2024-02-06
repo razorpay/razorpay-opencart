@@ -246,10 +246,15 @@ class ModelExtensionPaymentRazorpay extends Model
         $this->load->model('localisation/language');
 
         //fetch and add in recurring table
-        $this->rzpPdo->prepare("SELECT * FROM `" . DB_PREFIX . "razorpay_plans` WHERE entity_id= :entity_id");
+        $this->rzpPdo->prepare("SELECT * FROM `" . DB_PREFIX . "razorpay_plans` WHERE entity_id= :entity_id and plan_status = '2'");
         $this->rzpPdo->bindParam(':entity_id', (int)$entity_id);
         $query = $this->rzpPdo->execute();
         $planData = $query->row;
+
+        if (empty($planData) === true)
+        {
+            return;
+        }
         
         $planType = $planData['plan_type'];
 
