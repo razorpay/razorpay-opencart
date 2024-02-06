@@ -1372,7 +1372,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
     public function changeSingleStatus()
     {
         $status = $this->request->get['status'];
-        $eid= str_split($this->request->get['entity_id']);
+        $eid= array($this->request->get['entity_id']);
 
         if($status==1)
         {
