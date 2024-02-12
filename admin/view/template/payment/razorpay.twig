@@ -3,7 +3,7 @@
 	<div class="page-header">
 		<div class="container-fluid">
 			<div class="float-end">
-				<button type="submit" form="form-payment" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary">
+				<button type="submit" form="form-rzp-config" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary">
 					<i class="fa fa-save"></i>
 				</button>
 				<a href="{{ cancel }}" data-bs-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default">
@@ -41,7 +41,7 @@
 					</div>
 				</div>
 				<br/>
-				<form id="form-payment" action="{{ save }}" method="post" data-oc-toggle="ajax" enctype="multipart/form-data">
+				<form id="form-rzp-config" action="{{ save }}" method="post" data-oc-toggle="ajax">
 					<div class="form-group required">
 						<div class="row mb-3">
 							<label class="col-sm-2 col-form-label" for="input-key-id">
