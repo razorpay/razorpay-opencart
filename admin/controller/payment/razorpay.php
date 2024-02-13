@@ -248,7 +248,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 				}
 				else if($webhookConfigData['payment_razorpay_webhook_status'] == 0) 
 				{
-					$json['error'] = 'Error: Couldn\'t create webhook. Please try again';
+                    $this->log->write("Error: Couldn't create webhook. Please try again");
 				}
 				else
 				{

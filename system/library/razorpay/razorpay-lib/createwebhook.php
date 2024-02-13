@@ -74,7 +74,7 @@ class CreateWebhook
         if (!filter_var($domainIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE))
         {
             $this->webhookEnable = '0';
-            $this->log->write('Cannot enable/disable webhook on $domain or private ip($domainIp).');
+            $this->log->write("Cannot enable/disable webhook on $domain or private ip($domainIp).");
 
             return $this->returnWebhookConfigData();
         }
