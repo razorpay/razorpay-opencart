@@ -43,6 +43,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['is_recurring'] = "false";
 
         $this->load->model('checkout/order');
+        $this->load->model('extension/payment/razorpay');
 
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
@@ -58,8 +59,6 @@ class ControllerExtensionPaymentRazorpay extends Controller
             if ($this->cart->hasRecurringProducts() and 
             $this->config->get('payment_razorpay_subscription_status'))
             {
-                $this->load->model('extension/payment/razorpay');
-
                 //validate for non-subscription product and if recurring is product for more than 1
                 $this->validate_non_recurring_products();
 
@@ -132,6 +131,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
                     $this->session->data["razorpay_order_amount"] = $order_data["amount"];
                     $this->session->data["razorpay_order_id_" . $this->session->data['order_id']] = $razorpay_order['id'];
                     $data['razorpay_order_id'] = $this->session->data["razorpay_order_id_" . $this->session->data['order_id']];
+                    $this->model_extension_payment_razorpay->addOrderForWebhook($this->session->data['order_id'], $razorpay_order['id'],0);
 
                     $this->log->write("RZP orderID (:" . $razorpay_order['id'] . ") created for Opencart OrderID (:" . $this->session->data['order_id'] . ")");
                 }
@@ -335,6 +335,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
                     $order_info['order_status_id'] === '0')
                 {
                     $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id, true);
+                    $this->model_extension_payment_razorpay->updateOrderForWebhook($merchant_order_id, $razorpay_order_id, $razorpay_payment_id, $this->config->get('payment_razorpay_order_status_id'));
                 }
                 $this->response->redirect($this->url->link('checkout/success', '', true));
             }
@@ -403,28 +404,22 @@ class ControllerExtensionPaymentRazorpay extends Controller
                     return;
                 }
 
-                switch ($data['event'])
+                $webhookFilteredData = [
+                    "id"                => $data['payload']['payment']['entity']['id']
+                    "event"             => $data['event'],
+                    "opencart_order_id" => $data['payload']['payment']['entity']['notes']['opencart_order_id']
+                ];
+
+                if ($data['event'] === self::ORDER_PAID)
                 {
-                    case self::PAYMENT_AUTHORIZED:
-                        return $this->paymentAuthorized($data);
-
-                    case self::PAYMENT_FAILED:
-                        return $this->paymentFailed($data);
-
-                    case self::ORDER_PAID:
-                        return $this->orderPaid($data);
-
-                    case self::SUBSCRIPTION_PAUSED:
-                    case self::SUBSCRIPTION_RESUMED:
-                    case self::SUBSCRIPTION_CANCELLED:
-                        return $this->updateOcSubscriptionStatus($data);
-
-                    case self::SUBSCRIPTION_CHARGED:
-                        return $this->processSubscriptionCharged($data);
-
-                    default:
-                        return;
+                    $webhookFilteredData['invoice_id'] = ['payload']['payment']['entity']['invoice_id'];
                 }
+
+                $this->model_extension_payment_razorpay->addWebhookEvent(
+                    $data['payload']['payment']['entity']['notes']['opencart_order_id'],
+                    $data['payload']['payment']['entity']['order_id'],
+                    $webhookFilteredData
+                );
             }
         }
     }

@@ -374,4 +374,42 @@ class ModelExtensionPaymentRazorpay extends Model
         $this->rzpPdo->bindParam(':amount', (float)$amount);
         $this->rzpPdo->execute();
     }
+
+    public function addOrderForWebhook($orderId, $rzpOrderId, $razorpayOrderStatusCron = 0)
+    {
+        $this->rzpPdo->prepare("INSERT INTO `" . DB_PREFIX . "rzp_webhook_triggers` SET order_id=:order_id, rzp_order_id=:rzp_order_id, rzp_webhook_data=:rzp_webhook_data, rzp_update_order_cron_status=:rzp_update_order_cron_status");
+        $this->rzpPdo->bindParam(':order_id', (int)$orderId);
+        $this->rzpPdo->bindParam(':rzp_order_id', $this->db->escape($rzpOrderId));
+        $this->rzpPdo->bindParam(':rzp_webhook_data', '[]');
+        $this->rzpPdo->bindParam(':rzp_update_order_cron_status', $razorpayOrderStatusCron);
+        $this->rzpPdo->execute();
+    }
+
+    public function updateOrderForWebhook($orderId, $rzpOrderId, $rzpPaymentId = null, $rzpUpdateOrderCronStatus)
+    {
+        $this->rzpPdo->prepare("UPDATE " . DB_PREFIX . "rzp_webhook_triggers SET rzp_payment_id=:rzp_payment_id, rzp_update_order_cron_status=:rzp_update_order_cron_status WHERE order_id=:order_id AND rzp_order_id=:rzp_order_id");
+        $this->rzpPdo->bindParam(':rzp_payment_id', $rzpPaymentId);
+        $this->rzpPdo->bindParam(':rzp_update_order_cron_status', $rzpUpdateOrderCronStatus);
+        $this->rzpPdo->bindParam(':order_id', (int)$orderId);
+        $this->rzpPdo->bindParam(':rzp_order_id', $rzpOrderId);
+        $this->rzpPdo->execute();
+    }
+
+    public function addWebhookEvent($orderId, $rzpOrderId, $webhookFilteredData)
+    {
+        $this->rzpPdo->prepare("SELECT rzp_webhook_data FROM " . DB_PREFIX . "rzp_webhook_triggers WHERE order_id=:orderId AND rzp_order_id=:rzp_order_id");
+        $this->rzpPdo->bindParam(':orderId', (int)$orderId);
+        $this->rzpPdo->bindParam(':rzp_order_id', $rzpOrderId);
+        $query = $this->rzpPdo->execute();
+        $webhookEvents = $query->row;
+
+        $webhookEvents = array_merge($webhookEvents, $webhookFilteredData);
+
+        $this->rzpPdo->prepare("UPDATE " . DB_PREFIX . "rzp_webhook_triggers SET rzp_webhook_data=:rzp_webhook_data, rzp_webhook_notified_at=:rzp_webhook_notified_at WHERE order_id=:order_id AND rzp_order_id=:rzp_order_id");
+        $this->rzpPdo->bindParam(':rzp_webhook_data', $webhookEvents);
+        $this->rzpPdo->bindParam(':rzp_webhook_notified_at', time());
+        $this->rzpPdo->bindParam(':order_id', (int)$orderId);
+        $this->rzpPdo->bindParam(':rzp_order_id', $rzpOrderId);
+        $this->rzpPdo->execute();
+    }
 }
