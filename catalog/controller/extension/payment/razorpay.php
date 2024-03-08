@@ -406,27 +406,26 @@ class ControllerExtensionPaymentRazorpay extends Controller
                     return;
                 }
 
-                $webhookFilteredData = [
-                    "id"                => $data['payload']['payment']['entity']['id'],
-                    "event"             => $data['event'],
-                    "opencart_order_id" => $data['payload']['payment']['entity']['notes']['opencart_order_id']
-                ];
-
-                if ($data['event'] === self::ORDER_PAID)
-                {
-                    $webhookFilteredData['invoice_id'] = $data['payload']['payment']['entity']['invoice_id'];
-                    sleep(3);
-                }
-
                 if (in_array($data['event'], [self::ORDER_PAID, self::PAYMENT_AUTHORIZED])
                 {
-                $this->model_extension_payment_razorpay->addWebhookEvent(
-                    $data['payload']['payment']['entity']['notes']['opencart_order_id'],
-                    $data['payload']['payment']['entity']['order_id'],
-                    $webhookFilteredData
-                );
-            }
-            else
+                    $webhookFilteredData = [
+                        "id"                => $data['payload']['payment']['entity']['id'],
+                        "event"             => $data['event'],
+                        "opencart_order_id" => $data['payload']['payment']['entity']['notes']['opencart_order_id']
+                    ];
+
+                    if ($data['event'] === self::ORDER_PAID)
+                    {
+                        $webhookFilteredData['invoice_id'] = $data['payload']['payment']['entity']['invoice_id'];
+                        sleep(3);
+                    }
+                    $this->model_extension_payment_razorpay->addWebhookEvent(
+                        $data['payload']['payment']['entity']['notes']['opencart_order_id'],
+                        $data['payload']['payment']['entity']['order_id'],
+                        $webhookFilteredData
+                    );
+                }
+                else
                 {
                     switch ($data['event'])
                     {
