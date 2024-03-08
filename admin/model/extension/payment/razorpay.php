@@ -66,7 +66,6 @@ class ModelExtensionPaymentRazorpay extends Model
                 `entity_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
                 `order_id` int(11) NOT NULL,
                 `rzp_order_id` varchar(25) NOT NULL,
-                `rzp_payment_id` varchar(25),
                 `rzp_webhook_data` text,
                 `rzp_webhook_notified_at` varchar(30),
                 `rzp_update_order_cron_status` int(11) DEFAULT 0,
