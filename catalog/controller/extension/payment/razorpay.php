@@ -404,7 +404,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
                     return;
                 }
 
-                if (in_array($data['event'], [self::ORDER_PAID, self::PAYMENT_AUTHORIZED])
+                if (in_array($data['event'], [self::ORDER_PAID, self::PAYMENT_AUTHORIZED]) === true)
                 {
                     $webhookFilteredData = [
                         "id"                => $data['payload']['payment']['entity']['id'],
