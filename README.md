@@ -37,6 +37,15 @@ Save the plugin settings
     - subscription.resumed
     - subscription.cancelled
     
+### Create a Cron for Webhooks using cpanel
+
+ - Log on to your cPanel Interface.
+ - Go to `Advanced` section.
+ - Click on `Cron Jobs`.
+ - Select the specific time from the lists provided (every 5 min).
+ - Enter `https://<shop_url>/index.php?route=extension/payment/razorpay/rzpWebhookCron/` in the "Command" field.
+ - Note: for more details visit [opencart cron docs](https://docs.opencart.com/en-gb/extension/cron/)
+
 
 ### Development
 
