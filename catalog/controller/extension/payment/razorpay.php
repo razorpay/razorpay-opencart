@@ -105,7 +105,6 @@ class ControllerExtensionPaymentRazorpay extends Controller
                     ];
 
                     $this->model_extension_payment_razorpay->createOCRecurring($recurringData);
-                    $this->model_extension_payment_razorpay->addOrderForWebhook($this->session->data['order_id'], $subscription_order['id'], 0);
 
                     $this->log->write("RZP subscriptionID (:" . $subscription_order['id'] . ") created for Opencart OrderID (:" . $this->session->data['order_id'] . ")");
                 }
@@ -329,7 +328,6 @@ class ControllerExtensionPaymentRazorpay extends Controller
                     // Creating OC Recurring Transaction
                     $ocRecurringData = $this->model_extension_payment_razorpay->getOCRecurringStatus($this->session->data['order_id']);
                     $this->model_extension_payment_razorpay->addOCRecurringTransaction($ocRecurringData['order_recurring_id'], $razorpay_subscription_id, $planData['plan_bill_amount'], "success");
-                    $this->model_extension_payment_razorpay->updateOrderForWebhook($merchant_order_id, $razorpay_subscription_id, $this->config->get('payment_razorpay_order_status_id'));
                 }
 
                 if ($order_info['payment_code'] === 'razorpay' and
