@@ -60,6 +60,18 @@ class ModelExtensionPaymentRazorpay extends Model
             PRIMARY KEY (`entity_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
         );
+
+        $this->db->query(
+            "CREATE TABLE IF NOT EXISTS `".DB_PREFIX."rzp_webhook_triggers` (
+                `entity_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+                `order_id` int(11) NOT NULL,
+                `rzp_order_id` varchar(25) NOT NULL,
+                `rzp_webhook_data` text,
+                `rzp_webhook_notified_at` varchar(30),
+                `rzp_update_order_cron_status` int(11) DEFAULT 0,
+            PRIMARY KEY (`entity_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
+        );
     }
 
     public function dropTables()
