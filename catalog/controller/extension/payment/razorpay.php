@@ -18,7 +18,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
     const SUBSCRIPTION_RESUMED      = 'subscription.resumed';
     const SUBSCRIPTION_CANCELLED    = 'subscription.cancelled';
     const SUBSCRIPTION_CHARGED      = 'subscription.charged';
-    const WEBHOOK_WAIT_TIME         = 30;
+    const WEBHOOK_WAIT_TIME         = 120;
     const HTTP_CONFLICT_STATUS      = 409;
     const CURRENCY_NOT_ALLOWED  = [
         'KWD',
