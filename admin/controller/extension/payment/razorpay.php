@@ -7,7 +7,8 @@ use Razorpay\Api\Errors;
 
 class ControllerExtensionPaymentRazorpay extends Controller
 {
-    const WEBHOOK_URL    = HTTPS_CATALOG . 'index.php?route=extension/payment/razorpay/webhook';
+    const WEBHOOK_URL       = HTTPS_CATALOG . 'index.php?route=extension/payment/razorpay/webhook';
+    const WEBHOOK_CRON_URL  = HTTPS_CATALOG . 'index.php?route=extension/payment/razorpay/rzpWebhookCron';
 
     private $error = array();
 
@@ -62,6 +63,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['help_key_id'] = $this->language->get('help_key_id');
         $data['help_order_status'] = $this->language->get('help_order_status');
         $data['help_webhook_url'] = $this->language->get('help_webhook_url');
+        $data['text_webhook_cron'] = sprintf($this->language->get('text_webhook_cron'), "*/5 * * * * curl --request POST " . self::WEBHOOK_CRON_URL);
 
         if (isset($this->error['warning']))
         {
@@ -188,6 +190,16 @@ class ControllerExtensionPaymentRazorpay extends Controller
         else
         {
             $data['razorpay_subscription_status'] = $this->config->get('payment_razorpay_subscription_status');
+        }
+
+        //Webhook Cron Status
+        if (isset($this->request->post['payment_razorpay_webhook_cron_status']))
+        {
+            $data['razorpay_webhook_cron_status'] = $this->request->post['payment_razorpay_webhook_cron_status'];
+        }
+        else
+        {
+            $data['razorpay_webhook_cron_status'] = $this->config->get('payment_razorpay_webhook_cron_status');
         }
 
         $this->template = 'extension/payment/razorpay';
