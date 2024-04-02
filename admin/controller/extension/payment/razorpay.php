@@ -63,7 +63,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $data['help_key_id'] = $this->language->get('help_key_id');
         $data['help_order_status'] = $this->language->get('help_order_status');
         $data['help_webhook_url'] = $this->language->get('help_webhook_url');
-        $data['text_webhook_cron_url'] = "*/5 * * * * curl --request POST " . self::WEBHOOK_CRON_URL;
+        $data['text_webhook_cron'] = sprintf($this->language->get('text_webhook_cron'), "*/5 * * * * curl --request POST " . self::WEBHOOK_CRON_URL);
 
         if (isset($this->error['warning']))
         {

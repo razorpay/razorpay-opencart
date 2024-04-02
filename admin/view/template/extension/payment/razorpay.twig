@@ -131,12 +131,7 @@
 					<div class="form-group alert-warning">
 						<div class="col-sm-12">
 							<label>{{ text_webhook_cron_header }}</label>
-							<ol>
-								<li>{{ text_webhook_cron_point_1 }}</li>
-								<li>{{ text_webhook_cron_point_2 }}<strong>{{ text_webhook_cron_url }}</strong></li>
-								<li>{{ text_webhook_cron_point_3 }}</li>
-								<li>{{ text_webhook_cron_point_4 }}</li>
-							</ol>
+							{{ text_webhook_cron }}
 							<div class="checkbox">
 								<label>
 									{% if razorpay_webhook_cron_status %}

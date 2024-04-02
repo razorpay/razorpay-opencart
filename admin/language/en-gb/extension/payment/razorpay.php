@@ -113,11 +113,8 @@ $_['text_invoice']                                      = 'Invoice Details';
 $_['text_not_select_sub_ID']                             = 'Please Select Subscription ';
 $_['text_subscription_status']                          = 'Enable Subscription in Settings.';
 $_['text_webhook_cron_header']                          = 'Set the cron job in your WHMCS site server to call the Cron URL in every 5 mins frequncy.';
-$_['text_webhook_cron_point_1']                          = 'In CLI run: <strong>crontab -e</strong>';
-$_['text_webhook_cron_point_2']                          = 'Add the command: ';
-$_['text_webhook_cron_point_3']                          = 'Save.';
-$_['text_webhook_cron_point_4']                          = 'Run: <strong>crontab -l</strong> confirm below if cron is added.';
-$_['text_webhook_cron_confirm']                          = 'Confirm Cron created.';
+$_['text_webhook_cron']                                 = '<ol><li>In CLI run <strong>crontab -e</strong></li><li>Add the command: <strong>%s</strong></li><li>Save.</li><li>Run: <strong>crontab -l</strong> confirm below if cron is added.</li></ol>';
+$_['text_webhook_cron_confirm']                         = 'Confirm Cron created.';
 
 
 //tooltip
