@@ -128,6 +128,27 @@
 							</select>
 						</div>
 					</div>
+					<div class="form-group">
+						<div class="col-sm-12">
+							<label>{{ text_webhook_cron_header }}</label>
+							<ol>
+								<li>{{ text_webhook_cron_point_1 }}</li>
+								<li>{{ text_webhook_cron_point_2 }}<strong>{{ text_webhook_cron_url }}</strong></li>
+								<li>{{ text_webhook_cron_point_3 }}</li>
+								<li>{{ text_webhook_cron_point_4 }}</li>
+							</ol>
+							<div class="checkbox">
+								<label>
+									{% if razorpay_webhook_cron_status %}
+										<input type="checkbox" name="payment_razorpay_webhook_cron_status" id="input-webhook-cron" checked="checked"/>
+									{% else %}
+										<input type="checkbox" name="payment_razorpay_webhook_cron_status" id="input-webhook-cron"/>
+									{% endif %}
+									&nbsp; {{ text_webhook_cron_confirm }}
+								</label>
+							</div>
+						</div>
+					</div>
 				</form>
 			</div>
 		</div>
