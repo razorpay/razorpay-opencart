@@ -145,7 +145,7 @@ class Request
     protected function throwServerError($body, $httpStatusCode)
     {
         $description = "The server did not send back a well-formed response. " . PHP_EOL .
-                       "Server Response: " . json_encode($body);
+                       "Server Response: $body";
 
         throw new Errors\ServerError(
             $description,
