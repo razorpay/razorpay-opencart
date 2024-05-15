@@ -102,13 +102,13 @@ class CreateWebhook
             if (empty($this->webhookId) === false)
             {
                 $webhook = $api->webhook->edit(
+                    $this->webhookId,
                     [
                         'url'    => $this->webhookUrl,
                         'events' => $this->webhookEvents,
                         'secret' => $this->webhookSecret,
                         'active' => true,
-                    ],
-                    $this->webhookId
+                    ]
                 );
 
                 $this->log->write('Razorpay Webhook Updated by Admin.');
