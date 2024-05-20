@@ -207,7 +207,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
         $order = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
         $data = [
-            'receipt' => $order_id,
+            'receipt' => (string)$order_id,
             'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
             'currency' => $order['currency_code'],
             'payment_capture' => ($this->config->get('payment_razorpay_payment_action') === 'authorize') ? 0 : 1
@@ -557,12 +557,12 @@ class ControllerExtensionPaymentRazorpay extends Controller
     {
         try
         {
-            $response = Requests::get($this->api->getBaseUrl() . 'preferences?key_id=' . $this->api->getKey());
+            $response = Requests::get($this->api->getBaseUrl() . '/preferences?key_id=' . $this->api->getKey());
         }
         catch (Exception $e)
         {
             $this->log->write($e->getMessage());
-            throw new Exception($e->getMessage(), $e->getHttpCode());
+            throw new Exception($e->getMessage(), $e->getCode());
         }
 
         $preferences['is_hosted'] = false;
