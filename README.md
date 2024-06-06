@@ -47,6 +47,7 @@ While installing the Razorpay plugin to Opencart 4 make sure to only have these 
 - The `opencart1.5` branch holds the plugin for Opencart 1.5
 - Tags are in either of these three series: `opencart3-x.y.z` or `opencart2-x.y.z` or `opencart1.5-1.x.y`
 - Subscription is available with Opencart 3 and Opencart 4
+- Opencart 3 and Opencart 4 latest versions support PHP 8
 
 ### Support
 
