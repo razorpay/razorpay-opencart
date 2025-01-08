@@ -190,7 +190,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $data['phone'] = $order_info['telephone'];
         $data['name'] = $this->config->get('config_name');
         $data['lang'] = $this->config->get('language_code');
-        $data['return_url'] = $this->url->link('extension/razorpay/payment/razorpay.callback', '', 'true');
+        $data['return_url'] = $this->url->link('extension/razorpay/payment/razorpay|callback', '', 'true');
         $data['version'] = $this->version;
         $data['oc_version'] = VERSION;
 

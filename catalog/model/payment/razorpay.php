@@ -29,7 +29,7 @@ class Razorpay extends \Opencart\System\Engine\Model {
         $this->rzpPdo = new mPDO(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
     }
 
-	public function getMethods($address)
+	public function getMethod($address)
     {
         $this->language->load('extension/razorpay/payment/razorpay');
 
@@ -42,6 +42,7 @@ class Razorpay extends \Opencart\System\Engine\Model {
             'code'          => 'razorpay',
             'option'        => $option_data,
             'name'          => $this->language->get('heading_title'),
+			'title'      => $this->language->get('heading_title'),
             'sort_order'    => $this->config->get('payment_razorpay_sort_order'),
         );
 
@@ -328,7 +329,7 @@ class Razorpay extends \Opencart\System\Engine\Model {
 
     public function createOCSubscription($subscriptionData)
     {
-        $query = "INSERT INTO `" . DB_PREFIX . "order_subscription` SET `order_product_id` = :order_product_id,";
+        $query = "INSERT INTO `" . DB_PREFIX . "subscription` SET `order_product_id` = :order_product_id,";
         $query = $query . " `order_id` = :order_id, `product_id` = :product_id,";
         $query = $query . " `subscription_plan_id` = :subscription_plan_id, `trial_price` = :trial_price,";
         $query = $query . " `trial_tax` = :trial_tax, `trial_frequency` = :trial_frequency,";
