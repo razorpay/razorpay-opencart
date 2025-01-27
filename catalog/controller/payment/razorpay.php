@@ -32,10 +32,18 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
     private $api;
 
-    public function __construct($registry)
+	private $separator = '';
+
+	public function __construct($registry)
     {
         parent::__construct($registry);
         $this->api = $this->getApiIntance();
+
+		if (VERSION >= '4.0.2.0') {
+			$this->separator = '.';
+		} else {
+			$this->separator = '|';
+		}
     }
 
 	public function index(): string {
@@ -190,11 +198,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $data['phone'] = $order_info['telephone'];
         $data['name'] = $this->config->get('config_name');
         $data['lang'] = $this->config->get('language_code');
-		if (VERSION >= '4.0.2.0') {
-			$data['return_url'] = $this->url->link('extension/razorpay/payment/razorpay.callback', '', 'true');
-		} else {
-			$data['return_url'] = $this->url->link('extension/razorpay/payment/razorpay|callback', '', 'true');
-		}
+		$data['return_url'] = $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'callback', '', 'true');
         $data['version'] = $this->version;
         $data['oc_version'] = VERSION;
 
