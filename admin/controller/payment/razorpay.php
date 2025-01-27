@@ -9,8 +9,8 @@ use Razorpay\Api\Errors;
 use Opencart\Admin\Controller\Extension\Razorpay\Payment\CreateWebhook;
 
 class Razorpay extends \Opencart\System\Engine\Controller {
-	const WEBHOOK_URL    = HTTP_CATALOG . 'index.php?route=extension/razorpay/payment/razorpay.webhook';
-	
+	private $webhookUrl    = '';
+
 	private $error = [];
 
 	private $separator = '';
@@ -23,6 +23,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 		} else {
 			$this->separator = '|';
 		}
+		$this->webhookUrl = HTTP_CATALOG . 'index.php?route=extension/razorpay/payment/razorpay' . $this->separator . 'webhook';
 	}
 
 	public function index(): void {
@@ -248,7 +249,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 					$post['payment_razorpay_key_id'],
 					$post['payment_razorpay_key_secret'],
 					$this->config->get('payment_razorpay_webhook_secret'),
-					self::WEBHOOK_URL,
+					$this->webhookUrl,
 					$post['payment_razorpay_subscription_status']
 				);
 	
