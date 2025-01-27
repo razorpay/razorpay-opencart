@@ -58,24 +58,38 @@
 					</div>
 					<div  id="tab-product">
 						<div class="form-group required">
-              <div class="row mb-3">
-                <label class="col-sm-2 col-form-label"><span data-toggle="tooltip" title="{{ help_product_name }}">{{ entry_product_name }}</span></label>
-                <div class="col-sm-10">
-                  <div class="input-group">
-                    <input type="text" name="product" value="" placeholder="{{ entry_product_name }}" id="input-product" list="list-product" class="form-control"/>
-                    {% if master_id %}
-                      <div class="input-group-text">
-                        <div class="form-check form-switch">
-                          <input type="checkbox" name="override[product]" value="1" id="input-variant-product" data-oc-toggle="switch" data-oc-target="#input-product" class="form-check-input"{% if override.product %} checked{% endif %}/> <label for="input-variant-product" class="form-check-label"></label>
-                        </div>
-                      </div>
+              {% if oc_version >= '4.0.2.0' %}
+                <div class="row mb-3">
+                  <label class="col-sm-2 col-form-label" for="input-product"><span data-toggle="tooltip" title="{{ help_product_name }}">{{ entry_product_name }}</span></label>
+                  <div class="col-sm-10">
+                    <input type="text" name="product-name" value="" placeholder="{{ entry_product_name }}" id="input-product" data-oc-target="autocomplete_product" class="form-control" autocomplete="off"/>
+                    <input type="hidden" name="product_id" value="" />
+                    <ul id="autocomplete_product" class="dropdown-menu"></ul>
+                    {% if error_product_name %}
+                      <div class="text-danger">{{ error_product_name }}</div>
                     {% endif %}
                   </div>
-                  <input type="hidden" name="product_id" value="{{ product_id }}" id="input-product-id"/>
-                  <datalist id="list-product"></datalist>
-                  <div class="form-text">{{ help_product }}</div>
                 </div>
-              </div>
+              {% else %}
+                <div class="row mb-3">
+                  <label class="col-sm-2 col-form-label"><span data-toggle="tooltip" title="{{ help_product_name }}">{{ entry_product_name }}</span></label>
+                  <div class="col-sm-10">
+                    <div class="input-group">
+                      <input type="text" name="product" value="" placeholder="{{ entry_product_name }}" id="input-product" list="list-product" class="form-control"/>
+                      {% if master_id %}
+                        <div class="input-group-text">
+                          <div class="form-check form-switch">
+                            <input type="checkbox" name="override[product]" value="1" id="input-variant-product" data-oc-toggle="switch" data-oc-target="#input-product" class="form-check-input"{% if override.product %} checked{% endif %}/> <label for="input-variant-product" class="form-check-label"></label>
+                          </div>
+                        </div>
+                      {% endif %}
+                    </div>
+                    <input type="hidden" name="product_id" value="{{ product_id }}" id="input-product-id"/>
+                    <datalist id="list-product"></datalist>
+                    <div class="form-text">{{ help_product }}</div>
+                  </div>
+                </div>
+              {% endif %}
 						</div>
 					</div>
 					<div class="form-group required">
@@ -189,8 +203,13 @@ $('#input-product').autocomplete({
 	},
 	'select': function(item) {
 		//console.log(item);
-    $('#input-product-id').val(item['value']);
-		// $('#tab-product input[name=\'product-id\']').val(item['value']);
+    {% if oc_version >= '4.0.2.0' %}
+      $('#tab-product input[name=\'product-name\']').val(item['label']);
+      $('#tab-product input[name=\'product_id\']').val(item['value']);
+    {% else %}
+      $('#input-product-id').val(item['value']);
+    // $('#tab-product input[name=\'product-id\']').val(item['value']);
+    {% endif %}
 		//$('#tab-product input[name=\'product-price\']').val(item['label']);
 	}
 });

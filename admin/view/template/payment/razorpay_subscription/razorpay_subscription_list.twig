@@ -333,7 +333,11 @@
 				url += '&filter_date_created=' + encodeURIComponent(filter_date_created);
 			}
 
-			location = 'index.php?route=extension/razorpay/payment/razorpay|getSubscription&user_token={{ user_token }}' + url;
+        {% if oc_version >= '4.0.2.0' %}
+          location = 'index.php?route=extension/razorpay/payment/razorpay.getSubscription&user_token={{ user_token }}' + url;
+        {% else %}
+          location = 'index.php?route=extension/razorpay/payment/razorpay|getSubscription&user_token={{ user_token }}' + url;
+        {% endif %}
 			});
 
 		</script>

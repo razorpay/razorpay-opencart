@@ -29,25 +29,45 @@ class Razorpay extends \Opencart\System\Engine\Model {
         $this->rzpPdo = new mPDO(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
     }
 
+	public function getMethods($address)
+	{
+		$this->language->load('extension/razorpay/payment/razorpay');
+
+		$option_data['razorpay'] = [
+			'code' => 'razorpay.razorpay',
+			'name' => $this->language->get('text_title')
+		];
+
+		$method_data = array(
+			'code'          => 'razorpay',
+			'option'        => $option_data,
+			'name'          => $this->language->get('heading_title'),
+			'sort_order'    => $this->config->get('payment_razorpay_sort_order'),
+		);
+
+		return $method_data;
+	}
+
 	public function getMethod($address)
-    {
-        $this->language->load('extension/razorpay/payment/razorpay');
+	{
 
-        $option_data['razorpay'] = [
-            'code' => 'razorpay.razorpay',
-            'name' => $this->language->get('text_title')
-        ];
+		$this->language->load('extension/razorpay/payment/razorpay');
 
-        $method_data = array(
-            'code'          => 'razorpay',
-            'option'        => $option_data,
-            'name'          => $this->language->get('heading_title'),
+//        $option_data['razorpay'] = [
+//            'code' => 'razorpay.razorpay',
+//            'name' => $this->language->get('text_title')
+//        ];
+
+		$method_data = array(
+			'code'          => 'razorpay',
+			//'option'        => $option_data,
+			//'name'          => $this->language->get('heading_title'),
 			'title'      => $this->language->get('heading_title'),
-            'sort_order'    => $this->config->get('payment_razorpay_sort_order'),
-        );
+			'sort_order'    => $this->config->get('payment_razorpay_sort_order'),
+		);
 
-        return $method_data;
-    }
+		return $method_data;
+	}
 
 	public function editSetting($code, $data, $store_id = 0)
     {
@@ -329,7 +349,11 @@ class Razorpay extends \Opencart\System\Engine\Model {
 
     public function createOCSubscription($subscriptionData)
     {
-        $query = "INSERT INTO `" . DB_PREFIX . "subscription` SET `order_product_id` = :order_product_id,";
+		if (VERSION >= '4.0.2.0') {
+			$query = "INSERT INTO `" . DB_PREFIX . "order_subscription` SET `order_product_id` = :order_product_id,";
+		} else {
+			$query = "INSERT INTO `" . DB_PREFIX . "subscription` SET `order_product_id` = :order_product_id,";
+		}
         $query = $query . " `order_id` = :order_id, `product_id` = :product_id,";
         $query = $query . " `subscription_plan_id` = :subscription_plan_id, `trial_price` = :trial_price,";
         $query = $query . " `trial_tax` = :trial_tax, `trial_frequency` = :trial_frequency,";

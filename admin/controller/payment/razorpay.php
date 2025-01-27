@@ -13,6 +13,18 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 	
 	private $error = [];
 
+	private $separator = '';
+
+	public function __construct($registry) {
+		parent::__construct($registry);
+
+		if (VERSION >= '4.0.2.0') {
+			$this->separator = '.';
+		} else {
+			$this->separator = '|';
+		}
+	}
+
 	public function index(): void {
 		try {
 			$post = $this->getKeyValueArray(file_get_contents('php://input'));
@@ -97,7 +109,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 				'separator' => ' :: ',
 			);
 
-            $data['save'] = $this->url->link('extension/razorpay/payment/razorpay|save', 'user_token=' . $this->session->data['user_token']);
+            $data['save'] = $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'save', 'user_token=' . $this->session->data['user_token']);
 
 			$data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', 'SSL');
 
@@ -372,7 +384,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
         $data['breadcrumbs'][] = array(
             'text' => $this->language->get('subscription_title'),
-            'href' => $this->url->link('extension/razorpay/payment/razorpay|getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true)
+            'href' => $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true)
         );
 
         $data['subscriptions'] = [];
@@ -411,10 +423,10 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                 'subscription_created_at'   => $result['subscription_created_at'],
                 'next_charge_at'            =>  isset($result['next_charge_at']) ? date($this->language->get('date_format_short'), strtotime($result['next_charge_at'])) : "",
                 'created_at'                => isset($result['created_at']) ? date($this->language->get('date_format_short'), strtotime($result['created_at'])) : "",
-                'view'                      => $this->url->link('extension/razorpay/payment/razorpay|subscriptionInfo', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true),
-                'singleResume'              => $this->url->link('extension/razorpay/payment/razorpay|changeSingleStatus', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . '&status=1'. $url, true),
-                'singlePause'               => $this->url->link('extension/razorpay/payment/razorpay|changeSingleStatus', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . '&status=2'. $url, true),
-                'singleCancel'              => $this->url->link('extension/razorpay/payment/razorpay|changeSingleStatus', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . '&status=3'. $url, true)
+                'view'                      => $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'subscriptionInfo', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true),
+                'singleResume'              => $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'changeSingleStatus', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . '&status=1'. $url, true),
+                'singlePause'               => $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'changeSingleStatus', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . '&status=2'. $url, true),
+                'singleCancel'              => $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'changeSingleStatus', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . '&status=3'. $url, true)
             ];
         }
 
@@ -477,7 +489,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             $url .= '&page=' . $this->request->get['page'];
         }
 
-        $path='extension/razorpay/payment/razorpay|getSubscription';
+        $path='extension/razorpay/payment/razorpay' . $this->separator . 'getSubscription';
         $data['sort_order'] = $this->url->link($path, 'user_token=' . $this->session->data['user_token'] . '&sort=s.entity_id' . $url, true);
         $data['sort_customer'] = $this->url->link($path, 'user_token=' . $this->session->data['user_token'] . '&sort=plan_name' . $url, true);
         $data['sort_status'] = $this->url->link($path, 'user_token=' . $this->session->data['user_token'] . '&sort=plan_status' . $url, true);
@@ -515,7 +527,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             'total' => $subscription_total,
             'page'  => $page,
             'limit' => 10,
-            'url'   => $this->url->link('extension/razorpay/payment/razorpay|getSubscription', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true)
+            'url'   => $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'getSubscription', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true)
         ]);
 
         $data['results'] = sprintf($this->language->get('text_pagination'), ($subscription_total) ? (($page - 1) *10) + 1 : 0, ((($page - 1) *10) > ($subscription_total -10)) ? $subscription_total : ((($page - 1) *10) +10), $subscription_total, ceil($subscription_total /10));
@@ -527,11 +539,12 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $data['sort'] = $sort;
         $data['order'] = $order;
 
-        $data['status'] = $this->url->link('extension/razorpay/payment/razorpay|changeStatus', 'user_token=' . $this->session->data['user_token'] . $url, true);
+        $data['status'] = $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'changeStatus', 'user_token=' . $this->session->data['user_token'] . $url, true);
 
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
+		$data['oc_version'] = VERSION;
 
         $this->response->setOutput($this->load->view('extension/razorpay/payment/razorpay_subscription/razorpay_subscription_list', $data));
     }
@@ -579,7 +592,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         }
         else
         {
-            return $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay|getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true));
+            return $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true));
 
             return;
         }
@@ -611,7 +624,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             $this->cancelSubscription($eid);
             $this->session->data['success'] = $this->language->get('text_pause_success');
 
-            return $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay|getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true));
+            return $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true));
         }
         else
         {
@@ -645,7 +658,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             }
             $this->session->data['success'] = $this->language->get('text_resume_success');
 
-            return $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay|getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true));
+            return $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true));
 
         }
         catch (\Razorpay\Api\Errors\Error $e)
@@ -690,7 +703,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
             $this->session->data['success'] = $this->language->get('text_pause_success');
 
-            return $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay|getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true));
+            return $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true));
 
         }
         catch (\Razorpay\Api\Errors\Error $e)
@@ -735,7 +748,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
             $this->session->data['success'] = $this->language->get('text_cancel_success');
 
-            return $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay|getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true));
+            return $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true));
 
         }
         catch (\Razorpay\Api\Errors\Error $e)
@@ -806,7 +819,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
             $data['breadcrumbs'][] = array(
                 'text' => $this->language->get('subscription_title'),
-                'href' => $this->url->link('extension/razorpay/payment/razorpay|getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true)
+                'href' => $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true)
             );
 
             //Invoice
@@ -827,11 +840,11 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                 ];
             }
 
-            $data['singleResume'] = $this->url->link('extension/razorpay/payment/razorpay|changeSingleStatus', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $results['sub_id'] . '&status=1'. $url, true);
-            $data['singlePause'] = $this->url->link('extension/razorpay/payment/razorpay|changeSingleStatus', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $results['sub_id'] . '&status=2'. $url, true);
+            $data['singleResume'] = $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'changeSingleStatus', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $results['sub_id'] . '&status=1'. $url, true);
+            $data['singlePause'] = $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'changeSingleStatus', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $results['sub_id'] . '&status=2'. $url, true);
 
-            $data['singleCancel'] = $this->url->link('extension/razorpay/payment/razorpay|changeSingleStatus', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $results['sub_id'] . '&status=3'. $url, true);
-            $data['back'] = $this->url->link('extension/razorpay/payment/razorpay|getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true);
+            $data['singleCancel'] = $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'changeSingleStatus', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $results['sub_id'] . '&status=3'. $url, true);
+            $data['back'] = $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'getSubscription', 'user_token=' . $this->session->data['user_token'] . $url, true);
             $data['header'] = $this->load->controller('common/header');
             $data['column_left'] = $this->load->controller('common/column_left');
             $data['footer'] = $this->load->controller('common/footer');
@@ -858,12 +871,12 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
         $rzpNav[] = [
             'name'      => "Plan",
-            'href'      => $this->url->link('extension/razorpay/payment/razorpay|getPlan', 'user_token=' . $this->session->data['user_token'], true),
+            'href'      => $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'getPlan', 'user_token=' . $this->session->data['user_token'], true),
             'children'  => []
         ];
         $rzpNav[] = [
             'name'      => "Subscription",
-            'href'      => $this->url->link('extension/razorpay/payment/razorpay|getSubscription', 'user_token=' . $this->session->data['user_token'], true),
+            'href'      => $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'getSubscription', 'user_token=' . $this->session->data['user_token'], true),
             'children'  => []
         ];
 
@@ -887,7 +900,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                 'code'          => 'razorpay_admin_menu',
                 'description'   => 'Razorpay Plans and Subscriptions',
                 'trigger'       => 'admin/view/common/column_left/before',
-                'action'        => 'extension/razorpay/payment/razorpay|rzpAdminMenu',
+                'action'        => 'extension/razorpay/payment/razorpay' . $this->separator . 'rzpAdminMenu',
                 'status'        => true,
                 'sort_order'    => 1
             ]);
@@ -905,9 +918,9 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     }
 
 	public function uninstall(): void {
-		try{ 
+		try{
 			$this->load->model('extension/razorpay/payment/razorpay');
-    	    
+
 			/* Rzp subscriptions tables */
 			$this->model_extension_razorpay_payment_razorpay->dropTables();
 		}
@@ -997,21 +1010,21 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
         $data['breadcrumbs'][] = array(
             'text' => $this->language->get('heading_title'),
-            'href' => $this->url->link('extension/razorpay/payment/razorpay|getPlan', 'user_token=' . $this->session->data['user_token'] . $url, true)
+            'href' => $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'getPlan', 'user_token=' . $this->session->data['user_token'] . $url, true)
         );
 
         if (!isset($this->request->get['entity_id']))
         {
-            $data['action'] = $this->url->link('extension/razorpay/payment/razorpay|add', 'user_token=' . $this->session->data['user_token'] . $url, true);
+            $data['action'] = $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'add', 'user_token=' . $this->session->data['user_token'] . $url, true);
         }
         else
         {
-            $data['action'] = $this->url->link('extension/razorpay/payment/razorpay|edit', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $this->request->get['entity_id'] . $url, true);
+            $data['action'] = $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'edit', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $this->request->get['entity_id'] . $url, true);
         }
 
-        $data['cancel'] = $this->url->link('extension/razorpay/payment/razorpay|getPlan', 'user_token=' . $this->session->data['user_token'] . $url, true);
+        $data['cancel'] = $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'getPlan', 'user_token=' . $this->session->data['user_token'] . $url, true);
 
-        $data['catalog_product_url'] = str_replace('&amp;', '&', $this->url->link('catalog/product|autocomplete', 'user_token=' . $this->session->data['user_token']));
+        $data['catalog_product_url'] = str_replace('&amp;', '&', $this->url->link('catalog/product' . $this->separator . 'autocomplete', 'user_token=' . $this->session->data['user_token']));
 
         $data['code'] = '';
         $data['from_name'] = '';
@@ -1112,6 +1125,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
+		$data['oc_version'] = VERSION;
 
         $this->response->setOutput($this->load->view('extension/razorpay/payment/razorpay_subscription/razorpay_plan_form', $data));
     }
@@ -1302,7 +1316,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                     $url .= '&page=' . $this->request->get['page'];
                 }
 
-                $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay|getPlan', 'user_token=' . $this->session->data['user_token'] . $url, true));
+                $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'getPlan', 'user_token=' . $this->session->data['user_token'] . $url, true));
             }
             // subscription status ends
         }
@@ -1418,7 +1432,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
         $data['breadcrumbs'][] = array(
             'text' => $this->language->get('plan_title'),
-            'href' => $this->url->link('extension/razorpay/payment/razorpay|getPlan', 'user_token=' . $this->session->data['user_token'] . $url, true)
+            'href' => $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'getPlan', 'user_token=' . $this->session->data['user_token'] . $url, true)
         );
 
         $data['plans'] = array();
@@ -1454,8 +1468,8 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                 'plan_status'       => $result['plan_status'],
                 'created_at'        => date($this->language->get('date_format_short'), strtotime($result['created_at'])),
                 'view'              => $this->url->link('extension/razorpay/payment/razorpay', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true),
-                'singleEnable'      => $this->url->link('extension/razorpay/payment/razorpay|singleEnable', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true),
-                'singleDisable'     => $this->url->link('extension/razorpay/payment/razorpay|singleDisable', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true)
+                'singleEnable'      => $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'singleEnable', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true),
+                'singleDisable'     => $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'singleDisable', 'user_token=' . $this->session->data['user_token'] . '&entity_id=' . $result['entity_id'] . $url, true)
             ];
         }
 
@@ -1521,7 +1535,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         {
             $url .= '&page=' . $this->request->get['page'];
         }
-        $path = 'extension/razorpay/payment/razorpay|plan_list';
+        $path = 'extension/razorpay/payment/razorpay' . $this->separator . 'plan_list';
         $data['sort_order'] = $this->url->link($path, 'user_token=' . $this->session->data['user_token'] . '&sort=p.plan_id' . $url, true);
         $data['sort_customer'] = $this->url->link($path, 'user_token=' . $this->session->data['user_token'] . '&sort=plan_name' . $url, true);
         $data['sort_status'] = $this->url->link($path, 'user_token=' . $this->session->data['user_token'] . '&sort=plan_status' . $url, true);
@@ -1564,7 +1578,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             'total' => $plan_total,
             'page'  => $page,
             'limit' =>10,
-            'url'   => $this->url->link('extension/razorpay/payment/razorpay|getPlan', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true)
+            'url'   => $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'getPlan', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true)
         ]);
 
         $data['results'] = sprintf($this->language->get('text_pagination'), ($plan_total) ? (($page - 1) *10) + 1 : 0, ((($page - 1) *10) > ($plan_total -10)) ? $plan_total : ((($page - 1) *10) +10), $plan_total, ceil($plan_total /10));
@@ -1576,12 +1590,13 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $data['sort'] = $sort;
         $data['order'] = $order;
 
-        $data['add'] = $this->url->link('extension/razorpay/payment/razorpay|add', 'user_token=' . $this->session->data['user_token'] . $url, true);
-        $data['status'] = $this->url->link('extension/razorpay/payment/razorpay|statusPlan', 'user_token=' . $this->session->data['user_token'] . $url, true);
+        $data['add'] = $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'add', 'user_token=' . $this->session->data['user_token'] . $url, true);
+        $data['status'] = $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'statusPlan', 'user_token=' . $this->session->data['user_token'] . $url, true);
 
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
+		$data['oc_version'] = VERSION;
 
         $this->response->setOutput($this->load->view('extension/razorpay/payment/razorpay_subscription/razorpay_plan_list', $data));
     }
@@ -1641,7 +1656,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                 $url .= '&page=' . $this->request->get['page'];
             }
 
-            $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay|getPlan', 'user_token=' . $this->session->data['user_token'] . $url, true));
+            $this->response->redirect($this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'getPlan', 'user_token=' . $this->session->data['user_token'] . $url, true));
         }
 
         $this->getPlan();
