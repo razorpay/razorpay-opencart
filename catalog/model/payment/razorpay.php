@@ -30,23 +30,23 @@ class Razorpay extends \Opencart\System\Engine\Model {
     }
 
 	public function getMethods($address)
-	{
-		$this->language->load('extension/razorpay/payment/razorpay');
+    {
+        $this->language->load('extension/razorpay/payment/razorpay');
 
-		$option_data['razorpay'] = [
-			'code' => 'razorpay.razorpay',
-			'name' => $this->language->get('text_title')
-		];
+        $option_data['razorpay'] = [
+            'code' => 'razorpay.razorpay',
+            'name' => $this->language->get('text_title')
+        ];
 
-		$method_data = array(
-			'code'          => 'razorpay',
-			'option'        => $option_data,
-			'name'          => $this->language->get('heading_title'),
-			'sort_order'    => $this->config->get('payment_razorpay_sort_order'),
-		);
+        $method_data = array(
+            'code'          => 'razorpay',
+            'option'        => $option_data,
+            'name'          => $this->language->get('heading_title'),
+            'sort_order'    => $this->config->get('payment_razorpay_sort_order'),
+        );
 
-		return $method_data;
-	}
+        return $method_data;
+    }
 
 	public function getMethod($address)
 	{
@@ -342,7 +342,7 @@ class Razorpay extends \Opencart\System\Engine\Model {
 
     public function createOCSubscription($subscriptionData)
     {
-		$query = "INSERT INTO `" . DB_PREFIX . "order_subscription` SET `order_product_id` = :order_product_id,";
+        $query = "INSERT INTO `" . DB_PREFIX . "order_subscription` SET `order_product_id` = :order_product_id,";
         $query = $query . " `order_id` = :order_id, `product_id` = :product_id,";
         $query = $query . " `subscription_plan_id` = :subscription_plan_id, `trial_price` = :trial_price,";
         $query = $query . " `trial_tax` = :trial_tax, `trial_frequency` = :trial_frequency,";
