@@ -349,11 +349,7 @@ class Razorpay extends \Opencart\System\Engine\Model {
 
     public function createOCSubscription($subscriptionData)
     {
-		if (VERSION >= '4.0.2.0') {
-			$query = "INSERT INTO `" . DB_PREFIX . "order_subscription` SET `order_product_id` = :order_product_id,";
-		} else {
-			$query = "INSERT INTO `" . DB_PREFIX . "subscription` SET `order_product_id` = :order_product_id,";
-		}
+		$query = "INSERT INTO `" . DB_PREFIX . "order_subscription` SET `order_product_id` = :order_product_id,";
         $query = $query . " `order_id` = :order_id, `product_id` = :product_id,";
         $query = $query . " `subscription_plan_id` = :subscription_plan_id, `trial_price` = :trial_price,";
         $query = $query . " `trial_tax` = :trial_tax, `trial_frequency` = :trial_frequency,";
