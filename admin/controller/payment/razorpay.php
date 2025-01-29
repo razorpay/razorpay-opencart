@@ -233,6 +233,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 		$configData = [];
 		$json = [];
 		$post = $this->getKeyValueArray(file_get_contents('php://input'));
+		$razorpay_subscription_status = isset($post['payment_razorpay_subscription_status']) === true ? $post['payment_razorpay_subscription_status'] : 0;
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate())
 		{
@@ -251,7 +252,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 					$post['payment_razorpay_key_secret'],
 					$this->config->get('payment_razorpay_webhook_secret'),
 					$this->webhookUrl,
-					$post['payment_razorpay_subscription_status']
+					$razorpay_subscription_status
 				);
 	
 				$webhookConfigData = $createWebhook->autoCreateWebhook();
