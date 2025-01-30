@@ -894,24 +894,26 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     {
         try
         {
-            $this->load->model('setting/event');
-            $this->model_setting_event->deleteEventByCode('razorpay_admin_menu');
+			if (VERSION >= '4.0.2.0'){
+				$this->load->model('setting/event');
+				$this->model_setting_event->deleteEventByCode('razorpay_admin_menu');
 
-            $this->model_setting_event->addEvent([
-                'code'          => 'razorpay_admin_menu',
-                'description'   => 'Razorpay Plans and Subscriptions',
-                'trigger'       => 'admin/view/common/column_left/before',
-                'action'        => 'extension/razorpay/payment/razorpay.rzpAdminMenu',
-                'status'        => true,
-                'sort_order'    => 1
-            ]);
-            
-            $this->load->model('extension/razorpay/payment/razorpay');
+				$this->model_setting_event->addEvent([
+					'code'          => 'razorpay_admin_menu',
+					'description'   => 'Razorpay Plans and Subscriptions',
+					'trigger'       => 'admin/view/common/column_left/before',
+					'action'        => 'extension/razorpay/payment/razorpay.rzpAdminMenu',
+					'status'        => true,
+					'sort_order'    => 1
+				]);
 
-            /* Rzp subscriptions tables */
-            $this->model_extension_razorpay_payment_razorpay->createTables();
-            $this->model_extension_razorpay_payment_razorpay->addLayout();
-        }
+				$this->load->model('extension/razorpay/payment/razorpay');
+
+				/* Rzp subscriptions tables */
+				$this->model_extension_razorpay_payment_razorpay->createTables();
+			}
+			$this->model_extension_razorpay_payment_razorpay->addLayout();
+		}
         catch(\Exception $e) {
             echo(json_encode($e->getMessage()));
             echo(json_encode($e->getTrace()));
