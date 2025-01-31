@@ -9,9 +9,22 @@ use Razorpay\Api\Errors;
 use Opencart\Admin\Controller\Extension\Razorpay\Payment\CreateWebhook;
 
 class Razorpay extends \Opencart\System\Engine\Controller {
-	const WEBHOOK_URL    = HTTP_CATALOG . 'index.php?route=extension/razorpay/payment/razorpay.webhook';
-	
+	private $webhookUrl    = '';
+
 	private $error = [];
+
+	private $separator = '';
+
+	public function __construct($registry) {
+		parent::__construct($registry);
+
+		if (VERSION >= '4.0.2.0') {
+			$this->separator = '.';
+		} else {
+			$this->separator = '|';
+		}
+		$this->webhookUrl = HTTP_CATALOG . 'index.php?route=extension/razorpay/payment/razorpay' . $this->separator . 'webhook';
+	}
 
 	public function index(): void {
 		try {
@@ -97,7 +110,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 				'separator' => ' :: ',
 			);
 
-            $data['save'] = $this->url->link('extension/razorpay/payment/razorpay.save', 'user_token=' . $this->session->data['user_token']);
+            $data['save'] = $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'save', 'user_token=' . $this->session->data['user_token']);
 
 			$data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', 'SSL');
 
@@ -171,6 +184,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 			$data['header'] 		= $this->load->controller('common/header');
 			$data['column_left'] 	= $this->load->controller('common/column_left');
 			$data['footer'] 		= $this->load->controller('common/footer');
+			$data['oc_version']		= VERSION;
 
 			$this->response->setOutput($this->load->view('extension/razorpay/payment/razorpay', $data));
 		}
@@ -236,7 +250,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 					$post['payment_razorpay_key_id'],
 					$post['payment_razorpay_key_secret'],
 					$this->config->get('payment_razorpay_webhook_secret'),
-					self::WEBHOOK_URL,
+					$this->webhookUrl,
 					$post['payment_razorpay_subscription_status']
 				);
 	
@@ -880,24 +894,26 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     {
         try
         {
-            $this->load->model('setting/event');
-            $this->model_setting_event->deleteEventByCode('razorpay_admin_menu');
+			if (VERSION >= '4.0.2.0'){
+				$this->load->model('setting/event');
+				$this->model_setting_event->deleteEventByCode('razorpay_admin_menu');
 
-            $this->model_setting_event->addEvent([
-                'code'          => 'razorpay_admin_menu',
-                'description'   => 'Razorpay Plans and Subscriptions',
-                'trigger'       => 'admin/view/common/column_left/before',
-                'action'        => 'extension/razorpay/payment/razorpay.rzpAdminMenu',
-                'status'        => true,
-                'sort_order'    => 1
-            ]);
-            
-            $this->load->model('extension/razorpay/payment/razorpay');
+				$this->model_setting_event->addEvent([
+					'code'          => 'razorpay_admin_menu',
+					'description'   => 'Razorpay Plans and Subscriptions',
+					'trigger'       => 'admin/view/common/column_left/before',
+					'action'        => 'extension/razorpay/payment/razorpay.rzpAdminMenu',
+					'status'        => true,
+					'sort_order'    => 1
+				]);
 
-            /* Rzp subscriptions tables */
-            $this->model_extension_razorpay_payment_razorpay->createTables();
-            $this->model_extension_razorpay_payment_razorpay->addLayout();
-        }
+				$this->load->model('extension/razorpay/payment/razorpay');
+
+				/* Rzp subscriptions tables */
+				$this->model_extension_razorpay_payment_razorpay->createTables();
+			}
+			$this->model_extension_razorpay_payment_razorpay->addLayout();
+		}
         catch(\Exception $e) {
             echo(json_encode($e->getMessage()));
             echo(json_encode($e->getTrace()));
@@ -905,9 +921,9 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     }
 
 	public function uninstall(): void {
-		try{ 
+		try{
 			$this->load->model('extension/razorpay/payment/razorpay');
-    	    
+
 			/* Rzp subscriptions tables */
 			$this->model_extension_razorpay_payment_razorpay->dropTables();
 		}

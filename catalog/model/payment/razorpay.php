@@ -48,6 +48,20 @@ class Razorpay extends \Opencart\System\Engine\Model {
         return $method_data;
     }
 
+	public function getMethod($address)
+	{
+
+		$this->language->load('extension/razorpay/payment/razorpay');
+
+		$method_data = array(
+			'code'          => 'razorpay',
+			'title'      => $this->language->get('heading_title'),
+			'sort_order'    => $this->config->get('payment_razorpay_sort_order'),
+		);
+
+		return $method_data;
+	}
+
 	public function editSetting($code, $data, $store_id = 0)
     {
         foreach ($data as $key => $value)

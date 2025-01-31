@@ -32,10 +32,18 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
     private $api;
 
-    public function __construct($registry)
+	private $separator = '';
+
+	public function __construct($registry)
     {
         parent::__construct($registry);
         $this->api = $this->getApiIntance();
+
+		if (VERSION >= '4.0.2.0') {
+			$this->separator = '.';
+		} else {
+			$this->separator = '|';
+		}
     }
 
 	public function index(): string {
@@ -190,7 +198,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         $data['phone'] = $order_info['telephone'];
         $data['name'] = $this->config->get('config_name');
         $data['lang'] = $this->config->get('language_code');
-        $data['return_url'] = $this->url->link('extension/razorpay/payment/razorpay.callback', '', 'true');
+        $data['return_url'] = $this->url->link('extension/razorpay/payment/razorpay' . $this->separator . 'callback', '', 'true');
         $data['version'] = $this->version;
         $data['oc_version'] = VERSION;
 
@@ -328,11 +336,19 @@ class Razorpay extends \Opencart\System\Engine\Controller {
                     $this->model_extension_razorpay_payment_razorpay->updateSubscription($subscriptionData, $razorpay_subscription_id);
                 }
 
-                if ($order_info['payment_method']['code'] === 'razorpay.razorpay' and
-                    $order_info['order_status_id'] === '0')
-                {
-                    $this->model_checkout_order->addHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id, true);
-                }
+				if (VERSION >= '4.0.2.0') {
+					if ($order_info['payment_method']['code'] === 'razorpay.razorpay' and
+						$order_info['order_status_id'] === '0')
+					{
+						$this->model_checkout_order->addHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id, true);
+					}
+				} else {
+					if ($order_info['payment_code'] === 'razorpay' and
+						$order_info['order_status_id'] === '0')
+					{
+						$this->model_checkout_order->addHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id, true);
+					}
+				}
                 $this->response->redirect($this->url->link('checkout/success', 'language=' . $this->config->get('config_language'), true));
             }
             catch (\Razorpay\Api\Errors\SignatureVerificationError $e)
