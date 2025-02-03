@@ -1085,9 +1085,12 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             $data['to_email'] = $voucher_info['to_email'];
         }
 
-        $this->load->model('sale/voucher_theme');
+        if (class_exists('VoucherTheme') === true)
+        {
+            $this->load->model('sale/voucher_theme');
 
-        $data['voucher_themes'] = $this->model_sale_voucher_theme->getVoucherThemes();
+            $data['voucher_themes'] = $this->model_sale_voucher_theme->getVoucherThemes();
+        }
 
         if (isset($this->request->post['voucher_theme_id']))
         {
