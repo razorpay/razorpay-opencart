@@ -97,8 +97,35 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
                     $order_subscription_info = $this->model_checkout_order->getSubscription($this->session->data['order_id'], $orderProductId['order_product_id']);
 
+                    $subscription_product_data = [];
+
+                    $products = $this->cart->getSubscriptions();
+
+                    foreach ($products as $product) {
+                        $subscription_product_data[] = [
+                            'order_product_id' => $orderProductId,
+                            'order_id'         => $this->session->data['order_id'],
+                            'product_id'       => $product['product_id'],
+                            'name'             => $product['name'],
+                            'model'            => $product['model'],
+                            'quantity'         => $product['quantity'],
+                            'trial_price'      => $product['subscription']['trial_price'],
+                            'price'            => $product['subscription']['price'],
+                            'option'           => $product['option']
+                        ];
+                    }
+
+                    $subscription_data = [
+                        'subscription_product' => $subscription_product_data,
+                        'trial_price'          => array_sum(array_column($subscription_product_data, 'trial_price')),
+                        'price'                => array_sum(array_column($subscription_product_data, 'price')),
+                        'store_id'             => $this->config->get('config_store_id'),
+                        'language'             => $this->config->get('config_language'),
+                        'currency'             => $this->session->data['currency']
+                    ];
+
                     // Add subscription
-                    $subscription_id = $this->model_checkout_subscription->addSubscription(array_merge($order_subscription_info, $cartDetails[$cart_id], $order_info));
+                    $subscription_id = $this->model_checkout_subscription->addSubscription(array_merge($order_subscription_info, $cartDetails[$cart_id], $order_info, $subscription_data));
 
                     $this->log->write("RZP subscriptionID (:" . $subscription_order['id'] . ") created for Opencart OrderID (:" . $this->session->data['order_id'] . ")");
                 }
