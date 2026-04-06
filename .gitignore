@@ -1,2 +1,32 @@
+# OS Files
 .DS_Store
 system/library/.DS_Store
+Thumbs.db
+
+# Composer
+/vendor/
+composer.lock
+
+# PHPUnit & Testing
+/tests/coverage/
+/tests/logs/
+.phpunit.result.cache
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
+error_log
+debug.log
+
+# Build artifacts
+*.phar

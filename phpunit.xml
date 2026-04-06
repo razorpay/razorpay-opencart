@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         colors="true"
+         verbose="true"
+         testdox="true"
+         stopOnFailure="false">
+    <testsuites>
+        <testsuite name="Unit Tests">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Integration Tests">
+            <directory>tests/Integration</directory>
+        </testsuite>
+    </testsuites>
+
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">admin/controller</directory>
+            <directory suffix=".php">admin/model</directory>
+            <directory suffix=".php">catalog/controller</directory>
+            <directory suffix=".php">catalog/model</directory>
+        </include>
+        <exclude>
+            <directory>system/library/razorpay/razorpay-sdk</directory>
+            <directory>tests</directory>
+        </exclude>
+        <report>
+            <html outputDirectory="tests/coverage"/>
+            <text outputFile="php://stdout" showUncoveredFiles="false"/>
+        </report>
+    </coverage>
+
+    <php>
+        <const name="DB_PREFIX" value="oc_"/>
+        <const name="VERSION" value="4.0.2.3"/>
+        <const name="HTTP_CATALOG" value="http://localhost/opencart/"/>
+        <const name="HTTP_SERVER" value="http://localhost/opencart/"/>
+        <!-- Set these in .env file or environment variables -->
+        <!-- <env name="RAZORPAY_KEY_ID" value=""/> -->
+        <!-- <env name="RAZORPAY_KEY_SECRET" value=""/> -->
+        <!-- <env name="RAZORPAY_WEBHOOK_SECRET" value=""/> -->
+    </php>
+
+    <logging>
+        <junit outputFile="tests/logs/junit.xml"/>
+    </logging>
+</phpunit>
