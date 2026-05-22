@@ -45,6 +45,17 @@ class CreateWebhook
         ]
     ];
 
+    /**
+     * Opaque flag codes mirroring DCS::FLAG_* constants in razorpay/hosted.
+     * See: razorpay/hosted#1200 (app/Services/DCS.php)
+     */
+    private static $featureFlagCodes = [
+        'subscriptions'            => 1,
+        'direct_transfer'          => 2,
+        'affordability_widget_set' => 3,
+        'affordability_widget'     => 4,
+    ];
+
     function __construct($keyId, $keySecret, $webhookSecret, $webhookUrl,$subscriptionStatus)
     {
         $this->keyId = $keyId;
@@ -208,20 +219,30 @@ class CreateWebhook
 
     protected function getMerchantFeatureFlagStatus($flag)
     {
-        $api = $this->getApiIntance();
-
-        $features = $api->request->request('GET', 'accounts/me/features');
-
-        foreach ($features['assigned_features'] as $feature)
+        if (isset(self::$featureFlagCodes[$flag]) === false)
         {
-            if($feature['name'] === $flag and
-                $feature['entity_type'] === 'merchant')
-            {
-                return true;
-            }
+            $this->log->write('Unknown feature flag: ' . $flag);
+
+            return false;
         }
 
-        return false;
+        $flagCode = self::$featureFlagCodes[$flag];
+        // MODE_LIVE = 1, MODE_TEST = 2 (mirrors DCS::MODE_* in razorpay/hosted#1200)
+        $modeCode = (strpos($this->keyId, 'rzp_test_') === 0) ? 2 : 1;
+
+        try
+        {
+            $api      = $this->getApiIntance();
+            $response = $api->request->request('GET', 'app/merchant/api/verify/' . $flagCode . '/' . $modeCode);
+
+            return isset($response['enabled']) ? (bool) $response['enabled'] : false;
+        }
+        catch (\Exception $e)
+        {
+            $this->log->write('Error fetching feature flag via DCS: ' . $e->getMessage());
+
+            return false;
+        }
     }
 
     protected function getApiIntance()
