@@ -46,14 +46,10 @@ class CreateWebhook
     ];
 
     /**
-     * Opaque flag codes mirroring DCS::FLAG_* constants in razorpay/hosted.
-     * See: razorpay/hosted#1200 (app/Services/DCS.php)
+     * Opaque flag codes mirroring 
      */
     private static $featureFlagCodes = [
-        'subscriptions'            => 1,
-        'direct_transfer'          => 2,
-        'affordability_widget_set' => 3,
-        'affordability_widget'     => 4,
+        'subscriptions'            => 1
     ];
 
     function __construct($keyId, $keySecret, $webhookSecret, $webhookUrl,$subscriptionStatus)
@@ -227,7 +223,7 @@ class CreateWebhook
         }
 
         $flagCode = self::$featureFlagCodes[$flag];
-        // MODE_LIVE = 1, MODE_TEST = 2 (mirrors DCS::MODE_* in razorpay/hosted#1200)
+        // MODE_LIVE = 1, MODE_TEST = 2 
         $modeCode = (strpos($this->keyId, 'rzp_test_') === 0) ? 2 : 1;
 
         try
