@@ -223,7 +223,7 @@ class CreateWebhook
         }
 
         $flagCode = self::$featureFlagCodes[$flag];
-        // MODE_LIVE = 1, MODE_TEST = 2 
+
         $modeCode = (strpos($this->keyId, 'rzp_test_') === 0) ? 2 : 1;
 
         try
@@ -235,7 +235,7 @@ class CreateWebhook
         }
         catch (\Exception $e)
         {
-            $this->log->write('Error fetching feature flag via DCS: ' . $e->getMessage());
+            $this->log->write('Error fetching feature flag from api ' . $e->getMessage());
 
             return false;
         }
