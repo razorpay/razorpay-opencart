@@ -27,7 +27,7 @@ class ControllerExtensionPaymentRazorpay extends Controller
     ];
 
     // Set RZP plugin version
-    private $version = '5.1.8';
+    private $version = '5.2.0';
 
     private $api;
 

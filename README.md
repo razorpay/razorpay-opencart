@@ -56,11 +56,13 @@ Set the cron job in your WHMCS site server to call the Cron URL in every 5 mins 
 
 ### Development
 
-- The `master` branch holds the plugin for OpenCart 3
-- The `opencart-2.x` branch holds the plugin for Opencart 2
-- The `opencart1.5` branch holds the plugin for Opencart 1.5
-- Tags are in either of these three series: `opencart3-x.y.z` or `opencart2-x.y.z` or `opencart1.5-1.x.y`
+- The `master` branch holds the plugin for OpenCart 4
+- The `master-opencart3` branch holds the plugin for OpenCart 3
+- Tags are in either of these three series: `opencart3-x.y.z` or `opencart4-x.y.z` 
 - Subscription is only available with Opencart 3
+
+### Notice: Deprecation of Support for OpenCart < 3.0
+Technical support and updates are no longer available for versions below OpenCart 3. To ensure security, stability, and compatibility, please upgrade your store to OpenCart 3.0 or higher.
 
 ### Support
 
