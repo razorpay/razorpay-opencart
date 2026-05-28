@@ -45,6 +45,13 @@ class CreateWebhook
         ]
     ];
 
+    /**
+     * Opaque flag codes mirroring 
+     */
+    private static $featureFlagCodes = [
+        'subscriptions'            => 1
+    ];
+
     function __construct($keyId, $keySecret, $webhookSecret, $webhookUrl,$subscriptionStatus)
     {
         $this->keyId = $keyId;
@@ -208,20 +215,30 @@ class CreateWebhook
 
     protected function getMerchantFeatureFlagStatus($flag)
     {
-        $api = $this->getApiIntance();
-
-        $features = $api->request->request('GET', 'accounts/me/features');
-
-        foreach ($features['assigned_features'] as $feature)
+        if (isset(self::$featureFlagCodes[$flag]) === false)
         {
-            if($feature['name'] === $flag and
-                $feature['entity_type'] === 'merchant')
-            {
-                return true;
-            }
+            $this->log->write('Unknown feature flag: ' . $flag);
+
+            return false;
         }
 
-        return false;
+        $flagCode = self::$featureFlagCodes[$flag];
+
+        $modeCode = (strpos($this->keyId, 'rzp_test_') === 0) ? 2 : 1;
+
+        try
+        {
+            $api      = $this->getApiIntance();
+            $response = $api->request->request('GET', 'app/merchant/api/verify/' . $flagCode . '/' . $modeCode);
+
+            return isset($response['enabled']) ? (bool) $response['enabled'] : false;
+        }
+        catch (\Exception $e)
+        {
+            $this->log->write('Error fetching feature flag from api ' . $e->getMessage());
+
+            return false;
+        }
     }
 
     protected function getApiIntance()
