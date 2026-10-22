@@ -35,13 +35,13 @@ class Razorpay extends \Opencart\System\Engine\Model {
 
         $option_data['razorpay'] = [
             'code' => 'razorpay.razorpay',
-            'name' => $this->language->get('text_title')
+            'name' => $this->config->get('payment_razorpay_title') ?: $this->language->get('text_title')
         ];
 
         $method_data = array(
             'code'          => 'razorpay',
             'option'        => $option_data,
-            'name'          => $this->language->get('heading_title'),
+            'name'          => $this->config->get('payment_razorpay_title') ?: $this->language->get('heading_title'),
             'sort_order'    => $this->config->get('payment_razorpay_sort_order'),
         );
 
@@ -55,7 +55,7 @@ class Razorpay extends \Opencart\System\Engine\Model {
 
 		$method_data = array(
 			'code'          => 'razorpay',
-			'title'      => $this->language->get('heading_title'),
+			'title'      => $this->config->get('payment_razorpay_title') ?: $this->language->get('heading_title'),
 			'sort_order'    => $this->config->get('payment_razorpay_sort_order'),
 		);
 

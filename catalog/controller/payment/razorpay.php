@@ -28,7 +28,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
     ];
 
     // Set RZP plugin version
-    private $version = '7.0.0';
+    private $version = '7.0.1';
 
     private $api;
 
