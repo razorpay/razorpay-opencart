@@ -47,6 +47,8 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 			$data['entry_order_status'] 		= $this->language->get('entry_order_status');
 			$data['entry_status'] 				= $this->language->get('entry_status');
 			$data['entry_sort_order'] 			= $this->language->get('entry_sort_order');
+			$data['entry_payment_title'] = $this->language->get('entry_payment_title');
+			$data['help_payment_title'] = $this->language->get('help_payment_title');
 			$data['entry_payment_action'] 		= $this->language->get('entry_payment_action');
 			$data['entry_subscription_status'] 	= $this->language->get('entry_subscription_status');
 			$data['button_save'] 				= $this->language->get('button_save');
@@ -162,6 +164,8 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 				$data['razorpay_sort_order'] = $this->config->get('payment_razorpay_sort_order');
 			}
 
+			$data['razorpay_payment_title'] = $this->config->get('payment_razorpay_title') ?? '';
+
 			if (isset($post['payment_razorpay_payment_action']))
 			{
 				$data['razorpay_payment_action'] = $post['payment_razorpay_payment_action'];
@@ -194,6 +198,17 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 		}
 	}
 
+	private function getPaymentTitleFromRequest(): ?string
+	{
+		if (!array_key_exists('payment_razorpay_title', $this->request->post)) {
+			$title = $this->config->get('payment_razorpay_title');
+			return is_string($title) ? trim($title) : '';
+		}
+
+		$title = $this->request->post['payment_razorpay_title'];
+		return is_string($title) ? trim(htmlspecialchars_decode($title, ENT_COMPAT)) : null;
+	}
+
 	protected function validate()
     {
 		$postStr = explode("&", file_get_contents('php://input'));
@@ -218,6 +233,12 @@ class Razorpay extends \Opencart\System\Engine\Controller {
             $this->error['payment_razorpay_key_secret'] = $this->language->get('error_key_secret');
         }
 
+		$title = $this->getPaymentTitleFromRequest();
+		if ($title === null || !mb_check_encoding($title, 'UTF-8') || mb_strlen($title, 'UTF-8') > 128 || preg_match('/[<>\x00-\x1F\x7F]/', $title))
+		{
+			$this->error['payment_razorpay_title'] = $this->language->get('error_payment_title');
+		}
+
         if (!$this->error)
         {
             return true;
@@ -233,6 +254,7 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 		$configData = [];
 		$json = [];
 		$post = $this->getKeyValueArray(file_get_contents('php://input'));
+		$post['payment_razorpay_title'] = $this->getPaymentTitleFromRequest() ?? '';
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate())
 		{
@@ -279,6 +301,10 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 
 		if (!$this->user->hasPermission('modify', 'extension/razorpay/payment/razorpay')) {
 			$json['error'] = $this->language->get('error_permission');
+		}
+
+		if (!isset($json['error']) && isset($this->error['payment_razorpay_title'])) {
+			$json['error'] = $this->error['payment_razorpay_title'];
 		}
 
 		if (!$json) {

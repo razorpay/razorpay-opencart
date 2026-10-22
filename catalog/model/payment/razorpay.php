@@ -32,16 +32,18 @@ class Razorpay extends \Opencart\System\Engine\Model {
 	public function getMethods($address)
     {
         $this->language->load('extension/razorpay/payment/razorpay');
+        $title = $this->config->get('payment_razorpay_title');
+        $title = is_string($title) && $title !== '' ? $title : null;
 
         $option_data['razorpay'] = [
             'code' => 'razorpay.razorpay',
-            'name' => $this->language->get('text_title')
+            'name' => $title ?? $this->language->get('text_title')
         ];
 
         $method_data = array(
             'code'          => 'razorpay',
             'option'        => $option_data,
-            'name'          => $this->language->get('heading_title'),
+            'name'          => $title ?? $this->language->get('heading_title'),
             'sort_order'    => $this->config->get('payment_razorpay_sort_order'),
         );
 
@@ -52,10 +54,12 @@ class Razorpay extends \Opencart\System\Engine\Model {
 	{
 
 		$this->language->load('extension/razorpay/payment/razorpay');
+		$title = $this->config->get('payment_razorpay_title');
+		$title = is_string($title) && $title !== '' ? $title : null;
 
 		$method_data = array(
 			'code'          => 'razorpay',
-			'title'      => $this->language->get('heading_title'),
+			'title'      => $title ?? $this->language->get('heading_title'),
 			'sort_order'    => $this->config->get('payment_razorpay_sort_order'),
 		);
 
