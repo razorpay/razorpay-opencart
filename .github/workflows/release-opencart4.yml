@@ -10,7 +10,7 @@ permissions:
 jobs:
   package:
     if: startsWith(github.event.release.tag_name, 'opencart4-') && github.event.release.target_commitish == 'master'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     env:
@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Check out release tag
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.release.tag_name }}
           fetch-depth: 0
