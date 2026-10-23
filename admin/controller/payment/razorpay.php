@@ -164,7 +164,10 @@ class Razorpay extends \Opencart\System\Engine\Controller {
 				$data['razorpay_sort_order'] = $this->config->get('payment_razorpay_sort_order');
 			}
 
-			$data['razorpay_payment_title'] = $this->config->get('payment_razorpay_title') ?? '';
+			$paymentTitle = $this->config->get('payment_razorpay_title');
+			$data['razorpay_payment_title'] = is_string($paymentTitle) && $paymentTitle !== ''
+				? $paymentTitle
+				: $this->language->get('text_default_payment_title');
 
 			if (isset($post['payment_razorpay_payment_action']))
 			{
