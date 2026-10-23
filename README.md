@@ -44,6 +44,7 @@ While installing the Razorpay plugin to Opencart 4 make sure to only have these 
 - The `master` branch holds the plugin for OpenCart 4
 - The `master-opencart3` branch holds the plugin for OpenCart 3
 - Tags are in either of these three series: `opencart3-x.y.z` or `opencart4-x.y.z` 
+- Publishing an `opencart4-x.y.z` release from `master` automatically attaches `razorpay.ocmod.zip`. The tag version must match `install.json`.
 - Subscription is available with Opencart 3 and Opencart 4(version 4.0.2.0 onwards)
 - Opencart 3 and Opencart 4 latest versions support PHP 8
 
