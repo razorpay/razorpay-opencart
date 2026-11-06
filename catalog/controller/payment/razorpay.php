@@ -997,8 +997,15 @@ class Razorpay extends \Opencart\System\Engine\Controller {
         }
         try
         {
-            $subscriptionData = $this->api->subscription->fetch($subscription_id)->cancel(array('cancel_at_cycle_end'=>0));
             $this->load->model('extension/razorpay/payment/razorpay');
+            $existingSubscription = $this->model_extension_razorpay_payment_razorpay->getSubscriptionById($subscription_id);
+
+            if (empty($existingSubscription) || (int)$existingSubscription['opencart_user_id'] !== (int)$this->customer->getId())
+            {
+                throw new \Razorpay\Api\Errors\Error('Subscription not found', null, 404);
+            }
+
+            $subscriptionData = $this->api->subscription->fetch($subscription_id)->cancel(array('cancel_at_cycle_end'=>0));
 
             $this->model_extension_razorpay_payment_razorpay->updateSubscriptionStatus($subscription_id,$subscriptionData->status, "user" );
 
